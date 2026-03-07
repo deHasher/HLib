@@ -1,0 +1,73 @@
+name: ${lib_name}
+version: "${lib_version_plugin}"
+main: ${lib_path}.platform.bukkit.${lib_name}
+api-version: "${api_version_paper}"
+
+author: ${author}
+website: ${url_site}
+
+dependencies:
+  server:
+    FastAsyncWorldEdit:
+      load: BEFORE
+      required: false
+    PlaceholderAPI:
+      load: BEFORE
+      required: false
+    UltimateTimber:
+      load: BEFORE
+      required: false
+    MobFarmManager:
+      load: BEFORE
+      required: false
+    LibsDisguises:
+      load: BEFORE
+      required: false
+    ChunkyBorder:
+      load: BEFORE
+      required: false
+    DeluxeMenus:
+      load: BEFORE
+      required: false
+    ProtocolLib:
+      load: BEFORE
+      required: false
+    GadgetsMenu:
+      load: BEFORE
+      required: false
+    WorldGuard:
+      load: BEFORE
+      required: false
+    ItemsAdder:
+      load: BEFORE
+      required: false
+    emotecraft:
+      load: BEFORE
+      required: false
+    ajParkour:
+      load: BEFORE
+      required: false
+    WorldEdit:
+      load: BEFORE
+      required: false
+    LuckPerms:
+      load: BEFORE
+      required: false
+    ItemJoin:
+      load: BEFORE
+      required: false
+    LiteBans:
+      load: BEFORE
+      required: false
+    Spark:
+      load: BEFORE
+      required: false
+    Vault:
+      load: BEFORE
+      required: false
+    TAB:
+      load: BEFORE
+      required: false
+    CMI:
+      load: BEFORE
+      required: false

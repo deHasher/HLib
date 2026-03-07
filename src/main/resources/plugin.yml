@@ -1,0 +1,30 @@
+name: ${lib_name}
+version: "${lib_version_plugin}"
+main: ${lib_path}.platform.bukkit.${lib_name}
+api-version: "${api_version_bukkit}"
+
+author: ${author}
+website: ${url_site}
+
+softdepend:
+  - FastAsyncWorldEdit
+  - PlaceholderAPI
+  - UltimateTimber
+  - MobFarmManager
+  - LibsDisguises
+  - ChunkyBorder
+  - DeluxeMenus
+  - ProtocolLib
+  - GadgetsMenu
+  - WorldGuard
+  - ItemsAdder
+  - emotecraft
+  - ajParkour
+  - WorldEdit
+  - LuckPerms
+  - ItemJoin
+  - LiteBans
+  - Spark
+  - Vault
+  - TAB
+  - CMI
