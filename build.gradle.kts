@@ -137,6 +137,8 @@ tasks {
             include(dependency("dnsjava:.*"))
             include(dependency("org.gagravarr:.*"))
         }
+
+        relocate("de.tr7zw.changeme.nbtapi", project.properties["lib_path"].toString() + ".shaded.nbt")
     }
 
     processResources {
