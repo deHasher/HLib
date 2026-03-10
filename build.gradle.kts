@@ -119,7 +119,7 @@ val generateTokenizedJava by tasks.registering {
 tasks {
     shadowJar {
         isZip64 = true
-        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         archiveFileName.set(project.properties["lib_name"].toString() + ".jar")
         destinationDirectory.set(file("$rootDir/result/"))
 
