@@ -132,8 +132,7 @@ public class Cooldowner {
         ANTIRELOG_CHORUS_FRUIT(false),
         ANTIRELOG_GOLDEN_APPLE(false),
         ANTIRELOG_ENCHANTED_GOLDEN_APPLE(false),
-        ANTIRELOG_ENDER_PEARL(false),
-        ANTIRELOG_TRIDENT(false);
+        ANTIRELOG_ENDER_PEARL(false);
 
         private final boolean strict;
 
