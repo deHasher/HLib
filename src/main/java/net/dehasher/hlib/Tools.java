@@ -619,7 +619,7 @@ public class Tools {
     }
 
     // Получить данные скина игрока.
-    @SuppressWarnings("DuplicatedCode")
+    @SuppressWarnings({"DuplicatedCode", "SizeReplaceableByIsEmpty"})
     public static JsonObject getPlayerSkinData(UUID input) {
         String uuid = input.toString().replace("-", "").toLowerCase();
         String json = Informer.url("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid);
@@ -635,7 +635,7 @@ public class Tools {
         if (jsonObject == null || !jsonObject.has("properties")) return null;
 
         JsonArray propertiesArray = jsonObject.getAsJsonArray("properties");
-        if (propertiesArray == null || propertiesArray.isEmpty()) return null;
+        if (propertiesArray == null || propertiesArray.size() == 0) return null;
 
         JsonObject property = propertiesArray.get(0).getAsJsonObject();
         if (property == null || !property.has("value")) return null;
