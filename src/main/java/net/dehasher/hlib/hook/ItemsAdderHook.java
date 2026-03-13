@@ -26,6 +26,15 @@ public class ItemsAdderHook {
         return customStack.getItemStack().getItemMeta().getCustomModelData();
     }
 
+    public static boolean hasPermission(CustomStack customStack) {
+        if (customStack == null) return false;
+        try {
+            return customStack.hasPermission();
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
     @SuppressWarnings({"UnreachableCode", "SimplifiableConditionalExpression"})
     public static CustomStack getCustomItem(String item) {
         CustomStack customStack = CustomStack.getInstance(item);
