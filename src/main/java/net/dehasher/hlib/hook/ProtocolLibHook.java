@@ -147,6 +147,7 @@ public class ProtocolLibHook {
             return setup(stand.getEntityID(), invisible, noGravity, name);
         }
 
+        @SuppressWarnings("removal")
         public static WrapperPlayServerEntityMetadata setup(int standID, boolean invisible, boolean noGravity, String name) {
             WrapperPlayServerEntityMetadata meta = new WrapperPlayServerEntityMetadata();
             List<WrappedWatchableObject> list = Lists.newArrayList();
