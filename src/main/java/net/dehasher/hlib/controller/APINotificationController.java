@@ -42,6 +42,7 @@ public class APINotificationController {
         ON_ENABLE,
         ON_DISABLE,
         ON_THROWN,
-        IS_WHITELIST_ENABLED
+        IS_WHITELIST_ENABLED,
+        OTHER
     }
 }
