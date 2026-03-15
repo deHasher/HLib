@@ -23,6 +23,7 @@ public class NMS {
     public static PotionEffectType SLOWNESS;
     public static PotionEffectType NAUSEA;
     public static PotionEffectType MINING_FATIGUE;
+    public static PotionEffectType WEAVING;
 
     public static Particle LARGE_SMOKE;
     public static Particle DUST;
@@ -52,6 +53,8 @@ public class NMS {
 
         MINING_FATIGUE = PotionEffectType.getByName("SLOW_DIGGING");
         if (MINING_FATIGUE == null) MINING_FATIGUE = PotionEffectType.getByName("MINING_FATIGUE");
+
+        WEAVING = PotionEffectType.getByName("WEAVING");
 
         try {
             LARGE_SMOKE = Particle.valueOf("SMOKE_LARGE");
