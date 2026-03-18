@@ -52,6 +52,7 @@ dependencies {
     compileOnly(files("libs/TAB.jar"))
     compileOnly(files("libs/emotecraft.jar"))
     compileOnly(files("libs/ProtocolLib.jar"))
+    compileOnly(files("libs/ItemJoin.jar"))
 
     // Это платные плагины, у Вас их не будет.
     compileOnly(files("libs/CMI.jar"))
