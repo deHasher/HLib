@@ -105,7 +105,7 @@ public class ItemsController {
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean isBundle(ItemStack item) {
-        return item.getType().name().equalsIgnoreCase("BUNDLE");
+        return item.getType().name().endsWith("BUNDLE");
     }
 
     public static boolean isPickaxe(ItemStack item) {

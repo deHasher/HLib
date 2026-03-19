@@ -8,6 +8,7 @@ import lombok.Getter;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.dehasher.hlib.controller.ItemsController;
 import net.dehasher.hlib.controller.StorageController;
+import net.dehasher.hlib.data.BukkitVersion;
 import net.dehasher.hlib.data.Plugin;
 import net.dehasher.hlib.hook.ItemsAdderHook;
 import org.bukkit.Color;
@@ -48,6 +49,8 @@ public class ItemBuilder {
     private boolean isShield;
     private Integer customModelData;
     private boolean useCustomModelData;
+    private String itemModel;
+    private boolean useItemModel;
     private final List<ItemFlag> itemFlags;
     private final Map<String, String> nbt;
 
@@ -72,6 +75,8 @@ public class ItemBuilder {
         this.isShield           = false;
         this.customModelData    = 0;
         this.useCustomModelData = false;
+        this.itemModel          = "";
+        this.useItemModel       = false;
         this.itemFlags          = Lists.newArrayList();
         this.nbt                = new ConcurrentHashMap<>();
     }
@@ -97,6 +102,8 @@ public class ItemBuilder {
         this.isShield = itemBuilder.isShield;
         this.customModelData = itemBuilder.customModelData;
         this.useCustomModelData = itemBuilder.useCustomModelData;
+        this.itemModel = itemBuilder.itemModel;
+        this.useItemModel = itemBuilder.useItemModel;
         this.itemFlags = Lists.newArrayList(itemBuilder.itemFlags);
         this.nbt = new ConcurrentHashMap<>(itemBuilder.nbt);
     }
@@ -137,7 +144,11 @@ public class ItemBuilder {
                 if (customStack != null) {
                     ItemStack itemStack = customStack.getItemStack();
                     material = itemStack.getType().name();
-                    setCustomModelData(itemStack.getItemMeta().getCustomModelData());
+                    if (Tools.requireBukkitVersion(BukkitVersion.V1_21) && ItemsAdderHook.hasItemModel(customStack)) {
+                        setItemModel(ItemsAdderHook.getItemModel(customStack));
+                    } else {
+                        setCustomModelData(ItemsAdderHook.getCustomModelData(customStack));
+                    }
                 }
             }
         }
@@ -150,6 +161,14 @@ public class ItemBuilder {
     public ItemBuilder setCustomModelData(Integer integer) {
         this.useCustomModelData = integer != null && integer > 0;
         this.customModelData = integer;
+        return this;
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
+    public ItemBuilder setItemModel(String modelPath) {
+        if (!Tools.requireBukkitVersion(BukkitVersion.V1_21)) return this;
+        this.useItemModel = modelPath != null && !modelPath.isEmpty();
+        this.itemModel = modelPath;
         return this;
     }
 
@@ -284,6 +303,11 @@ public class ItemBuilder {
                 } else compound.setString(key, value);
             });
         });
+        if (Tools.requireBukkitVersion(BukkitVersion.V1_21) && useItemModel) {
+            NBT.modifyComponents(item, nbt -> {
+                nbt.setString("minecraft:item_model", itemModel);
+            });
+        }
 
         return item;
     }

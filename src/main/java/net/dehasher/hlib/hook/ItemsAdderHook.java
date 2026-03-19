@@ -4,6 +4,8 @@ import dev.lone.itemsadder.api.CustomStack;
 import dev.lone.itemsadder.api.ItemsAdder;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,6 +41,26 @@ public class ItemsAdderHook {
     public static CustomStack getCustomItem(String item) {
         CustomStack customStack = CustomStack.getInstance(item);
         return customStack != null ? customStack : null;
+    }
+
+    public static boolean hasItemModel(CustomStack customStack) {
+        if (customStack == null) return false;
+        return !customStack.getItemStack().getItemMeta().hasCustomModelData();
+    }
+
+    public static boolean hasCustomModelData(CustomStack customStack) {
+        if (customStack == null) return false;
+        return customStack.getItemStack().getItemMeta().hasCustomModelData();
+    }
+
+    public static @Nullable Integer getCustomModelData(CustomStack customStack) {
+        if (!hasCustomModelData(customStack)) return null;
+        return customStack.getItemStack().getItemMeta().getCustomModelData();
+    }
+
+    public static @Nullable String getItemModel(CustomStack customStack) {
+        if (!hasItemModel(customStack)) return null;
+        return customStack.getNamespace() + ":ia_auto/" + customStack.getId();
     }
 
     public static Set<String> getAllCustomItems() {
