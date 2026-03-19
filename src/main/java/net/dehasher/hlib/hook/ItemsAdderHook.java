@@ -22,10 +22,10 @@ public class ItemsAdderHook {
         return CustomStack.getInstance(customStack.getNamespacedID());
     }
 
-    public static int getCustomModelData(String namespace) {
-        CustomStack customStack = getCustomItem(namespace);
-        if (customStack == null) return 0;
-        return customStack.getItemStack().getItemMeta().getCustomModelData();
+    @SuppressWarnings({"UnreachableCode", "SimplifiableConditionalExpression"})
+    public static CustomStack getCustomItem(String item) {
+        CustomStack customStack = CustomStack.getInstance(item);
+        return customStack != null ? customStack : null;
     }
 
     public static boolean hasPermission(CustomStack customStack) {
@@ -35,12 +35,6 @@ public class ItemsAdderHook {
         } catch (Throwable t) {
             return false;
         }
-    }
-
-    @SuppressWarnings({"UnreachableCode", "SimplifiableConditionalExpression"})
-    public static CustomStack getCustomItem(String item) {
-        CustomStack customStack = CustomStack.getInstance(item);
-        return customStack != null ? customStack : null;
     }
 
     public static boolean hasItemModel(CustomStack customStack) {
