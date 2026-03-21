@@ -140,6 +140,6 @@ public class EmoteCraftHook {
     }
 
     public enum Emotes {
-        PISS, KISS, CRY, VOMIT, RAPE_FUCKER, RAPE_VICTIM
+        PISS, KISS, CRY, VOMIT, RF, RV
     }
 }
