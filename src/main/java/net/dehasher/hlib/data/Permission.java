@@ -12,10 +12,12 @@ public enum Permission {
     CMI_SEEVANISHED(false),
 
     HCONTRACTS_HIDE(false), // На игрока с этим правом нельзя взять контракт.
+    HCLANS_USE(false), // Позволяет использовать команду /clans.
     HCLANS_ADMIN(true), // Позволяет удалять чужие кланы и перезагружать плагин.
     HCLANS_SPY(false), // Позволяет следить за сообщениями кланов.
     HSEX_BYPASS(false), // Позволяет ебаца без кд и со своим полом. (осуждаю)
     HANTIRELOG_BYPASS(false), // Позволяет обходить антирелог.
+    HMARRY_USE(false), // Позволяет использовать команду /marry.
     HMARRY_SPY(false), // Позволяет следить за сообщениями пар.
     HMARRY_ADMIN(true), // Позволяет перезагружать плагин.
 
