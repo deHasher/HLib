@@ -218,6 +218,7 @@ public class Tools {
         if (permission != null) {
             if (permission.isStrict() && isStrictServer() && !isOwner(player)) return false; // Мало ли у меня айпи хуйня?
             if (player.hasPermission(permission.getValue() + generatePerm(custom))) return true;
+            if (permission.isAdminSkip()) return false;
         }
         return isAdmin(Info.admins, player.getName());
     }
@@ -228,6 +229,7 @@ public class Tools {
         if (permission != null) {
             if (permission.isStrict() && isStrictServer() && !isOwner(player)) return false;
             if (player.hasPermission(permission.getValue() + generatePerm(custom))) return true;
+            if (permission.isAdminSkip()) return false;
         }
         return isAdmin(Info.admins, player.getUsername());
     }
