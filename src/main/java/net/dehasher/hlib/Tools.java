@@ -216,7 +216,7 @@ public class Tools {
     public static boolean isPerm(org.bukkit.entity.Player player, Permission permission, Object... custom) {
         if (player == null) return false;
         if (permission != null) {
-            if (permission.isStrict() && isStrictServer() && !isOwner(player)) return false; // Мало ли у меня айпи хуйня?
+            if (permission.isStrict() && isStrictServer() && !isOwner(player)) return false;
             if (player.hasPermission(permission.getValue() + generatePerm(custom))) return true;
             if (permission.isAdminSkip()) return false;
         }
@@ -1017,11 +1017,6 @@ public class Tools {
             Informer.send("======================");
         }
         return result;
-    }
-
-    // Удалить все символы в строке, которые переворачивают её в другую сторону.
-    public static String removeInvertChars(String input) {
-        return CompiledPattern.INVERT_CHARS.matcher(input).replaceAll("");
     }
 
     // Получить динамичное значение в строке по типу 123 или 123-321.
