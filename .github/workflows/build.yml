@@ -39,7 +39,7 @@ jobs:
         id: "meta"
         shell: "bash"
         run: |
-          VERSION="$(grep -E '^lib_version_plugin=' gradle.properties | head -n 1 | cut -d'=' -f2- | tr -d '\r')"
+          VERSION="$(sed -n 's/^lib_version_plugin[[:space:]]*=[[:space:]]*//p' gradle.properties | head -n 1 | tr -d '\r')"
 
           if [ -z "$VERSION" ]; then
           	echo "Property \"lib_version_plugin\" not found in gradle.properties."
