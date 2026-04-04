@@ -5,9 +5,3 @@
 target/
 build/
 test/
-
-# Сами покупайте эти плагины :^
-libs/BotSentry.jar
-libs/CMI.jar
-libs/MobFarmManager.jar
-libs/TokenManager.jar

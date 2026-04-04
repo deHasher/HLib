@@ -53,12 +53,13 @@ dependencies {
     compileOnly(files("libs/emotecraft.jar"))
     compileOnly(files("libs/ProtocolLib.jar"))
     compileOnly(files("libs/ItemJoin.jar"))
-
-    // Это платные плагины, у Вас их не будет.
-    compileOnly(files("libs/CMI.jar"))
-    compileOnly(files("libs/MobFarmManager.jar"))
     compileOnly(files("libs/TokenManager.jar"))
-    compileOnly(files("libs/BotSentry.jar"))
+
+    // Это слитые платные плагины с сайтов по типу black-minecraft.
+    // Не используйте их для собственной безопасности, они нужны ТОЛЬКО для компиляции проекта.
+    compileOnly(files("libs/CMI-LEAKED.jar"))
+    compileOnly(files("libs/MobFarmManager-LEAKED.jar"))
+    compileOnly(files("libs/BotSentry-LEAKED.jar"))
 
     // Аннотации.
     annotationProcessor("com.velocitypowered",        "velocity-api",        project.properties["dependency_version_velocity"].toString())
