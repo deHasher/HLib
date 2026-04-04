@@ -9,6 +9,7 @@ import net.dehasher.hlib.data.Plugin;
 import net.dehasher.hlib.hook.PlaceholderAPIHook;
 import net.dehasher.hlib.platform.velocity.HLib;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ public class Informer {
     }
 
     public static Component parseComponent(String message) {
-        return Colors.setComponent(Tools.replacePlaceholders(message));
+        return Colors.setComponent(Tools.replacePlaceholders(message)).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
     }
 
     public static List<Component> parseComponent(List<String> message) {
