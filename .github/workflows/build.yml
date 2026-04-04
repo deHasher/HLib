@@ -1,0 +1,85 @@
+name: build
+
+on:
+  push:
+    branches:
+      - "master"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "build-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: "Setup Java 17"
+        uses: actions/setup-java@v5
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: "Setup Gradle cache"
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: "Make gradlew executable"
+        run: chmod +x ./gradlew
+
+      - name: "Resolve release metadata"
+        id: "meta"
+        shell: "bash"
+        run: |
+          VERSION="$(grep -E '^lib_version_plugin=' gradle.properties | head -n 1 | cut -d'=' -f2- | tr -d '\r')"
+
+          if [ -z "$VERSION" ]; then
+          	echo "Property \"lib_version_plugin\" not found in gradle.properties."
+          	exit 1
+          fi
+
+          TAG="v$VERSION"
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: "Build shadow jar"
+        run: ./gradlew clean shadowJar --no-daemon
+
+      - name: "Find built jar"
+        id: "jar"
+        shell: "bash"
+        run: |
+          JAR_PATH="$(find result -maxdepth 1 -type f -name "*.jar" | head -n 1)"
+
+          if [ -z "$JAR_PATH" ]; then
+          	echo "Built jar not found in result/."
+          	exit 1
+          fi
+
+          echo "jar_path=$JAR_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: "Move tag to current commit"
+        shell: "bash"
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -fa "${{ steps.meta.outputs.tag }}" -m "Release ${{ steps.meta.outputs.tag }}"
+          git push origin "refs/tags/${{ steps.meta.outputs.tag }}" --force
+
+      - name: "Create or update GitHub release"
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "${{ steps.meta.outputs.tag }}"
+          name: "Release ${{ steps.meta.outputs.tag }}"
+          files: "${{ steps.jar.outputs.jar_path }}"
+          generate_release_notes: true
+          make_latest: true

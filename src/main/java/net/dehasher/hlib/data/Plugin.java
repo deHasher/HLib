@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public enum Plugin {
     AJ_PARKOUR("ajParkour"),
-    AURELIUM_SKILLS("AureliumSkills"),
+    AURA_SKILLS("AuraSkills"),
     AUTO_SAVE_WORLD("AutoSaveWorld"),
     CHUNKY_BORDER("ChunkyBorder"),
     CMI("CMI"),
