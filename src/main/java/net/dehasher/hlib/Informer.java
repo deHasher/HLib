@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import lombok.Getter;
+import net.dehasher.hlib.data.BukkitVersion;
 import net.dehasher.hlib.data.Platform;
 import net.dehasher.hlib.data.Plugin;
 import net.dehasher.hlib.hook.PlaceholderAPIHook;
@@ -34,7 +35,9 @@ public class Informer {
     }
 
     public static Component parseComponent(String message) {
-        return Colors.setComponent(Tools.replacePlaceholders(message)).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
+        Component component = Colors.setComponent(Tools.replacePlaceholders(message));
+        if (!Tools.requireBukkitVersion(BukkitVersion.V1_20)) return component;
+        return component.decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
     }
 
     public static List<Component> parseComponent(List<String> message) {
