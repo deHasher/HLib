@@ -111,8 +111,8 @@ public class Variables {
         String group = nameToGroup(subparts[0]);
         if (group.equalsIgnoreCase(subparts[0])) return input;
         List<String> list = Lists.newArrayList(List.of(subparts));
-        list.removeFirst();
-        list.addFirst(group);
+        list.remove(0);
+        list.add(0, group);
         return parts[0] + param + Tools.join(" ", list);
     }
 }
