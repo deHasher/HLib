@@ -6,8 +6,7 @@ import lombok.Setter;
 import net.dehasher.hlib.controller.ClassController;
 import net.dehasher.hlib.platform.velocity.HLib;
 import org.bukkit.Bukkit;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
 
 public enum Plugin {
     AJ_PARKOUR("ajParkour"),
@@ -89,11 +88,11 @@ public enum Plugin {
         @Setter(AccessLevel.PRIVATE)
         private boolean loaded;
         @Setter(AccessLevel.PRIVATE)
-        private Set<Runnable> runnables;
+        private List<Runnable> runnables;
 
         Loaded(boolean loaded) {
             setLoaded(loaded);
-            setRunnables(ConcurrentHashMap.newKeySet());
+            setRunnables(Collections.synchronizedList(new ArrayList<>()));
         }
 
         public void addCallback(Runnable runnable) {
@@ -102,7 +101,13 @@ public enum Plugin {
 
         public void reload() {
             setLoaded(true);
-            getRunnables().forEach(Runnable::run);
+
+            List<Runnable> snapshot;
+            synchronized (getRunnables()) {
+                snapshot = new ArrayList<>(getRunnables());
+            }
+
+            snapshot.forEach(Runnable::run);
         }
     }
 }
