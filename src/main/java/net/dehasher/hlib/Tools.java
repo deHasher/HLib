@@ -787,10 +787,24 @@ public class Tools {
         return Base64.getEncoder().encodeToString(input.getBytes());
     }
 
+    // Зашифровать в base64.
+    public static byte[] base64EncodeRaw(String input) {
+        return Base64.getEncoder().encode(input.getBytes());
+    }
+
     // Расшифровать из base64.
     public static String base64Decode(String input) {
         try {
             return new String(Base64.getDecoder().decode(input));
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    // Расшифровать из base64.
+    public static byte[] base64DecodeRaw(String input) {
+        try {
+            return Base64.getDecoder().decode(input);
         } catch (Throwable t) {
             return null;
         }
