@@ -171,14 +171,14 @@ public enum Permission {
     WORLDGUARD_REGION_LIMIT_COUNT_UNLIMITED(false, false);
 
     @Getter
-    public final String value;
+    private final String value;
     @Getter
     private final boolean strict;
     @Getter
     private final boolean isAdminSkip;
 
     Permission(boolean strict, boolean isAdminSkip) {
-        this.value = this.name().replace("_", ".");
+        this.value = this.name().toLowerCase().replace("_", ".");
         this.strict = strict;
         this.isAdminSkip = isAdminSkip;
     }
