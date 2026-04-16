@@ -28,7 +28,6 @@ import java.util.Map;
 // При отправке сообщений в чат через прокси - необходимо наличие плагина на всех серверах.
 public class Informer {
     public static final String CHANNEL = Tools.join(":", "${lib_name_id}", "main");
-    public static final String ANNOUNCER = "[ANNOUNCER]";
 
     public static String parse(String message) {
         return Colors.set(Tools.replacePlaceholders(message));
