@@ -70,12 +70,13 @@ public enum Permission {
     HCORE_INFORM_REPORT(false, false), // Позволяет получать отправленные игроками репорты.
     HCORE_INFORM_ANTIREDSTONECLOCK(false, false), // Позволяет получать уведомление о том, что игрок спамит редстоуном.
 
-    HCORE_HIDE_ANNOUNCER(false, false), // Позволяет не получать объявления в чате.
+    HCORE_ANNOUNCER(false, false), // Позволяет получать объявления в чате.
     HCORE_CUSTOMCOOLDOWN(false, false), // Позволяет использовать команды с определённой задержкой.
     HCORE_GM3WATCHER(false, false), // Позволяет видеть всех игроков в /gm 3, находясь при этом в любом другом игровом режиме.
 
     HCORE_COMMAND_死(false, false),
     HCORE_COMMAND_ARROW(false, false),
+    HCORE_COMMAND_ANNOUNCER(false, false),
     HCORE_COMMAND_FINDER(false, false),
     HCORE_COMMAND_CHECKPLAYED(false, false),
     HCORE_COMMAND_BROADCAST(false, false),
