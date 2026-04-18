@@ -31,6 +31,10 @@ public class ItemsController {
         return meta instanceof BookMeta;
     }
 
+    public static boolean isDebugStick(ItemStack item) {
+        return item.getType() == Material.DEBUG_STICK;
+    }
+
     public static boolean isSkull(ItemStack item) {
         return item.hasItemMeta() && isSkull(item.getItemMeta());
     }
