@@ -34,6 +34,8 @@ public class Performance {
     @Getter
     private static final Map<String, Double> TPS = new ConcurrentHashMap<>();
     @Getter
+    private static final Map<String, Double> MSPT = new ConcurrentHashMap<>();
+    @Getter
     private static final Set<String> servers = ConcurrentHashMap.newKeySet();
 
     private static final Calendar CALENDAR = Calendar.getInstance();
@@ -87,16 +89,17 @@ public class Performance {
             double ramMax   = calcRamMax();
             double disk     = calcDisk();
             double tps      = calcTPS();
+            double mspt     = calcMSPT();
 
             // Сохраняем данные в память у текущего сервера.
-            put(Tools.join(":", Tools.getServerID(), online, maxOnline, cpuProcess, cpuSystem, ramTotal, ramMax, disk, tps));
+            put(Tools.join(":", Tools.getServerID(), online, maxOnline, cpuProcess, cpuSystem, ramTotal, ramMax, disk, tps, mspt));
 
             if (!Tools.isHCoreEnabled() || Tools.getRedis() == null) return;
 
             // Перебор всех серверов, и если сервер не пинговал 5 секунд - сбрасываем значения в памяти конкретного сервера.
             servers.removeIf(name -> {
                 if (!Cooldowner.inCooldown(name, Cooldowner.Type.PERFORMANCE)) {
-                    put(Tools.join(":", name, -1, -1, -1, -1, -1, -1, -1, -1));
+                    put(Tools.join(":", name, -1, -1, -1, -1, -1, -1, -1, -1, -1));
                     return true;
                 }
                 return false;
@@ -104,7 +107,7 @@ public class Performance {
 
             // Отправляем временные данные на 5 секунд для парсинга на сайте.
             try (Jedis jedis = Tools.getRedis().getPool().getResource()) {
-                jedis.setex(Tools.getServerID(), 5, Tools.join(":", online, maxOnline, cpuProcess, cpuSystem, ramTotal, ramMax, disk, tps));
+                jedis.setex(Tools.getServerID(), 5, Tools.join(":", online, maxOnline, cpuProcess, cpuSystem, ramTotal, ramMax, disk, tps, mspt));
                 if (Platform.get().isProxy()) {
                     LocalDateTime now = LocalDateTime.now();
                     CALENDAR.setTime(Date.from(now.toInstant(ZoneOffset.from(ZoneId.systemDefault().getRules().getOffset(Instant.now())))));
@@ -118,7 +121,7 @@ public class Performance {
             }
 
             // Отправляем данные в pub sub redis для обработки на других серверах.
-            Tools.getRedis().publish(Performance.class.getSimpleName(), Tools.join(":", Tools.getServerID(), online, maxOnline, cpuProcess, cpuSystem, ramTotal, ramMax, disk, tps));
+            Tools.getRedis().publish(Performance.class.getSimpleName(), Tools.join(":", Tools.getServerID(), online, maxOnline, cpuProcess, cpuSystem, ramTotal, ramMax, disk, tps, mspt));
         } catch (Throwable t) {
             t.printStackTrace();
         }
@@ -126,15 +129,17 @@ public class Performance {
 
     private static void put(String info) {
         String[] data = info.split(":");
-        String name   = data[0];
-        getOnline()    .put(name, Integer.valueOf(data[1]));
-        getMaxOnline() .put(name, Integer.valueOf(data[2]));
-        getCPUProcess().put(name, Integer.valueOf(data[3]));
-        getCPUSystem() .put(name, Integer.valueOf(data[4]));
-        getRAMTotal()  .put(name, Double .valueOf(data[5]));
-        getRAMMax()    .put(name, Double .valueOf(data[6]));
-        getDisk()      .put(name, Double .valueOf(data[7]));
-        getTPS()       .put(name, Double .valueOf(data[8]));
+        if (data.length < 1) return;
+        String name = data[0];
+        if (data.length > 1) getOnline()    .put(name, Integer.valueOf(data[1]));
+        if (data.length > 2) getMaxOnline() .put(name, Integer.valueOf(data[2]));
+        if (data.length > 3) getCPUProcess().put(name, Integer.valueOf(data[3]));
+        if (data.length > 4) getCPUSystem() .put(name, Integer.valueOf(data[4]));
+        if (data.length > 5) getRAMTotal()  .put(name, Double .valueOf(data[5]));
+        if (data.length > 6) getRAMMax()    .put(name, Double .valueOf(data[6]));
+        if (data.length > 7) getDisk()      .put(name, Double .valueOf(data[7]));
+        if (data.length > 8) getTPS()       .put(name, Double .valueOf(data[8]));
+        if (data.length > 9) getMSPT()      .put(name, Double .valueOf(data[9]));
     }
 
     public static void gc() {
@@ -166,6 +171,10 @@ public class Performance {
 
     private static double calcTPS() {
         return Plugin.SPARK.isEnabled() ? SparkHook.getTPS() : -1;
+    }
+
+    private static double calcMSPT() {
+        return Plugin.SPARK.isEnabled() ? SparkHook.getMSPT() : -1;
     }
 
     private static double calcDisk() {

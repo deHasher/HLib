@@ -6,14 +6,11 @@ import com.Zrips.CMI.Containers.CommandAlias;
 import com.Zrips.CMI.Modules.Vanish.VanishManager;
 import net.Zrips.CMILib.CMILib;
 import net.Zrips.CMILib.Colors.CMICustomColors;
-import net.Zrips.CMILib.Items.CMIMaterial;
 import net.dehasher.hlib.Scheduler;
 import net.dehasher.hlib.Tools;
 import net.dehasher.hlib.data.Permission;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.inventory.ItemStack;
 import java.util.List;
 
 public class CMIHook {
@@ -150,22 +147,6 @@ public class CMIHook {
 
     public static CommandAlias getAlias(String command) {
         return CMIHook.getPlugin().getAliasManager().getAll().get(command);
-    }
-
-    public static String getTranslatedMaterial(String name) {
-        Material material = Material.matchMaterial(name);
-        if (material == null) return name;
-        return getTranslatedMaterial(material);
-    }
-
-    public static String getTranslatedMaterial(ItemStack itemStack) {
-        return getTranslatedMaterial(itemStack.getType());
-    }
-
-    public static String getTranslatedMaterial(Material material) {
-        CMIMaterial cmiMaterial = CMIMaterial.get(material);
-        String name = cmiMaterial.getTranslatedName();
-        return name.equalsIgnoreCase("none") ? material.name() : name;
     }
 
     public static VanishManager getVanishManager() {

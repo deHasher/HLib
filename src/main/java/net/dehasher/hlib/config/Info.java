@@ -101,7 +101,7 @@ public class Info extends Configuration {
                 "Ссылка на сервер-обработчик.",
         })
         @Key("url")
-        public static String url = "${url_site_api}alert";
+        public static String url = "${url_site_api}/alert";
 
         @Key("messages")
         public Messages messages = new Messages();

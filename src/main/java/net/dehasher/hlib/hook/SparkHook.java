@@ -3,10 +3,11 @@ package net.dehasher.hlib.hook;
 import me.lucko.spark.api.Spark;
 import me.lucko.spark.api.SparkProvider;
 import me.lucko.spark.api.statistic.StatisticWindow;
+import me.lucko.spark.api.statistic.misc.DoubleAverageInfo;
 import me.lucko.spark.api.statistic.types.DoubleStatistic;
+import me.lucko.spark.api.statistic.types.GenericStatistic;
 import net.dehasher.hlib.Tools;
 import net.dehasher.hlib.data.Platform;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class SparkHook {
     public static Spark getPlugin() {
@@ -29,8 +30,15 @@ public class SparkHook {
 
     public static double getTPS() {
         if (getPlugin() == null || Platform.get() != Platform.BUKKIT) return -1;
-        @Nullable DoubleStatistic<StatisticWindow.TicksPerSecond> tps = getPlugin().tps();
+        DoubleStatistic<StatisticWindow.TicksPerSecond> tps = getPlugin().tps();
         if (tps == null) return -1;
         return Math.min(Tools.round(tps.poll(StatisticWindow.TicksPerSecond.SECONDS_10), 2), 20); // 5 секунд изредка дропает тпс до 16, хз почему...
+    }
+
+    public static double getMSPT() {
+        if (getPlugin() == null || Platform.get() != Platform.BUKKIT) return -1;
+        GenericStatistic<DoubleAverageInfo, StatisticWindow.MillisPerTick> mspt = getPlugin().mspt();
+        if (mspt == null) return -1;
+        return Tools.round(mspt.poll(StatisticWindow.MillisPerTick.SECONDS_10).mean(), 2);
     }
 }
