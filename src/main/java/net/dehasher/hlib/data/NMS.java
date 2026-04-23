@@ -216,8 +216,7 @@ public class NMS {
     }
 
     private static String detectNMSVersion() {
-        if (Tools.getBukkitVersion() == null) throw new IllegalStateException("Method detectNMSVersion() is not supported on this platform");
-        String version = Tools.getBukkitVersion().replace(".", "_") + "_R";
+        String version = Tools.getBukkitVersionAsMinor().replace(".", "_") + "_R";
         for (int r = 1; r <= 20; r++) {
             String candidate = "org.bukkit.craftbukkit.v" + version + r + ".CraftWorld";
             try {

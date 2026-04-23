@@ -36,9 +36,9 @@ public abstract class HCommandBukkit extends BukkitCommand {
         Set<String> rus = ConcurrentHashMap.newKeySet();
         if (!aliases.isEmpty()) rus = aliases.stream()
                 .filter(alias -> !Tools.isCyrillic(alias))
-                .map(Rusificator::replace)
+                .map(Translator::toRussianKeymap)
                 .collect(Collectors.toSet());
-        rus.add(Rusificator.replace(name));
+        rus.add(Translator.toRussianKeymap(name));
 
         aliases.addAll(rus);
         setAliases(aliases

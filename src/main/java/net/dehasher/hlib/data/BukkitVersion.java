@@ -1,6 +1,8 @@
 package net.dehasher.hlib.data;
 
 import lombok.Getter;
+import net.dehasher.hlib.Tools;
+
 import java.util.stream.Stream;
 
 // https://ru.minecraft.wiki/w/Версия_протокола
@@ -44,7 +46,62 @@ public enum BukkitVersion {
                 .orElse(null);
     }
 
-    public enum RevisionVersion {
+    public enum Revision {
         R1, R2, R3, R4, R5, R6, R7, R8, R9, R10
+    }
+
+    public enum Component {
+        MAJOR, MINOR, PATCH
+    }
+
+    public enum Qualifier {
+        SNAPSHOT, ALPHA, BETA, RC, RELEASE
+    }
+
+    @Getter
+    public static final class CurrentVersionInfo {
+
+        private final int major;
+        private final int minor;
+        private final int patch;
+
+        private CurrentVersionInfo(int major, int minor, int patch) {
+            this.major = major;
+            this.minor = minor;
+            this.patch = patch;
+        }
+
+        public static CurrentVersionInfo parse() {
+            if (Platform.get().isProxy()) return new CurrentVersionInfo(0, 0, 0);
+
+            String version = org.bukkit.Bukkit.getBukkitVersion().split("-")[0];
+            String[] parts = version.split("\\.");
+
+            int major = parts.length > 0 ? parseInt(parts[0]) : 0;
+            int minor = parts.length > 1 ? parseInt(parts[1]) : 0;
+            int patch = parts.length > 2 ? parseInt(parts[2]) : 0;
+
+            return new CurrentVersionInfo(major, minor, patch);
+        }
+
+        private static int parseInt(String s) {
+            try {
+                return Integer.parseInt(s);
+            } catch (Exception ignored) {
+                return 0;
+            }
+        }
+
+        public String asMajor() {
+            return String.valueOf(getMajor());
+        }
+
+        public String asMinor() {
+            return Tools.join(".", getMajor(), getMinor());
+        }
+
+        public String asPatch() {
+            return Tools.join(".", getMajor(), getMinor(), getPatch());
+        }
     }
 }

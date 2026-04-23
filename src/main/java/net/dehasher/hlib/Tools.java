@@ -21,7 +21,6 @@ import net.dehasher.hlib.file.provider.StandaloneConfigurationProvider;
 import net.dehasher.hlib.platform.velocity.HLib;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
-
 import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -48,7 +47,11 @@ public class Tools {
     @Getter
     private static final boolean strictServer = parseStrictServer();
     @Getter
-    private static final String bukkitVersion = parseBukkitVersion();
+    private static final String bukkitVersionAsMajor = BukkitVersion.CurrentVersionInfo.parse().asMajor();
+    @Getter
+    private static final String bukkitVersionAsMinor = BukkitVersion.CurrentVersionInfo.parse().asMinor();
+    @Getter
+    private static final String bukkitVersionAsPatch = BukkitVersion.CurrentVersionInfo.parse().asPatch();
     @Getter
     private static final String velocityVersion = parseVelocityVersion();
     @Getter
@@ -101,14 +104,6 @@ public class Tools {
         return input
                 .replace("{prefix}", Info.Placeholders.prefix)
                 .replace("{site_url}", Info.Placeholders.site_url);
-    }
-
-    // Получить версию баккита.
-    private static String parseBukkitVersion() {
-        if (Platform.get().isProxy()) return null;
-        String[] version = org.bukkit.Bukkit.getBukkitVersion().split("-")[0].split("\\.");
-        if (version.length < 2) return "1.0";
-        return version[0] + "." + version[1];
     }
 
     // Получить версию прокси.
@@ -383,7 +378,7 @@ public class Tools {
     // Проверка версии ядра на заданную.
     public static boolean requireBukkitVersion(BukkitVersion needed) {
         if (Platform.get().isProxy()) return true;
-        return getRequireServerVersionCache().computeIfAbsent(needed, key -> compareVersions(getBukkitVersion(), key.getValue()));
+        return getRequireServerVersionCache().computeIfAbsent(needed, key -> compareVersions(getBukkitVersionAsMinor(), key.getValue()));
     }
 
     // Проверка на винду.
