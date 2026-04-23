@@ -47,11 +47,11 @@ public final class Translator {
                 Map<Locale, Map<String, String>> localeTranslations = loadAllLocaleTranslations(version, localeFiles);
                 if (localeTranslations.isEmpty()) throw new IllegalStateException("Minecraft locales not loaded for version: " + version);
 
-                VanillaTranslationRegistry newRegistry = new VanillaTranslationRegistry();
-                newRegistry.setDefaultLocale(DEFAULT_LOCALE);
-                localeTranslations.forEach(newRegistry::registerLocale);
+                VanillaTranslationRegistry registry = new VanillaTranslationRegistry();
+                registry.setDefaultLocale(DEFAULT_LOCALE);
+                localeTranslations.forEach(registry::registerLocale);
 
-                newRegistry.install();
+                registry.install();
             } catch (Throwable t) {
                 t.printStackTrace();
             }
@@ -162,11 +162,8 @@ public final class Translator {
             try {
                 String json = Files.readString(file, StandardCharsets.UTF_8);
                 if (json.isBlank()) continue;
-
                 Map<String, String> translations = parseTranslations(json);
-                if (!translations.isEmpty()) {
-                    locales.put(toLocale(localeFile.id()), translations);
-                }
+                if (!translations.isEmpty()) locales.put(toLocale(localeFile.id()), translations);
             } catch (Throwable ignored) {}
         }
 

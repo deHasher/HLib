@@ -16,9 +16,7 @@ import net.kyori.adventure.title.Title;
 import net.kyori.adventure.translation.GlobalTranslator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.BufferedReader;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -326,19 +324,16 @@ public class Informer {
                 if (httpMethod == HttpMethod.JSON) connection.setRequestProperty("Content-Type", "application/json");
                 connection.setDoOutput(true);
                 try (OutputStream os = connection.getOutputStream()) {
-                    os.write((byte[]) bytes);
+                    os.write(bytes);
                 }
             }
 
             InputStream inputStream = connection.getResponseCode() >= 400 ? connection.getErrorStream() : connection.getInputStream();
             if (inputStream == null) return "";
 
-            StringBuilder response = new StringBuilder();
-            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-            String line;
-            while ((line = br.readLine()) != null) response.append(line);
-            br.close();
-            return response.toString();
+            try (InputStream stream = inputStream) {
+                return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+            }
         } catch (Throwable t) {
             t.printStackTrace();
         }
