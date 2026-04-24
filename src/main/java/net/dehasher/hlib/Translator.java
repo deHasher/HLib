@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.Getter;
 import net.dehasher.hlib.data.BukkitVersion;
+import net.dehasher.hlib.data.Platform;
 import net.dehasher.hlib.platform.bukkit.HLib;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
@@ -33,10 +34,10 @@ public final class Translator {
     @Getter
     private static final Map<Character, Character> russianKeymap = createRussianKeymap();
 
-    private static final Locale DEFAULT_LOCALE    = Locale.US;
-    private static final String LANG_MANIFEST_URL = "${url_repos}/minecraft/version/%s/manifest_lang.json";
-    private static final Path LANG_DIRECTORY      = HLib.getInstance().getDataFolder().toPath().resolve("lang");
-    private static final Pattern FORMAT_PATTERN   = Pattern.compile("%(?:(\\d+)\\$)?(?:[-#+ 0,(<]*)?(?:\\d+)?(?:\\.\\d+)?([A-Za-z%])");
+    private static final Locale  DEFAULT_LOCALE    = Locale.US;
+    private static final String  LANG_MANIFEST_URL = "${url_repos}/minecraft/version/%s/manifest_lang.json";
+    private static final Path    LANG_DIRECTORY    = Platform.get().isProxy() ? null : HLib.getInstance().getDataFolder().toPath().resolve("lang");
+    private static final Pattern FORMAT_PATTERN    = Pattern.compile("%(?:(\\d+)\\$)?(?:[-#+ 0,(<]*)?(?:\\d+)?(?:\\.\\d+)?([A-Za-z%])");
 
     public static synchronized void init() {
         Scheduler.doAsync(() -> {
