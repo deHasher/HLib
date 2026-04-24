@@ -100,7 +100,8 @@ public final class AttributeController {
     }
 
     public enum AttributeType {
-        MAX_HEALTH(true);
+        MAX_HEALTH(true),
+        FLYING_SPEED(false);
 
         @Getter
         private final String name;
