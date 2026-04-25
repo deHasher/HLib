@@ -15,6 +15,7 @@ public enum Logo {
         Informer.send("● ║╚╝║║║═╣║║ ║║║╚╝╚╗╠══║║║║║║║═╣║║  ●");
         Informer.send("● ╚══╝╚══╝╚╝ ╚╝╚═══╝╚══╝╚╝╚╝╚══╝╚╝  ●");
         Informer.send(" ");
+        Informer.send("Java version: " + Runtime.version());
         if (!Tools.requireBukkitVersion(BukkitVersion.V1_16)) {
             Informer.send(Colors.DARK_RED + "Your server's version is not supported!");
             Informer.send(Colors.DARK_RED + "Your server's version is not supported!");
