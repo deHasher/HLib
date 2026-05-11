@@ -2,10 +2,18 @@ package net.dehasher.hlib.hook;
 
 import dev.lone.itemsadder.api.CustomStack;
 import dev.lone.itemsadder.api.ItemsAdder;
+import net.dehasher.hlib.Informer;
+import net.dehasher.hlib.data.Plugin;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.util.HexFormat;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -86,5 +94,31 @@ public class ItemsAdderHook {
         String url = ItemsAdder.getPackUrl(appendHash);
         if (url == null) return "";
         return url;
+    }
+
+    public static String getPackSha1() {
+        org.bukkit.plugin.Plugin itemsAdder = Bukkit.getPluginManager().getPlugin(Plugin.ITEMS_ADDER.getName());
+        if (itemsAdder == null) {
+            Informer.send("ItemsAdder plugin not found!!!");
+            return null;
+        }
+
+        Path path = itemsAdder.getDataFolder().toPath()
+                .resolve("output")
+                .resolve("generated.zip");
+
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-1");
+            try (InputStream inputStream = Files.newInputStream(path)) {
+                byte[] buffer = new byte[8192];
+                int read;
+                while ((read = inputStream.read(buffer)) != -1) digest.update(buffer, 0, read);
+            }
+
+            return HexFormat.of().formatHex(digest.digest());
+        } catch (Throwable t) {
+            t.printStackTrace();
+            return null;
+        }
     }
 }

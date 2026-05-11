@@ -57,12 +57,14 @@ dependencies {
     compileOnly(files("libs/ProtocolLib.jar"))
     compileOnly(files("libs/ItemJoin.jar"))
     compileOnly(files("libs/TokenManager.jar"))
+    compileOnly(files("libs/Nexo-LEAKED.jar"))
 
     // Это слитые платные плагины с сайтов по типу black-minecraft.
     // Не используйте их для собственной безопасности, они нужны ТОЛЬКО для компиляции проекта.
     compileOnly(files("libs/CMI-LEAKED.jar"))
     compileOnly(files("libs/MobFarmManager-LEAKED.jar"))
     compileOnly(files("libs/BotSentry-LEAKED.jar"))
+    compileOnly(files("libs/ForceResourcepacks-LEAKED.jar"))
 
     // Аннотации.
     annotationProcessor("com.velocitypowered",        "velocity-api",        project.properties["dependency_version_velocity"].toString())

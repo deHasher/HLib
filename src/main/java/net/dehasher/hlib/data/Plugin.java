@@ -18,6 +18,7 @@ public enum Plugin {
     DELUXE_MENUS("DeluxeMenus"),
     EMOTECRAFT("emotecraft"),
     FAST_ASYNC_WORLD_EDIT("FastAsyncWorldEdit"),
+    FORCE_RESOURCEPACKS("ForceResourcepacks"),
     BOT_SENTRY("BotSentry"),
     GADGETS_MENU("GadgetsMenu"),
     HANTIRELOG("HAntiRelog"),
@@ -43,6 +44,7 @@ public enum Plugin {
     MATRIX("Matrix"),
     MOB_FARM_MANAGER("MobFarmManager"),
     MULTIVERSE_CORE("Multiverse_Core"),
+    NEXO("Nexo"),
     PERMISSIONS_EX("PermissionsEx"),
     PLACEHOLDER_API("PlaceholderAPI"),
     PLASMO_VOICE("PlasmoVoice"),
@@ -83,15 +85,16 @@ public enum Plugin {
 
     @Getter
     public enum Loaded {
-        ITEMS_ADDER(false);
+        ITEMS_ADDER,
+        NEXO;
 
         @Setter(AccessLevel.PRIVATE)
         private boolean loaded;
         @Setter(AccessLevel.PRIVATE)
         private List<Runnable> runnables;
 
-        Loaded(boolean loaded) {
-            setLoaded(loaded);
+        Loaded() {
+            setLoaded(false);
             setRunnables(Collections.synchronizedList(new ArrayList<>()));
         }
 

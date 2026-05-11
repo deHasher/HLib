@@ -26,5 +26,6 @@ softdepend:
   - LiteBans
   - Spark
   - Vault
+  - Nexo
   - TAB
   - CMI
