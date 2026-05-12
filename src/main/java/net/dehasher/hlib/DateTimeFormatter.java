@@ -65,11 +65,11 @@ public class DateTimeFormatter {
     }};
 
     // Осторожно с этой функцией, она довольно-таки сырая...
-    public static String format(Date input, boolean withTime, boolean withYear, boolean withCustomDays, boolean color) {
-        return format(input != null ? DATE_TIME.format(input) : DATE_TIME.format(new Date()), withTime, withYear, withCustomDays, color);
+    public static String format(Date input, boolean withTime, boolean withCustomDays, boolean color) {
+        return format(input != null ? DATE_TIME.format(input) : DATE_TIME.format(new Date()), withTime, withCustomDays, color);
     }
 
-    public static String format(String input, boolean withTime, boolean withYear, boolean withCustomDays, boolean color) {
+    public static String format(String input, boolean withTime, boolean withCustomDays, boolean color) {
         if (input == null || input.isEmpty()) return "";
 
         String[] all = input.split("\\.")[0].split(" ");
@@ -81,7 +81,7 @@ public class DateTimeFormatter {
 
         if (withCustomDays && DAYS.containsKey(all[0])) result = DAYS.get(all[0]);
         if (withTime) result += " в " + Tools.join(":", time[0], time[1]);
-        if (withYear) result += " " + (color ? Colors.GRAY : "") + "(" + date[0] + ")";
+        if (!date[0].equals(String.valueOf(LocalDate.now().getYear()))) result += " " + (color ? Colors.GRAY : "") + date[0] + Info.DateTime.years1;
 
         return result;
     }
