@@ -34,9 +34,7 @@ public class APINotificationController {
                 .replace("{id}", String.valueOf(Info.Server.id)) +
                 (Tools.isDevMode() && (getType() == Type.ON_ENABLE || getType() == Type.ON_DISABLE) ? " (dev)" : ""));
         data.put("type", getType().name().toLowerCase().replace("_", "-"));
-        try { // Фикс спама таймаута из-за наличия проксирования телеграмма.
-            Informer.url(Info.ApiNotifications.url, data, Informer.HttpMethod.POST);
-        } catch (Throwable ignored) {}
+        Informer.url(Info.ApiNotifications.url, data, Informer.HttpMethod.POST, 180);
     }
 
     public enum Type {
