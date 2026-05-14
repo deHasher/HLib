@@ -7,6 +7,8 @@ import net.dehasher.hlib.file.Annotations.Final;
 import net.dehasher.hlib.file.Annotations.Key;
 import net.dehasher.hlib.file.Annotations.Comment;
 import net.dehasher.hlib.file.ConfigurationSection;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class Info extends Configuration {
@@ -139,6 +141,20 @@ public class Info extends Configuration {
             public static String isWhitelistEnabled = "Сервер {name} #{id} находится на тех. работах.";
         }
     }
+
+    @Comment({
+            "",
+            "Суффиксы сокращения чисел.",
+    })
+    @Key("short-numbers-suffixes")
+    public static List<String> shortNumbersSuffixes = new ArrayList<>(List.of(
+            "",
+            " тыс-1000",
+            " млн-1000000",
+            " млрд-1000000000",
+            " трлн-1000000000000",
+            " квдрлн-1000000000000000"
+    ));
 
     @Comment({
             "",

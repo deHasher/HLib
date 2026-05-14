@@ -21,7 +21,7 @@ public class Redis {
 
     public Redis(String address, String password) {
         String ip = address.split(":")[0];
-        int port  = (!address.contains(":")) ? Tools.parseInt(address.split(":")[1]) : 6379;
+        int port  = address.contains(":") ? Tools.parseInt(address.split(":")[1]) : 6379;
 
         JedisPoolConfig config = new JedisPoolConfig();
 
