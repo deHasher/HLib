@@ -100,14 +100,15 @@ public final class AttributeController {
     }
 
     public enum AttributeType {
-        MAX_HEALTH(true),
-        FLYING_SPEED(false);
+        MAX_HEALTH,
+        FLYING_SPEED,
+        SCALE;
 
         @Getter
         private final String name;
 
-        AttributeType(boolean generic) {
-            this.name = generic ? (Tools.requireBukkitVersion(BukkitVersion.V1_21) ? name() : "GENERIC_" + name()) : name();
+        AttributeType() {
+            this.name =Tools.requireBukkitVersion(BukkitVersion.V1_21) ? name() : "GENERIC_" + name();
         }
     }
 }

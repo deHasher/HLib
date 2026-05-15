@@ -97,6 +97,7 @@ public enum Permission {
     HCORE_COMMAND_ITEMSKIN_ADMIN(false, false),
     HCORE_COMMAND_BDEBUG(false, false),
     HCORE_COMMAND_PDEBUG(false, false),
+    HCORE_COMMAND_SCALE(false, false),
     HCORE_COMMAND_SPIT(false, false),
     HCORE_COMMAND_SPIT_EXEMPT(false, false),
     HCORE_COMMAND_SPIT_CRASH(false, false),
