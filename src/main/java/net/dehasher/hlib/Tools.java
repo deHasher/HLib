@@ -77,10 +77,10 @@ public class Tools {
     private static final Map<BukkitVersion, Boolean> requireServerVersionCache = new ConcurrentHashMap<>();
 
     // Проверяем текст на вредоносный код log4j2.
-    public static boolean isLog4j(String string) {
-        string = Colors.clear(string.toLowerCase().replaceAll("[^\\x00-\\x7F]", ""));
-        if (!string.contains("${")) return false;
-        return CompiledPattern.LOG4J.find(string);
+    public static boolean isLog4j(String value) {
+        value = Colors.clear(value.toLowerCase().replaceAll("[^\\x00-\\x7F]", ""));
+        if (!value.contains("${")) return false;
+        return CompiledPattern.LOG4J.find(value);
     }
 
     // Получаем онлайн сервера.
