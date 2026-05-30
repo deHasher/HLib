@@ -5,6 +5,7 @@ import net.dehasher.hlib.Scheduler;
 import net.dehasher.hlib.data.NMS;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.ShulkerBox;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -258,6 +259,22 @@ public class ItemsController {
         for (ItemStack c : inv.getStorageContents()) {
             if (c.isSimilar(toAdd) && c.getAmount() < c.getMaxStackSize()) return false;
         }
+        return true;
+    }
+
+    // Пустой ли шалкер?
+    public static boolean isEmptyShulker(ItemStack item) {
+        if (item == null || item.getType() == Material.AIR) return true;
+        if (!(item.getItemMeta() instanceof BlockStateMeta meta)) return true;
+        if (meta.getBlockState() instanceof ShulkerBox shulker) return Stream.of(shulker.getInventory().getContents())
+                .noneMatch(i -> i != null && i.getType() != Material.AIR);
+        return true;
+    }
+
+    // Пустой ли мешочек?
+    public static boolean isEmptyBundle(ItemStack item) {
+        if (item == null || item.getType() == Material.AIR) return true;
+        if (item.getItemMeta() instanceof BundleMeta bundle) return bundle.getItems().isEmpty();
         return true;
     }
 }
