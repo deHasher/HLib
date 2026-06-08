@@ -41,6 +41,7 @@ public class APINotificationController {
         ON_DANGEROUS_PERMISSIONS,
         ON_ENABLE,
         ON_DISABLE,
+        ON_PUNISHMENT,
         ON_THROWN,
         IS_WHITELIST_ENABLED,
         OTHER
