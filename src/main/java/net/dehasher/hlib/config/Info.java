@@ -114,18 +114,21 @@ public class Info extends Configuration {
             })
             @Key("on-enable")
             public static String onEnable = "Сервер {name} #{id} запущен.";
+
             @Comment({
                     "",
                     "Выключение сервера.",
             })
             @Key("on-disable")
             public static String onDisable = "Сервер {name} #{id} остановлен.";
+
             @Comment({
                     "",
                     "Ошибка в консоли.",
             })
             @Key("on-thrown")
             public static String onThrown = "Ошибка на сервере {name} #{id}:```{error}```";
+
             @Comment({
                     "",
                     "Получение игроком запрещённого права.",
@@ -133,12 +136,134 @@ public class Info extends Configuration {
             })
             @Key("on-dangerous-permissions")
             public static String onDangerousPermissions = "Игрок {player} попытался получить опасное право {permission} на сервере {name} #{id} и был заблокирован!";
+
             @Comment({
                     "",
                     "Если был включён вайтлист при включении сервера.",
             })
             @Key("is-whitelist-enabled")
             public static String isWhitelistEnabled = "Сервер {name} #{id} находится на тех. работах.";
+
+            @Comment({
+                    "",
+                    "Если был включён вайтлист при включении сервера.",
+            })
+            @Key("on-punishment")
+            public OnPunishment onPunishment = new OnPunishment();
+            public static class OnPunishment implements ConfigurationSection {
+                @Key("ban")
+                public Ban ban = new Ban();
+                public static class Ban implements ConfigurationSection {
+                    @Key("icon")
+                    public Icon icon = new Icon();
+                    public static class Icon implements ConfigurationSection {
+                        @Key("added")
+                        public static String added = "⛔";
+                        @Key("removed")
+                        public static String removed = "✅";
+                    }
+                    @Key("type")
+                    public Type type = new Type();
+                    public static class Type implements ConfigurationSection {
+                        @Key("added")
+                        public static String added = "бан";
+                        @Key("removed")
+                        public static String removed = "разбан";
+                    }
+                }
+                @Key("mute")
+                public Mute mute = new Mute();
+                public static class Mute implements ConfigurationSection {
+                    @Key("icon")
+                    public Icon icon = new Icon();
+                    public static class Icon implements ConfigurationSection {
+                        @Key("added")
+                        public static String added = "🔇";
+                        @Key("removed")
+                        public static String removed = "✅";
+                    }
+                    @Key("type")
+                    public Type type = new Type();
+                    public static class Type implements ConfigurationSection {
+                        @Key("added")
+                        public static String added = "мут";
+                        @Key("removed")
+                        public static String removed = "размут";
+                    }
+                }
+                @Key("warn")
+                public Warn warn = new Warn();
+                public static class Warn implements ConfigurationSection {
+                    @Key("icon")
+                    public Icon icon = new Icon();
+                    public static class Icon implements ConfigurationSection {
+                        @Key("added")
+                        public static String added = "⚠️";
+                        @Key("removed")
+                        public static String removed = "✅";
+                    }
+                    @Key("type")
+                    public Type type = new Type();
+                    public static class Type implements ConfigurationSection {
+                        @Key("added")
+                        public static String added = "предупреждение";
+                        @Key("removed")
+                        public static String removed = "снятие предупреждения";
+                    }
+                }
+                @Key("header")
+                public Header header = new Header();
+                public static class Header implements ConfigurationSection {
+                    @Key("added")
+                    public static String added = "Новое наказание ({type})";
+                    @Key("removed")
+                    public static String removed = "Наказание снято ({type})";
+                }
+                @Key("date")
+                public Date date = new Date();
+                public static class Date implements ConfigurationSection {
+                    @Key("start")
+                    public static String start = "Дата выдачи";
+                    @Key("end")
+                    public End end = new End();
+                    public static class End implements ConfigurationSection {
+                        @Key("added")
+                        public static String added = "Дата окончания";
+                        @Key("removed")
+                        public static String removed = "Окончание было";
+                    }
+                }
+                @Key("who-was-punished")
+                public static String whoWasPunished = "Игрок";
+                @Key("who-punished")
+                public static String whoPunished = "Выдал";
+                @Key("who-unpunished")
+                public static String whoUnpunished = "Снял";
+                @Key("who-old-punished")
+                public static String whoOldPunished = "Выдал ранее";
+                @Key("server")
+                public static String server = "Сервер";
+                @Key("duration")
+                public static String duration = "Срок истечения";
+                @Key("reason")
+                public static String reason = "Причина";
+                @Key("removal-reason")
+                public static String removalReason = "Причина снятия";
+                @Key("unknown")
+                public static String unknown = "Неизвестно";
+                @Key("forever")
+                public static String forever = "Навсегда";
+                @Key("never")
+                public static String never = "Никогда";
+                @Key("yes")
+                public static String yes = "Да";
+                @Key("is-ip-punishment")
+                public static String isIpPunishment = "По айпи";
+                @Key("is-silent-punishment")
+                public static String isSilentPunishment = "Скрытно";
+                @Key("border")
+                public static String border = "━━━━━━━━━━━━━━━━━━━━";
+            }
         }
     }
 
