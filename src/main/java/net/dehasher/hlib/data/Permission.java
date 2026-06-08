@@ -149,7 +149,8 @@ public enum Permission {
 
     HIMAGES_COMMAND_IMAGE(false, false),
     HPROTECT_COMMAND_PROTECT(false, false),
-    HPROTECT_COMMAND_BYPASS(false, false),
+    HPROTECT_COMMAND_PROTECT_USE(false, false),
+    HPROTECT_COMMAND_PROTECT_BYPASS(false, false),
     HBUYER_COMMAND_BUYER(false, false),
     HSEX_COMMAND_SEX(false, false),
     HCONTRACTS_COMMAND_CONTRACT(false, false),
