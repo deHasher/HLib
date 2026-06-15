@@ -24,7 +24,6 @@ public enum Plugin {
     HANTIRELOG("HAntiRelog"),
     HBUYER("HBuyer"),
     HDISCORD("HDiscord"),
-    HCINEMA("HCinema"),
     HCLANS("HClans"),
     HCRATES("HCrates"),
     HCONTRACTS("HContracts"),

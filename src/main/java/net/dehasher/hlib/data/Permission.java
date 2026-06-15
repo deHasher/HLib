@@ -23,12 +23,11 @@ public enum Permission {
 
     HIMAGES_AVAILABLE(true, false),
     HIMAGES_SILENT(true, false),
+    HIMAGES_PERMANENTLY(true, false),
     HIMAGES_WORLDGUARD(true, false),
     HIMAGES_UNLIMITED(true, false),
     HIMAGES_SCALE(true, false),
     HIMAGES_MOD(false, false),
-    HCINEMA_BYPASS(true, false),
-    HCINEMA_ALLOW_JOINTOTHEATER(false, false),
 
     HCORE_BYPASS_AI(false, false), // Позволяет отправлять сообщения к нейросети без задержки и запросы в нейросеть никто не видит.
     HCORE_BYPASS_PVP(true, false), // Позволяет использовать возможности по типу /fly на пвп-арене.
@@ -159,17 +158,6 @@ public enum Permission {
     HCRATES_COMMAND_CRATES(true, false),
     HCLANS_COMMAND_CLAN(false, false),
     HKALIAN_COMMAND_SETKALIAN(false, false),
-
-    HCINEMA_COMMAND_PLAY(false, false),
-    HCINEMA_COMMAND_PLAY_YOUTUBE(false, false),
-    HCINEMA_COMMAND_PLAY_RUTUBE(false, false),
-    HCINEMA_COMMAND_PLAY_FILE(false, false),
-    HCINEMA_COMMAND_PLAY_TWITCH(false, false),
-    HCINEMA_COMMAND_SKIP(false, false),
-    HCINEMA_COMMAND_MAKEVIDEOBANNER(false, false),
-    HCINEMA_COMMAND_FORWARD(false, false),
-    HCINEMA_COMMAND_FORCESKIP(false, false),
-    HCINEMA_COMMAND_ROOM(false, false),
 
     WORLDGUARD_REGION_LIMIT_BLOCK_UNLIMITED(false, false),
     WORLDGUARD_REGION_LIMIT_COUNT_UNLIMITED(false, false);
