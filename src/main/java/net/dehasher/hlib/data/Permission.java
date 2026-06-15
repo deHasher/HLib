@@ -22,6 +22,7 @@ public enum Permission {
     HMARRY_ADMIN(true, false), // Позволяет перезагружать плагин.
 
     HIMAGES_AVAILABLE(true, false),
+    HIMAGES_SILENT(true, false),
     HIMAGES_WORLDGUARD(true, false),
     HIMAGES_UNLIMITED(true, false),
     HIMAGES_SCALE(true, false),
