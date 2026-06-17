@@ -22,7 +22,7 @@ public enum BukkitVersion {
     V1_19(759, 760, 761, 762),
     V1_20(763, 764, 765, 766),
     V1_21(767, 768, 769, 770, 771, 772, 773, 774),
-    V26(775);
+    V26(775, 776);
 
     private final String value;
     private final Integer[] protocol;
