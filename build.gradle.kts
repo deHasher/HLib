@@ -4,9 +4,6 @@ plugins {
 }
 
 java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
-    }
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
@@ -57,7 +54,7 @@ dependencies {
     compileOnly(files("libs/ProtocolLib.jar"))
     compileOnly(files("libs/ItemJoin.jar"))
     compileOnly(files("libs/TokenManager.jar"))
-    compileOnly(files("libs/Nexo-LEAKED.jar"))
+    compileOnly(files("libs/Nexo.jar"))
 
     // Это слитые платные плагины с сайтов по типу black-minecraft.
     // Не используйте их для собственной безопасности, они нужны ТОЛЬКО для компиляции проекта.

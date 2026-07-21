@@ -5,18 +5,13 @@ import dev.lone.itemsadder.api.ItemsAdder;
 import net.dehasher.hlib.Informer;
 import net.dehasher.hlib.data.Plugin;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
-
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.HexFormat;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class ItemsAdderHook {
     public static boolean isCustomItem(ItemStack item) {
@@ -63,30 +58,6 @@ public class ItemsAdderHook {
     public static @Nullable String getItemModel(CustomStack customStack) {
         if (!hasItemModel(customStack)) return null;
         return customStack.getNamespace() + ":ia_auto/" + customStack.getId();
-    }
-
-    public static Set<String> getAllCustomItems() {
-        return CustomStack.getNamespacedIdsInRegistry();
-    }
-
-    public static Set<String> getAllCustomItems(Material material) {
-        if (material == null) return getAllCustomItems();
-        return CustomStack.getNamespacedIdsInRegistry()
-                .stream()
-                .map(ItemsAdderHook::getCustomItem)
-                .filter(Objects::nonNull)
-                .filter(custom -> custom.getItemStack().getType() == material)
-                .map(CustomStack::getNamespacedID)
-                .collect(Collectors.toSet());
-    }
-
-    public static Set<String> getAllCustomItemsMaterials() {
-        return CustomStack.getNamespacedIdsInRegistry()
-                .stream()
-                .map(ItemsAdderHook::getCustomItem)
-                .filter(Objects::nonNull)
-                .map(custom -> custom.getItemStack().getType().name())
-                .collect(Collectors.toSet());
     }
 
     @SuppressWarnings("UnreachableCode")
