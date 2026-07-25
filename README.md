@@ -5,6 +5,9 @@
 [![Java](https://img.shields.io/badge/Java-bytecode_17_%7C_build_21-ED8B00?logo=openjdk&logoColor=white)](https://github.com/deHasher/HLib/wiki/Getting-Started)
 [![GPL-3.0](https://img.shields.io/github/license/deHasher/HLib)](LICENSE)
 
+
+<img src="https://count.getloli.com/@:hlib?name=%3Ahlib&theme=booru-helltaker&padding=1&offset=0&align=top&scale=1&pixelated=1&darkmode=auto" alt=""/>
+
 HLib — вспомогательная библиотека-плагин для разработки Minecraft-плагинов. Она собирает в одном JAR работу с цветами и Adventure-компонентами, планировщиком, YAML-конфигурациями, предметами, MySQL/MariaDB, Redis, популярными плагинами и ProtocolLib.
 
 Один `HLib.jar` содержит точки входа для Paper/Bukkit loader и Velocity. HLib устанавливается рядом с вашим плагином и подключается к проекту как `compileOnly`: в свой JAR библиотеку встраивать не нужно.
