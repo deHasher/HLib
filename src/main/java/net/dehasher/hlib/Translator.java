@@ -280,9 +280,10 @@ public final class Translator {
 		String normalized = normalizeMinecraftLocaleId(minecraftLocale);
 		String[] parts = normalized.split("_", 3);
 
-		if (parts.length == 1) return new Locale(parts[0]);
-		if (parts.length == 2) return new Locale(parts[0], parts[1].toUpperCase(Locale.ROOT));
-		return new Locale(parts[0], parts[1].toUpperCase(Locale.ROOT), parts[2]);
+		Locale.Builder builder = new Locale.Builder().setLanguage(parts[0]);
+		if (parts.length > 1) builder.setRegion(parts[1]);
+		if (parts.length > 2) builder.setVariant(parts[2]);
+		return builder.build();
 	}
 
 	private static JsonElement readJsonElement(String url) {

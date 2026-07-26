@@ -194,10 +194,11 @@ tasks {
         expand(props)
     }
 
-    named<JavaCompile>("compileJava") {
-        dependsOn(generateTokenizedJava)
-        source = fileTree(tokenizedJavaDir)
-    }
+	named<JavaCompile>("compileJava") {
+		dependsOn(generateTokenizedJava)
+		source = fileTree(tokenizedJavaDir)
+		options.compilerArgs.add("-Xlint:deprecation")
+	}
 
     build {
         dependsOn(shadowJar)

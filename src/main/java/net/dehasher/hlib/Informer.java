@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
@@ -313,9 +313,8 @@ public class Informer {
 	public static String url(String link, byte[] bytes, HttpMethod httpMethod, int timeout) {
 		try {
 			link = Tools.replacePlaceholders(link);
-			URL url = new URL(link);
 
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			HttpURLConnection connection = (HttpURLConnection) URI.create(link).toURL().openConnection();
 			connection.setConnectTimeout(timeout * 1000);
 			connection.setReadTimeout(timeout * 1000);
 			connection.setRequestMethod(httpMethod == HttpMethod.JSON ? HttpMethod.POST.name() : httpMethod.name());
@@ -348,9 +347,8 @@ public class Informer {
 	public static Map<String, List<String>> head(String link, int timeout) {
 		try {
 			link = Tools.replacePlaceholders(link);
-			URL url = new URL(link);
 
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			HttpURLConnection connection = (HttpURLConnection) URI.create(link).toURL().openConnection();
 			connection.setConnectTimeout(timeout * 1000);
 			connection.setReadTimeout(timeout * 1000);
 			connection.setRequestMethod(HttpMethod.HEAD.name());

@@ -1,27 +1,19 @@
 package net.dehasher.hlib;
 
-import lombok.Getter;
 import net.dehasher.hlib.data.NMS;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-// HCore.getReflections().invokeStaticVoid("command.piss", "unined", location);
+// HLib.getReflections().invokeStaticVoid("command.piss", "unined", location);
 @SuppressWarnings("unchecked")
-public class Reflections {
-	@Getter
-	private final String defaultPath;
-
-	@Getter
-	private final ClassLoader classLoader;
-
+public record Reflections(String defaultPath, ClassLoader classLoader) {
 	public Reflections(ClassLoader classLoader) {
 		this(classLoader, "net.dehasher.hcore.platform.bukkit.nms.v");
 	}
 
 	public Reflections(ClassLoader classLoader, String defaultPath) {
-		this.classLoader = classLoader;
-		this.defaultPath = defaultPath;
+		this(defaultPath, classLoader);
 	}
 
 	public <T> T newInstance(String pkg, String className) {
@@ -30,9 +22,9 @@ public class Reflections {
 	}
 
 	public <T> T newInstance(Class<T> expectedType, String className, Object... args) {
-		String fqcn = getDefaultPath() + Tools.join(".", NMS.VERSION, className);
+		String fqcn = defaultPath() + Tools.join(".", NMS.VERSION, className);
 		try {
-			Class<?> clazz = getClassLoader().loadClass(fqcn);
+			Class<?> clazz = classLoader().loadClass(fqcn);
 			Constructor<?> ctor = resolveConstructor(clazz, args);
 			Object instance = ctor.newInstance(args);
 			return expectedType == null ? (T) instance : expectedType.cast(instance);
@@ -42,9 +34,9 @@ public class Reflections {
 	}
 
 	public <T> T newInstanceExact(Class<T> expectedType, String className, Class<?>[] parameterTypes, Object... args) {
-		String fqcn = getDefaultPath() + Tools.join(".", NMS.VERSION, className);
+		String fqcn = defaultPath() + Tools.join(".", NMS.VERSION, className);
 		try {
-			Class<?> clazz = getClassLoader().loadClass(fqcn);
+			Class<?> clazz = classLoader().loadClass(fqcn);
 			Constructor<?> ctor = resolveConstructorExact(clazz, parameterTypes);
 			Object instance = ctor.newInstance(args);
 			return expectedType == null ? (T) instance : expectedType.cast(instance);
@@ -55,9 +47,9 @@ public class Reflections {
 
 	@SuppressWarnings("UnusedReturnValue")
 	public <T> T invokeStatic(Class<T> expectedType, String className, String methodName, Object... args) {
-		String fqcn = getDefaultPath() + Tools.join(".", NMS.VERSION, className);
+		String fqcn = defaultPath() + Tools.join(".", NMS.VERSION, className);
 		try {
-			Class<?> clazz = getClassLoader().loadClass(fqcn);
+			Class<?> clazz = classLoader().loadClass(fqcn);
 			Method m = resolveStaticMethod(clazz, methodName, args);
 			Object result = m.invoke(null, args);
 			return expectedType == null ? (T) result : expectedType.cast(result);
@@ -71,9 +63,9 @@ public class Reflections {
 	}
 
 	public <T> T invokeStaticExact(Class<T> expectedType, String className, String methodName, Class<?>[] parameterTypes, Object... args) {
-		String fqcn = getDefaultPath() + Tools.join(".", NMS.VERSION, className);
+		String fqcn = defaultPath() + Tools.join(".", NMS.VERSION, className);
 		try {
-			Class<?> clazz = getClassLoader().loadClass(fqcn);
+			Class<?> clazz = classLoader().loadClass(fqcn);
 			Method m = resolveStaticMethodExact(clazz, methodName, parameterTypes);
 			Object result = m.invoke(null, args);
 			return expectedType == null ? (T) result : expectedType.cast(result);
@@ -129,7 +121,8 @@ public class Reflections {
 		while (cur != null) {
 			try {
 				Method m = cur.getDeclaredMethod(methodName, parameterTypes);
-				if (!Modifier.isStatic(m.getModifiers())) throw new NoSuchMethodException("Method is not static: " + m.getName());
+				if (!Modifier.isStatic(m.getModifiers()))
+					throw new NoSuchMethodException("Method is not static: " + m.getName());
 				m.setAccessible(true);
 				return m;
 			} catch (NoSuchMethodException ignored) {

@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.Enumeration;
@@ -43,8 +43,8 @@ public class Updater {
 			}
 		}
 		try (FileOutputStream fos = new FileOutputStream(tmp)) {
-			URL website = new URL(Encrypt.URL_UPDATER.value + "?" + Tools.httpBuildQuery(new ConcurrentHashMap<>() {{ put("get", hash); }}));
-			ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+			URI website = URI.create(Encrypt.URL_UPDATER.value + "?" + Tools.httpBuildQuery(new ConcurrentHashMap<>() {{ put("get", hash); }}));
+			ReadableByteChannel rbc = Channels.newChannel(website.toURL().openStream());
 			fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 			tmp = new File(tmp.getAbsolutePath()); // На всякий случай...
 			if (tmp.length() == 0) {
