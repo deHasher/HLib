@@ -4,5 +4,5 @@ import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 
 public interface ConfigurationSerializable {
-    @NotNull Map<String, Object> serialize();
+	@NotNull Map<String, Object> serialize();
 }

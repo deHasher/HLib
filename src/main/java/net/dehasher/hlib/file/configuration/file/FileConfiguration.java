@@ -19,72 +19,72 @@ import net.dehasher.hlib.file.util.Validate;
 
 public abstract class FileConfiguration extends MemoryConfiguration {
 
-    public FileConfiguration() {
-        super();
-    }
+	public FileConfiguration() {
+		super();
+	}
 
-    public FileConfiguration(@Nullable Configuration defaults) {
-        super(defaults);
-    }
+	public FileConfiguration(@Nullable Configuration defaults) {
+		super(defaults);
+	}
 
-    public void save(@NotNull File file) throws IOException {
-        Validate.notNull(file, "File cannot be null");
+	public void save(@NotNull File file) throws IOException {
+		Validate.notNull(file, "File cannot be null");
 
-        Files.createParentDirs(file);
-        String data = saveToString();
+		Files.createParentDirs(file);
+		String data = saveToString();
 
-        try (Writer writer = new OutputStreamWriter(java.nio.file.Files.newOutputStream(file.toPath()), StandardCharsets.UTF_8)) {
-            writer.write(data);
-        }
-    }
+		try (Writer writer = new OutputStreamWriter(java.nio.file.Files.newOutputStream(file.toPath()), StandardCharsets.UTF_8)) {
+			writer.write(data);
+		}
+	}
 
-    public void save(@NotNull String file) throws IOException {
-        Validate.notNull(file, "File cannot be null");
-        save(new File(file));
-    }
+	public void save(@NotNull String file) throws IOException {
+		Validate.notNull(file, "File cannot be null");
+		save(new File(file));
+	}
 
-    @NotNull
-    public abstract String saveToString();
+	@NotNull
+	public abstract String saveToString();
 
-    public void load(@NotNull File file) throws IOException, InvalidConfigurationException {
-        Validate.notNull(file, "File cannot be null");
-        final FileInputStream stream = new FileInputStream(file);
-        load(new InputStreamReader(stream, StandardCharsets.UTF_8));
-    }
+	public void load(@NotNull File file) throws IOException, InvalidConfigurationException {
+		Validate.notNull(file, "File cannot be null");
+		final FileInputStream stream = new FileInputStream(file);
+		load(new InputStreamReader(stream, StandardCharsets.UTF_8));
+	}
 
-    public void load(@NotNull Reader reader) throws IOException, InvalidConfigurationException {
-        BufferedReader input = reader instanceof BufferedReader ? (BufferedReader) reader : new BufferedReader(reader);
+	public void load(@NotNull Reader reader) throws IOException, InvalidConfigurationException {
+		BufferedReader input = reader instanceof BufferedReader ? (BufferedReader) reader : new BufferedReader(reader);
 
-        StringBuilder builder = new StringBuilder();
+		StringBuilder builder = new StringBuilder();
 
-        try {
-            String line;
+		try {
+			String line;
 
-            while ((line = input.readLine()) != null) {
-                builder.append(line);
-                builder.append('\n');
-            }
-        } finally {
-            input.close();
-        }
+			while ((line = input.readLine()) != null) {
+				builder.append(line);
+				builder.append('\n');
+			}
+		} finally {
+			input.close();
+		}
 
-        loadFromString(builder.toString());
-    }
+		loadFromString(builder.toString());
+	}
 
-    public void load(@NotNull String file) throws IOException, InvalidConfigurationException {
-        Validate.notNull(file, "File cannot be null");
-        load(new File(file));
-    }
+	public void load(@NotNull String file) throws IOException, InvalidConfigurationException {
+		Validate.notNull(file, "File cannot be null");
+		load(new File(file));
+	}
 
-    public abstract void loadFromString(@NotNull String contents) throws InvalidConfigurationException;
+	public abstract void loadFromString(@NotNull String contents) throws InvalidConfigurationException;
 
-    @NotNull
-    protected abstract String buildHeader();
+	@NotNull
+	protected abstract String buildHeader();
 
-    @NotNull
-    @Override
-    public FileConfigurationOptions options() {
-        if (options == null) options = new FileConfigurationOptions(this);
-        return (FileConfigurationOptions) options;
-    }
+	@NotNull
+	@Override
+	public FileConfigurationOptions options() {
+		if (options == null) options = new FileConfigurationOptions(this);
+		return (FileConfigurationOptions) options;
+	}
 }

@@ -22,73 +22,73 @@ import java.nio.file.Path;
 
 @Getter
 @Plugin(
-        id           = "${lib_name_id}",
-        name         = "${lib_name}",
-        version      = "${lib_version_plugin}",
-        url          = "${url_site}",
-        authors      = {"${author}"}
+		id           = "${lib_name_id}",
+		name         = "${lib_name}",
+		version      = "${lib_version_plugin}",
+		url          = "${url_site}",
+		authors      = {"${author}"}
 )
 public class HLib {
-    @Getter(AccessLevel.PRIVATE)
-    private static final String hash = "GexaauiONJgCD3HE09FYXyDyyuzN63dKQU9HVPynReExJrA8Qn2cBvbRVYwTA3me";
+	@Getter(AccessLevel.PRIVATE)
+	private static final String hash = "GexaauiONJgCD3HE09FYXyDyyuzN63dKQU9HVPynReExJrA8Qn2cBvbRVYwTA3me";
 
-    @Getter
-    @Setter(AccessLevel.PRIVATE)
-    private static HLib instance;
-    @Getter
-    @Setter(AccessLevel.PRIVATE)
-    private static ProxyServer proxy;
-    @Getter
-    @Setter(AccessLevel.PRIVATE)
-    private static Path dataFolder;
+	@Getter
+	@Setter(AccessLevel.PRIVATE)
+	private static HLib instance;
+	@Getter
+	@Setter(AccessLevel.PRIVATE)
+	private static ProxyServer proxy;
+	@Getter
+	@Setter(AccessLevel.PRIVATE)
+	private static Path dataFolder;
 
-    @Getter
-    @Setter(AccessLevel.PRIVATE)
-    private static ChannelIdentifier channelIdentifier;
+	@Getter
+	@Setter(AccessLevel.PRIVATE)
+	private static ChannelIdentifier channelIdentifier;
 
-    @Inject
-    public HLib(ProxyServer proxy, @DataDirectory Path dataFolder) {
-        setInstance(this);
-        setProxy(proxy);
-        setDataFolder(dataFolder);
-        setChannelIdentifier(MinecraftChannelIdentifier.from(Informer.CHANNEL));
-    }
+	@Inject
+	public HLib(ProxyServer proxy, @DataDirectory Path dataFolder) {
+		setInstance(this);
+		setProxy(proxy);
+		setDataFolder(dataFolder);
+		setChannelIdentifier(MinecraftChannelIdentifier.from(Informer.CHANNEL));
+	}
 
-    @Subscribe
-    public void onProxyInitializeEvent(ProxyInitializeEvent e) {
-        // Проверяем обновления.
-        if (!Tools.isWindows()) updater();
+	@Subscribe
+	public void onProxyInitializeEvent(ProxyInitializeEvent e) {
+		// Проверяем обновления.
+		if (!Tools.isWindows()) updater();
 
-        // Загружаем все файлы.
-        reloadFiles();
-    }
+		// Загружаем все файлы.
+		reloadFiles();
+	}
 
-    @Subscribe
-    public void onProxyShutdownEvent(ProxyShutdownEvent e) {
-        NioClient.close();
-    }
+	@Subscribe
+	public void onProxyShutdownEvent(ProxyShutdownEvent e) {
+		NioClient.close();
+	}
 
-    public static void reloadFiles() {
-        Tools.reloadFiles(getDataFolder(), HLibCfg.class);
-    }
+	public static void reloadFiles() {
+		Tools.reloadFiles(getDataFolder(), HLibCfg.class);
+	}
 
-    @SuppressWarnings("DuplicatedCode")
-    private void updater() {
-        String name = getClass().getSimpleName();
-        Informer.send("Checking for " + name + " updates... Current version: ${lib_version_plugin}");
-        Boolean check = Updater.check(name, "${lib_version_plugin}");
-        if (check == null) {
-            Informer.send("Couldn't check the plugin for updates! Restarting...");
-            getProxy().shutdown();
-        } else {
-            if (check) {
-                if (Updater.run(Tools.join(Tools.getFileSeparator(), getDataFolder().getParent(), name + ".jar"), getHash())) {
-                    Informer.send("The plugin " + name + " will be updated... Restarting...");
-                } else {
-                    Informer.send("An error occurred when updating the plugin! Restarting...");
-                }
-                getProxy().shutdown();
-            } else Informer.send("No updates found!");
-        }
-    }
+	@SuppressWarnings("DuplicatedCode")
+	private void updater() {
+		String name = getClass().getSimpleName();
+		Informer.send("Checking for " + name + " updates... Current version: ${lib_version_plugin}");
+		Boolean check = Updater.check(name, "${lib_version_plugin}");
+		if (check == null) {
+			Informer.send("Couldn't check the plugin for updates! Restarting...");
+			getProxy().shutdown();
+		} else {
+			if (check) {
+				if (Updater.run(Tools.join(Tools.getFileSeparator(), getDataFolder().getParent(), name + ".jar"), getHash())) {
+					Informer.send("The plugin " + name + " will be updated... Restarting...");
+				} else {
+					Informer.send("An error occurred when updating the plugin! Restarting...");
+				}
+				getProxy().shutdown();
+			} else Informer.send("No updates found!");
+		}
+	}
 }

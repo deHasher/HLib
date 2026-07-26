@@ -9,107 +9,107 @@ import org.bukkit.Bukkit;
 import java.util.*;
 
 public enum Plugin {
-    AJ_PARKOUR("ajParkour"),
-    AURA_SKILLS("AuraSkills"),
-    AUTO_SAVE_WORLD("AutoSaveWorld"),
-    CHUNKY_BORDER("ChunkyBorder"),
-    CMI("CMI"),
-    CMI_LIB("CMILib"),
-    DELUXE_MENUS("DeluxeMenus"),
-    EMOTECRAFT("emotecraft"),
-    FAST_ASYNC_WORLD_EDIT("FastAsyncWorldEdit"),
-    FORCE_RESOURCEPACKS("ForceResourcepacks"),
-    BOT_SENTRY("BotSentry"),
-    GADGETS_MENU("GadgetsMenu"),
-    HANTIRELOG("HAntiRelog"),
-    HBUYER("HBuyer"),
-    HDISCORD("HDiscord"),
-    HCLANS("HClans"),
-    HCRATES("HCrates"),
-    HCONTRACTS("HContracts"),
-    HCORE("HCore"),
-    HKALIAN("HKalian"),
-    HMARRY("HMarry"),
-    HPROTECT("HProtect"),
-    HSALARY("HSalary"),
-    HSEX("HSex"),
-    HOLOGRAPHIC_DISPLAYS("HolographicDisplays"),
-    ITEM_JOIN("ItemJoin"),
-    ITEMS_ADDER("ItemsAdder"),
-    LIBS_DISGUISES("LibsDisguises"),
-    LITE_BANS("LiteBans"),
-    LIMBO_AUTH("LimboAuth"),
-    LUCK_PERMS("LuckPerms"),
-    MATRIX("Matrix"),
-    MOB_FARM_MANAGER("MobFarmManager"),
-    MULTIVERSE_CORE("Multiverse_Core"),
-    NEXO("Nexo"),
-    PERMISSIONS_EX("PermissionsEx"),
-    PLACEHOLDER_API("PlaceholderAPI"),
-    PLASMO_VOICE("PlasmoVoice"),
-    PROTOCOL_LIB("ProtocolLib"),
-    SKINS_RESTORER("SkinsRestorer"),
-    SPARK("Spark"),
-    TAB("TAB"),
-    TOKEN_MANAGER("TokenManager"),
-    ULTIMATE_TIMBER("UltimateTimber"),
-    VAULT("Vault"),
-    WORLD_EDIT("WorldEdit"),
-    WORLD_GUARD("WorldGuard");
+	AJ_PARKOUR("ajParkour"),
+	AURA_SKILLS("AuraSkills"),
+	AUTO_SAVE_WORLD("AutoSaveWorld"),
+	CHUNKY_BORDER("ChunkyBorder"),
+	CMI("CMI"),
+	CMI_LIB("CMILib"),
+	DELUXE_MENUS("DeluxeMenus"),
+	EMOTECRAFT("emotecraft"),
+	FAST_ASYNC_WORLD_EDIT("FastAsyncWorldEdit"),
+	FORCE_RESOURCEPACKS("ForceResourcepacks"),
+	BOT_SENTRY("BotSentry"),
+	GADGETS_MENU("GadgetsMenu"),
+	HANTIRELOG("HAntiRelog"),
+	HBUYER("HBuyer"),
+	HDISCORD("HDiscord"),
+	HCLANS("HClans"),
+	HCRATES("HCrates"),
+	HCONTRACTS("HContracts"),
+	HCORE("HCore"),
+	HKALIAN("HKalian"),
+	HMARRY("HMarry"),
+	HPROTECT("HProtect"),
+	HSALARY("HSalary"),
+	HSEX("HSex"),
+	HOLOGRAPHIC_DISPLAYS("HolographicDisplays"),
+	ITEM_JOIN("ItemJoin"),
+	ITEMS_ADDER("ItemsAdder"),
+	LIBS_DISGUISES("LibsDisguises"),
+	LITE_BANS("LiteBans"),
+	LIMBO_AUTH("LimboAuth"),
+	LUCK_PERMS("LuckPerms"),
+	MATRIX("Matrix"),
+	MOB_FARM_MANAGER("MobFarmManager"),
+	MULTIVERSE_CORE("Multiverse_Core"),
+	NEXO("Nexo"),
+	PERMISSIONS_EX("PermissionsEx"),
+	PLACEHOLDER_API("PlaceholderAPI"),
+	PLASMO_VOICE("PlasmoVoice"),
+	PROTOCOL_LIB("ProtocolLib"),
+	SKINS_RESTORER("SkinsRestorer"),
+	SPARK("Spark"),
+	TAB("TAB"),
+	TOKEN_MANAGER("TokenManager"),
+	ULTIMATE_TIMBER("UltimateTimber"),
+	VAULT("Vault"),
+	WORLD_EDIT("WorldEdit"),
+	WORLD_GUARD("WorldGuard");
 
-    private Boolean status;
-    @Getter
-    private final String name;
+	private Boolean status;
+	@Getter
+	private final String name;
 
-    Plugin(String name) {
-        this.name = name;
-    }
+	Plugin(String name) {
+		this.name = name;
+	}
 
-    public boolean isEnabled() {
-        if (this.status != null) return this.status;
-        if (this == Plugin.SPARK) {
-            this.status = ClassController.isLoaded("me.lucko.spark.api.Spark");
-            return status;
-        }
-        switch (Platform.get()) {
-            case BUKKIT:
-                this.status = Bukkit.getPluginManager().getPlugin(this.getName().replace("_", "-")) != null;
-                break;
-            case VELOCITY:
-                this.status = HLib.getProxy().getPluginManager().isLoaded(this.getName().replace("_", "-").toLowerCase());
-                break;
-        }
-        return this.status;
-    }
+	public boolean isEnabled() {
+		if (this.status != null) return this.status;
+		if (this == Plugin.SPARK) {
+			this.status = ClassController.isLoaded("me.lucko.spark.api.Spark");
+			return status;
+		}
+		switch (Platform.get()) {
+			case BUKKIT:
+				this.status = Bukkit.getPluginManager().getPlugin(this.getName().replace("_", "-")) != null;
+				break;
+			case VELOCITY:
+				this.status = HLib.getProxy().getPluginManager().isLoaded(this.getName().replace("_", "-").toLowerCase());
+				break;
+		}
+		return this.status;
+	}
 
-    @Getter
-    public enum Loaded {
-        ITEMS_ADDER,
-        NEXO;
+	@Getter
+	public enum Loaded {
+		ITEMS_ADDER,
+		NEXO;
 
-        @Setter(AccessLevel.PRIVATE)
-        private boolean loaded;
-        @Setter(AccessLevel.PRIVATE)
-        private List<Runnable> runnables;
+		@Setter(AccessLevel.PRIVATE)
+		private boolean loaded;
+		@Setter(AccessLevel.PRIVATE)
+		private List<Runnable> runnables;
 
-        Loaded() {
-            setLoaded(false);
-            setRunnables(Collections.synchronizedList(new ArrayList<>()));
-        }
+		Loaded() {
+			setLoaded(false);
+			setRunnables(Collections.synchronizedList(new ArrayList<>()));
+		}
 
-        public void addCallback(Runnable runnable) {
-            getRunnables().add(runnable);
-        }
+		public void addCallback(Runnable runnable) {
+			getRunnables().add(runnable);
+		}
 
-        public void reload() {
-            setLoaded(true);
+		public void reload() {
+			setLoaded(true);
 
-            List<Runnable> snapshot;
-            synchronized (getRunnables()) {
-                snapshot = new ArrayList<>(getRunnables());
-            }
+			List<Runnable> snapshot;
+			synchronized (getRunnables()) {
+				snapshot = new ArrayList<>(getRunnables());
+			}
 
-            snapshot.forEach(Runnable::run);
-        }
-    }
+			snapshot.forEach(Runnable::run);
+		}
+	}
 }

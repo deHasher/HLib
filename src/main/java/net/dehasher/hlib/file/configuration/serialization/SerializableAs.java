@@ -9,5 +9,5 @@ import org.jetbrains.annotations.NotNull;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface SerializableAs {
-    @NotNull String value();
+	@NotNull String value();
 }

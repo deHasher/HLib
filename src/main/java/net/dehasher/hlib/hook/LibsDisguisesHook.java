@@ -6,23 +6,23 @@ import me.libraryaddict.disguise.disguisetypes.DisguiseType;
 import org.bukkit.entity.Player;
 
 public class LibsDisguisesHook {
-    public static LibsDisguises getPlugin() {
-        return LibsDisguises.getInstance();
-    }
+	public static LibsDisguises getPlugin() {
+		return LibsDisguises.getInstance();
+	}
 
-    public static void offDisguise(Player player) {
-        DisguiseAPI.undisguiseToAll(player);
-    }
+	public static void offDisguise(Player player) {
+		DisguiseAPI.undisguiseToAll(player);
+	}
 
-    public static boolean isDisguised(Player player) {
-        return DisguiseAPI.getDisguises(player).length != 0;
-    }
+	public static boolean isDisguised(Player player) {
+		return DisguiseAPI.getDisguises(player).length != 0;
+	}
 
-    public static boolean isPlayerDisguise(Player player) {
-        return DisguiseAPI.getDisguise(player).getType() == DisguiseType.PLAYER;
-    }
+	public static boolean isPlayerDisguise(Player player) {
+		return DisguiseAPI.getDisguise(player).getType() == DisguiseType.PLAYER;
+	}
 
-    public static String getDisguiseName(Player player) {
-        return DisguiseAPI.getDisguise(player).getDisguiseName();
-    }
+	public static String getDisguiseName(Player player) {
+		return DisguiseAPI.getDisguise(player).getDisguiseName();
+	}
 }

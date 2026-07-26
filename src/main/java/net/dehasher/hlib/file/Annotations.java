@@ -6,25 +6,25 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 public class Annotations {
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.FIELD, ElementType.TYPE})
-    public @interface Key {
-        String value();
-    }
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ElementType.FIELD, ElementType.TYPE})
+	public @interface Key {
+		String value();
+	}
 
-    @SuppressWarnings("rawtypes")
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.FIELD, ElementType.TYPE})
-    public @interface Comment {
-        String[] value();
-        Class enumClass() default Object.class;
-    }
+	@SuppressWarnings("rawtypes")
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ElementType.FIELD, ElementType.TYPE})
+	public @interface Comment {
+		String[] value();
+		Class enumClass() default Object.class;
+	}
 
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.FIELD})
-    public @interface Final {}
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ElementType.FIELD})
+	public @interface Final {}
 
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.FIELD})
-    public @interface Ignore {}
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ElementType.FIELD})
+	public @interface Ignore {}
 }

@@ -3,19 +3,19 @@ package net.dehasher.hlib.data;
 import lombok.Getter;
 
 public enum Mod {
-    PLASMO_VOICE("PlasmoVoice"),
-    SIMPLE_VOICE_CHAT("SimpleVoiceChat"),
-    H_CINEMA("HCinema"),
-    EMOTECRAFT("Emotecraft");
+	PLASMO_VOICE("PlasmoVoice"),
+	SIMPLE_VOICE_CHAT("SimpleVoiceChat"),
+	H_CINEMA("HCinema"),
+	EMOTECRAFT("Emotecraft");
 
-    @Getter
-    private final String value;
+	@Getter
+	private final String value;
 
-    Mod(String value) {
-        this.value = value;
-    }
+	Mod(String value) {
+		this.value = value;
+	}
 
-    public String getName() {
-        return value;
-    }
+	public String getName() {
+		return value;
+	}
 }

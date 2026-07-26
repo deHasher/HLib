@@ -9,5 +9,5 @@ import org.jetbrains.annotations.NotNull;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface DelegateDeserialization {
-    @NotNull Class<? extends ConfigurationSerializable> value();
+	@NotNull Class<? extends ConfigurationSerializable> value();
 }

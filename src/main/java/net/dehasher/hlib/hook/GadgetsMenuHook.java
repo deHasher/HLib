@@ -5,7 +5,7 @@ import com.yapzhenyie.GadgetsMenu.player.PlayerManager;
 import org.bukkit.entity.Player;
 
 public class GadgetsMenuHook {
-    public static PlayerManager getPlugin(Player player) {
-        return GadgetsMenuAPI.getPlayerManager(player);
-    }
+	public static PlayerManager getPlugin(Player player) {
+		return GadgetsMenuAPI.getPlayerManager(player);
+	}
 }

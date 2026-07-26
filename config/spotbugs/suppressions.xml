@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+	<Match>
+		<Class name="net.dehasher.hlib.Colors"/>
+		<Bug pattern="HE_EQUALS_USE_HASHCODE,HE_USE_OF_UNHASHABLE_CLASS"/>
+	</Match>
+	<Match>
+		<Class name="~net\.dehasher\.hlib\.config\.Info(\$.*)?"/>
+		<Bug pattern="MS_SHOULD_BE_FINAL,URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.controller.ItemsController"/>
+		<Bug pattern="NP_BOOLEAN_RETURN_NULL"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.Cooldowner"/>
+		<Bug pattern="STCAL_INVOKE_ON_STATIC_DATE_FORMAT_INSTANCE"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.data.Encrypt"/>
+		<Bug pattern="DM_DEFAULT_ENCODING"/>
+	</Match>
+	<Match>
+		<Class name="~net\.dehasher\.hlib\.data\.NMS(\$.*)?"/>
+		<Bug pattern="MS_SHOULD_BE_FINAL,MS_SHOULD_BE_REFACTORED_TO_BE_FINAL"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.data.Plugin"/>
+		<Bug pattern="NP_NULL_ON_SOME_PATH_EXCEPTION"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.data.Plugin$Loaded"/>
+		<Bug pattern="AT_STALE_THREAD_WRITE_OF_PRIMITIVE"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.database.MySQL$Query"/>
+		<Bug pattern="EI_EXPOSE_REP2"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.DateTimeFormatter"/>
+		<Bug pattern="STCAL_INVOKE_ON_STATIC_DATE_FORMAT_INSTANCE,STCAL_STATIC_SIMPLE_DATE_FORMAT_INSTANCE"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.DateTimeFormatter$1"/>
+		<Bug pattern="STCAL_INVOKE_ON_STATIC_CALENDAR_INSTANCE,STCAL_INVOKE_ON_STATIC_DATE_FORMAT_INSTANCE"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.file.Configuration"/>
+		<Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.file.Configuration$ConfigurationBuilder"/>
+		<Bug pattern="EI_EXPOSE_REP2"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.file.configuration.ConfigurationOptions"/>
+		<Bug pattern="EI_EXPOSE_REP"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.file.configuration.MemoryConfiguration"/>
+		<Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.file.configuration.MemorySection"/>
+		<Bug pattern="CT_CONSTRUCTOR_THROW,DE_MIGHT_IGNORE,EI_EXPOSE_REP"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.file.ConfigurationUtils"/>
+		<Bug pattern="MS_SHOULD_BE_FINAL"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.file.provider.StandaloneConfigurationProvider"/>
+		<Bug pattern="EI_EXPOSE_REP"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.file.util.Files"/>
+		<Bug pattern="RV_RETURN_VALUE_IGNORED_BAD_PRACTICE"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.file.util.NumberConversions"/>
+		<Bug pattern="DCN_NULLPOINTER_EXCEPTION"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.HLibCfg"/>
+		<Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,ME_ENUM_FIELD_SETTER"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.hook.EmoteCraftHook"/>
+		<Bug pattern="DM_DEFAULT_ENCODING,NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.hook.LimboAuthHook"/>
+		<Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.hook.NexoHook"/>
+		<Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.hook.ProtocolLibHook"/>
+		<Bug pattern="MS_EXPOSE_REP"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.hook.TABHook"/>
+		<Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.ItemBuilder"/>
+		<Bug pattern="SF_SWITCH_NO_DEFAULT"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.Locationer"/>
+		<Bug pattern="ICAST_IDIV_CAST_TO_DOUBLE"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.Performance"/>
+		<Bug pattern="DMI_HARDCODED_ABSOLUTE_FILENAME,STCAL_INVOKE_ON_STATIC_CALENDAR_INSTANCE"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.Tools"/>
+		<Bug pattern="AT_STALE_THREAD_WRITE_OF_PRIMITIVE,DM_DEFAULT_ENCODING"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.Translator"/>
+		<Bug pattern="USO_UNSAFE_STATIC_METHOD_SYNCHRONIZATION"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.Updater"/>
+		<Bug pattern="NP_BOOLEAN_RETURN_NULL,RR_NOT_CHECKED"/>
+	</Match>
+	<Match>
+		<Class name="net.dehasher.hlib.wrapper.packet.bukkit.AbstractPacket"/>
+		<Bug pattern="CT_CONSTRUCTOR_THROW"/>
+	</Match>
+	<Match>
+		<Class name="~net\.dehasher\.hlib\.wrapper\.packet\.bukkit\.Wrapper.*"/>
+		<Bug pattern="CT_CONSTRUCTOR_THROW"/>
+	</Match>
+</FindBugsFilter>

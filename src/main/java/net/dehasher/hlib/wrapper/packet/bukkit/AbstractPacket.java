@@ -13,32 +13,32 @@ import net.dehasher.hlib.Informer;
 @Setter
 public abstract class AbstractPacket {
 
-    protected PacketContainer handle;
+	protected PacketContainer handle;
 
-    protected AbstractPacket(PacketContainer handle, PacketType type) {
-        if (handle == null) throw new IllegalArgumentException("Packet handle cannot be NULL.");
-        if (!Objects.equal(handle.getType(), type)) throw new IllegalArgumentException(handle.getHandle() + " is not a packet of type " + type);
-        setHandle(handle);
-    }
+	protected AbstractPacket(PacketContainer handle, PacketType type) {
+		if (handle == null) throw new IllegalArgumentException("Packet handle cannot be NULL.");
+		if (!Objects.equal(handle.getType(), type)) throw new IllegalArgumentException(handle.getHandle() + " is not a packet of type " + type);
+		setHandle(handle);
+	}
 
-    public void sendPacket(Player receiver) {
-        try {
-            ProtocolLibrary.getProtocolManager().sendServerPacket(receiver, getHandle());
-        } catch (Throwable t) {
-            Informer.send("Cannot send packet: " + getHandle().getType().name());
-            t.printStackTrace();
-        }
-    }
+	public void sendPacket(Player receiver) {
+		try {
+			ProtocolLibrary.getProtocolManager().sendServerPacket(receiver, getHandle());
+		} catch (Throwable t) {
+			Informer.send("Cannot send packet: " + getHandle().getType().name());
+			t.printStackTrace();
+		}
+	}
 
-    public void broadcastPacket() {
-        ProtocolLibrary.getProtocolManager().broadcastServerPacket(getHandle());
-    }
+	public void broadcastPacket() {
+		ProtocolLibrary.getProtocolManager().broadcastServerPacket(getHandle());
+	}
 
-    public void receivePacket(Player sender) {
-        try {
-            ProtocolLibrary.getProtocolManager().receiveClientPacket(sender, getHandle());
-        } catch (Throwable t) {
-            throw new RuntimeException("Cannot receive packet.", t);
-        }
-    }
+	public void receivePacket(Player sender) {
+		try {
+			ProtocolLibrary.getProtocolManager().receiveClientPacket(sender, getHandle());
+		} catch (Throwable t) {
+			throw new RuntimeException("Cannot receive packet.", t);
+		}
+	}
 }
