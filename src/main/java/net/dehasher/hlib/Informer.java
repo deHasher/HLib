@@ -6,7 +6,6 @@ import com.google.common.io.ByteStreams;
 import lombok.Getter;
 import net.dehasher.hlib.data.BukkitVersion;
 import net.dehasher.hlib.data.Platform;
-import net.dehasher.hlib.data.Plugin;
 import net.dehasher.hlib.hook.PlaceholderAPIHook;
 import net.dehasher.hlib.platform.velocity.HLib;
 import net.kyori.adventure.text.Component;
@@ -61,9 +60,7 @@ public class Informer {
 				sender.sendMessage((Component) message);
 			} else {
 				message = parse(String.valueOf(message));
-				if (sender instanceof org.bukkit.entity.Player && Plugin.PLACEHOLDER_API.isEnabled()) {
-					message = PlaceholderAPIHook.setPlaceholders((org.bukkit.entity.Player) sender, (String) message);
-				}
+				if (sender instanceof org.bukkit.entity.Player) message = PlaceholderAPIHook.setPlaceholders((org.bukkit.entity.Player) sender, (String) message);
 				sender.sendMessage((String) message);
 			}
 		}
@@ -71,9 +68,7 @@ public class Informer {
 		private static void requestTitle(org.bukkit.entity.Player player, String message, int fadeIn, int stay, int fadeOut) {
 			if (player == null) return;
 			message = parse(message);
-			if (Plugin.PLACEHOLDER_API.isEnabled()) {
-				message = PlaceholderAPIHook.setPlaceholders(player, message);
-			}
+			message = PlaceholderAPIHook.setPlaceholders(player, message);
 
 			String[] parts = Params.splitTitle(message);
 			if (parts.length < 2) return;
@@ -83,7 +78,7 @@ public class Informer {
 		private static void requestActionBar(org.bukkit.entity.Player player, String message) {
 			if (player == null) return;
 			message = parse(message);
-			if (Plugin.PLACEHOLDER_API.isEnabled()) message = PlaceholderAPIHook.setPlaceholders(player, message);
+			message = PlaceholderAPIHook.setPlaceholders(player, message);
 			player.sendActionBar(component(message));
 		}
 

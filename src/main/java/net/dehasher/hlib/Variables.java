@@ -62,7 +62,7 @@ public class Variables {
 		if (!getData().containsKey(id)) return null;
 		if (!getFields().contains(key)) return null;
 		String info = Colors.set(getData().get(id).get(key));
-		if (Plugin.PLACEHOLDER_API.isEnabled() && info.contains("%")) return PlaceholderAPIHook.setPlaceholders(null, info);
+		if (info.contains("%")) return PlaceholderAPIHook.setPlaceholders(null, info);
 		return info;
 	}
 

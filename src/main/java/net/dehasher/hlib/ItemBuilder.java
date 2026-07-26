@@ -5,13 +5,13 @@ import de.tr7zw.changeme.nbtapi.NBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 import dev.lone.itemsadder.api.CustomStack;
 import lombok.Getter;
-import me.clip.placeholderapi.PlaceholderAPI;
 import net.dehasher.hlib.controller.ItemsController;
 import net.dehasher.hlib.controller.StorageController;
 import net.dehasher.hlib.data.BukkitVersion;
 import net.dehasher.hlib.data.Plugin;
 import net.dehasher.hlib.hook.ItemsAdderHook;
 import net.dehasher.hlib.hook.NexoHook;
+import net.dehasher.hlib.hook.PlaceholderAPIHook;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -138,7 +138,7 @@ public class ItemBuilder {
 
 	@SuppressWarnings("UnreachableCode")
 	public ItemBuilder setMaterial(String material, Player player) {
-		material = PlaceholderAPI.setPlaceholders(player, material);
+		material = PlaceholderAPIHook.setPlaceholders(player, material);
 		if (material.contains(":")) {
 			if (Plugin.ITEMS_ADDER.isEnabled()) {
 				CustomStack customStack = ItemsAdderHook.getCustomItem(material);
@@ -279,8 +279,8 @@ public class ItemBuilder {
 		if (item.getType() == Material.AIR) return item;
 		item.setAmount(amount);
 		ItemMeta itemMeta = item.getItemMeta();
-		itemMeta.displayName(Informer.parseComponent(PlaceholderAPI.setPlaceholders(player, getName())));
-		itemMeta.lore(Informer.parseComponent(PlaceholderAPI.setPlaceholders(player, getLore())));
+		itemMeta.displayName(Informer.parseComponent(PlaceholderAPIHook.setPlaceholders(player, getName())));
+		itemMeta.lore(Informer.parseComponent(PlaceholderAPIHook.setPlaceholders(player, getLore())));
 		itemMeta.setUnbreakable(unbreakable);
 		if (itemMeta instanceof Damageable) ((Damageable) itemMeta).setDamage(damage);
 		if (isPotion && (potionType != null || potionColor != null)) {
