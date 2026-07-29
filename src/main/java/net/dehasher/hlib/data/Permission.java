@@ -47,7 +47,7 @@ public enum Permission {
 	HCORE_BYPASS_CHATSPAMMING(false, false), // Позволяет спамить в чат.
 	HCORE_BYPASS_EVENTS(true, false), // Позволяет обходить выключенные эвенты.
 	HCORE_BYPASS_PLAYERDISGUISES(false, false), // Позволяет игрокам превращаться в любых игроков.
-	HCORE_BYPASS_KLVOICE(false, false), // Позволяет игроку использовать голосовой чат без KLauncher'a.
+	HCORE_BYPASS_VOICE(false, false), // Позволяет игроку использовать голосовой чат без KLauncher'a и WLauncher'a.
 	HCORE_BYPASS_ITEMS(true, false), // Позволяет использовать предметы без всяких проверок.
 	HCORE_BYPASS_ITEMS_UNBREAKABLE(false, false), // Позволяет использовать нерушимые предметы.
 	HCORE_BYPASS_WORLDEDIT(true, false), // Позволяет сетать без лимита.
