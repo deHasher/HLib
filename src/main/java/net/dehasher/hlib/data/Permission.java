@@ -130,7 +130,6 @@ public enum Permission {
 	HCORE_COMMAND_CHECK(false, false),
 	HCORE_COMMAND_STICKER(false, false),
 	HCORE_COMMAND_SCHEDULE(true, false),
-	HCORE_COMMAND_SPIGET(false, false),
 	HCORE_COMMAND_EBLAN(true, false),
 	HCORE_COMMAND_WHITELIST(true, false),
 	HCORE_COMMAND_UNEBLAN(true, false),
