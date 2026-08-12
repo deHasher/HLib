@@ -3,6 +3,7 @@
 import com.github.spotbugs.snom.SpotBugsTask
 import org.gradle.api.plugins.quality.Checkstyle
 import org.gradle.api.plugins.quality.CheckstyleExtension
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     id("java")
@@ -162,6 +163,19 @@ val generateTokenizedJava = tasks.register("generateTokenizedJava") {
     }
 }
 
+val hCorePluginsDirectory = file("C:/Users/deHasher/Desktop/Development/deHasher/Java/HCore/plugins")
+val shadowJarTask = tasks.named<ShadowJar>("shadowJar")
+
+val copyShadowJarToHCorePlugins = tasks.register<Copy>("copyShadowJarToHCorePlugins") {
+	description = "Копирование HLib.jar в каталог с HCore"
+	from(shadowJarTask.flatMap { it.archiveFile })
+	into(hCorePluginsDirectory)
+
+	onlyIf {
+		hCorePluginsDirectory.isDirectory
+	}
+}
+
 tasks {
     shadowJar {
         isZip64 = true
@@ -185,6 +199,7 @@ tasks {
         }
 
         relocate("de.tr7zw.changeme.nbtapi", project.providers.gradleProperty("lib_path").get() + ".shaded.nbt")
+	    finalizedBy(copyShadowJarToHCorePlugins)
     }
 
     processResources {
