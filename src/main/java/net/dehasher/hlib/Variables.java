@@ -110,6 +110,7 @@ public class Variables {
 		String[] parts = input.split(param);
 		if (parts.length != 2) return input;
 		String[] subparts = parts[1].split(" ");
+		if (List.of("op", "mod", "default").contains(subparts[0].toLowerCase())) return input;
 		String group = nameToGroup(subparts[0]);
 		if (group.equalsIgnoreCase(subparts[0])) return input;
 		List<String> list = Lists.newArrayList(List.of(subparts));
