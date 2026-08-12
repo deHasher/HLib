@@ -28,10 +28,14 @@ public class HLib extends JavaPlugin {
 
 		// Загружаем все файлы.
 		reloadFiles();
+
+		// Плагин включен.
+		Tools.setHLibEnabled(true);
 	}
 
 	@Override
 	public void onDisable() {
+		Tools.setHLibEnabled(false);
 		NioClient.close();
 		if (Tools.getRedis() != null) Tools.getRedis().shutdown();
 		if (Tools.getMySQL() != null) Tools.getMySQL().shutdown();

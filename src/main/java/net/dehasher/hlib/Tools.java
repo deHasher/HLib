@@ -63,6 +63,9 @@ public class Tools {
 	@Getter(AccessLevel.PRIVATE)
 	@Setter
 	private static Redis redisInstance = null;
+	@Getter
+	@Setter
+	private static boolean HLibEnabled = false;
 
 	@Getter
 	private static final List<String> nameOwners = List.of(
@@ -995,13 +998,6 @@ public class Tools {
 				.replace("к", "0".repeat(3))
 				.replace("m", "0".repeat(6))
 				.replace("м", "0".repeat(6));
-	}
-
-	// Является ли текущий сервер анархией?
-	public static boolean isAnarchy() {
-		if (getAnarchy() != null) return getAnarchy();
-		setAnarchy(List.of("grief", "гриф", "anarchy", "анархия", "fantasy", "фэнтези", "oneblock", "одинблок").contains(getServerName().toLowerCase()));
-		return getAnarchy();
 	}
 
 	// Включен ли режим разработчика в домене?

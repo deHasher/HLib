@@ -61,10 +61,14 @@ public class HLib {
 
 		// Загружаем все файлы.
 		reloadFiles();
+
+		// Плагин включен.
+		Tools.setHLibEnabled(true);
 	}
 
 	@Subscribe
 	public void onProxyShutdownEvent(ProxyShutdownEvent e) {
+		Tools.setHLibEnabled(false);
 		NioClient.close();
 	}
 

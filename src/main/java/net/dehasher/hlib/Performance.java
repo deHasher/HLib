@@ -51,6 +51,7 @@ public class Performance {
 					@Override
 					public void onMessage(String channel, String message) {
 						try {
+							if (!Tools.isHLibEnabled()) return;
 							String name = message.split(":")[0];
 							if (Tools.getServerID().equalsIgnoreCase(name)) return;
 							put(message);
@@ -92,7 +93,7 @@ public class Performance {
 
 			// Сохраняем данные в память у текущего сервера.
 			put(Tools.join(":", Tools.getServerID(), online, maxOnline, cpuProcess, cpuSystem, ramTotal, ramMax, disk, tps, mspt));
-			if (Tools.getRedis() == null) return;
+			if (!Tools.isHLibEnabled() || Tools.getRedis() == null) return;
 
 			// Перебор всех серверов, и если сервер не пинговал 5 секунд - сбрасываем значения в памяти конкретного сервера.
 			getServers().removeIf(name -> {
