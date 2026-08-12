@@ -51,11 +51,10 @@ public class Performance {
 					@Override
 					public void onMessage(String channel, String message) {
 						try {
-							if (!Tools.isHCoreEnabled()) return;
 							String name = message.split(":")[0];
 							if (Tools.getServerID().equalsIgnoreCase(name)) return;
 							put(message);
-							servers.add(name);
+							getServers().add(name);
 							Cooldowner.start(name, Cooldowner.Type.PERFORMANCE, 3);
 						} catch (Throwable t) {
 							Informer.send("An error occurred while processing Redis data! message: " + message);
@@ -93,11 +92,10 @@ public class Performance {
 
 			// Сохраняем данные в память у текущего сервера.
 			put(Tools.join(":", Tools.getServerID(), online, maxOnline, cpuProcess, cpuSystem, ramTotal, ramMax, disk, tps, mspt));
-
-			if (!Tools.isHCoreEnabled() || Tools.getRedis() == null) return;
+			if (Tools.getRedis() == null) return;
 
 			// Перебор всех серверов, и если сервер не пинговал 5 секунд - сбрасываем значения в памяти конкретного сервера.
-			servers.removeIf(name -> {
+			getServers().removeIf(name -> {
 				if (!Cooldowner.inCooldown(name, Cooldowner.Type.PERFORMANCE)) {
 					put(Tools.join(":", name, -1, -1, -1, -1, -1, -1, -1, -1, -1));
 					return true;

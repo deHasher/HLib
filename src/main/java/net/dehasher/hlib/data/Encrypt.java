@@ -3,7 +3,7 @@ package net.dehasher.hlib.data;
 // Защита от InJarTraslator.
 public enum Encrypt {
 	DOMAIN_DEHASHER(new byte[] {100, 101, 104, 97, 115, 104, 101, 114, 46, 110, 101, 116}), // dehasher.net
-	TXT_DEV_MODE(new byte[] {72, 67, 111, 114, 101, 68, 101, 118, 77, 111, 100, 101}), // HCoreDevMode
+	TXT_DEV_MODE(new byte[] {72, 76, 105, 98, 68, 101, 118, 77, 111, 100, 101}), // HLibDevMode
 	DEHASHER(new byte[] {100, 101, 72, 97, 115, 104, 101, 114}), // deHasher
 	FLUGEGEHEIMEN(new byte[] {70, 108, 117, 103, 101, 103, 101, 104, 101, 105, 109, 101, 110}), // Flugegeheimen
 	MUASO(new byte[] {77, 85, 65, 83, 79}), // MUASO

@@ -63,9 +63,6 @@ public class Tools {
 	@Getter(AccessLevel.PRIVATE)
 	@Setter
 	private static Redis redisInstance = null;
-	@Getter
-	@Setter
-	private static boolean HCoreEnabled = false;
 
 	@Getter
 	private static final List<String> nameOwners = List.of(

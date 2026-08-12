@@ -28,8 +28,6 @@ public class Info extends Configuration {
 	@Comment({
 			"",
 			"Название сервера и его идентификатор.",
-			"Используется для различных переменных по типу %hcore_online_survival-1%.",
-			"Чтобы работали зачарования высокого уровня, укажите name - anarcy или grief.",
 	})
 	@Key("server")
 	public Server server = new Server();
@@ -52,7 +50,7 @@ public class Info extends Configuration {
 		public static boolean enabled = true;
 
 		@Key("prefix")
-		public static String prefix = "&9HCore &7> &f";
+		public static String prefix = "&9HLib &7> &f";
 
 		@Key("site_url")
 		public static String site_url = "${author_lower}.net";
@@ -72,7 +70,7 @@ public class Info extends Configuration {
 			"",
 			"Фейковый онлайн сервера.",
 			"Если значение 400% и текущий онлайн 5 игроков, то будет отображаться",
-			"онлайн 25 игроков через заполнитель по типу %hcore_online_survival-1_fake%.",
+			"онлайн 25 игроков через кастомный заполнитель.",
 			"",
 			"need-randomize - Прибавляет случайным образом к онлайну от 1 до 9 игроков.",
 	})

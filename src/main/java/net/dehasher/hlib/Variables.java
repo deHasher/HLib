@@ -97,9 +97,11 @@ public class Variables {
 	public static String replaceCommandLuckPerms(String input) {
 		if (!Plugin.LUCK_PERMS.isEnabled()) return input;
 		if (!getEnabled() || input == null) return input;
+
 		AtomicReference<String> result = new AtomicReference<>(input);
-		List.of("set", "unset", "settemp", "unsettemp", "add", "remove")
-				.forEach(type -> result.set(formatCommandToLuckPerms(result.get(), " group " + type + " ")));
+		List<String> operations = List.of("set", "unset", "settemp", "unsettemp", "add", "remove");
+		List.of("group", "parent").forEach(relation -> operations.forEach(operation -> result.set(formatCommandToLuckPerms(result.get(), " " + relation + " " + operation + " "))));
+
 		return result.get();
 	}
 

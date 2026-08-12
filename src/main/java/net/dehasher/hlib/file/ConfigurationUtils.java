@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ConfigurationUtils {
-	public static final Logger LOGGER = Logger.getLogger("hcore");
+	public static final Logger LOGGER = Logger.getLogger("hlib");
 
 	public static void save(Configuration configuration, ConfigurationProvider provider) {
 		Validate.notNull(configuration, "configuration");
