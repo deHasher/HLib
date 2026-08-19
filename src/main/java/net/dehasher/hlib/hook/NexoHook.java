@@ -2,7 +2,6 @@ package net.dehasher.hlib.hook;
 
 import com.nexomc.nexo.api.NexoItems;
 import com.nexomc.nexo.items.ItemBuilder;
-import com.nexomc.nexo.items.NexoMeta;
 import net.dehasher.hlib.file.configuration.ConfigurationSection;
 import net.dehasher.hlib.file.configuration.file.YamlConfiguration;
 import net.kyori.adventure.key.Key;
@@ -40,14 +39,12 @@ public class NexoHook {
 	}
 
 	public static boolean hasCustomModelData(ItemBuilder customItem) {
-		return customItem != null && customItem.getNexoMeta() != null && customItem.getNexoMeta().getCustomModelData() != null;
+		return customItem != null && customItem.getNexoMeta().getCustomModelData() != null;
 	}
 
 	public static @Nullable Integer getCustomModelData(ItemBuilder customItem) {
 		if (customItem == null) return null;
-		NexoMeta meta = customItem.getNexoMeta();
-		if (meta == null) return null;
-		return meta.getCustomModelData();
+		return customItem.getNexoMeta().getCustomModelData();
 	}
 
 	public static @Nullable String getItemModel(ItemBuilder customItem) {
