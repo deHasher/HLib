@@ -5,7 +5,6 @@ import lombok.Getter;
 public enum Mod {
 	PLASMO_VOICE("PlasmoVoice"),
 	SIMPLE_VOICE_CHAT("SimpleVoiceChat"),
-	H_CINEMA("HCinema"),
 	EMOTECRAFT("Emotecraft");
 
 	@Getter

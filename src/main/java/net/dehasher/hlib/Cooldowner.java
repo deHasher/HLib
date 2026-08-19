@@ -95,7 +95,6 @@ public class Cooldowner {
 	// Типы задержек.
 	public enum Type {
 		ONE_SECOND_MESSAGE(false), // Общий кулдаун для сообщений, которые могут спамить в чате.
-		REQUESTOR_CINEMA(false),
 		REQUESTOR_MARRY(false),
 		REQUESTOR_CLANS(false),
 		MARRY_PVP(false),

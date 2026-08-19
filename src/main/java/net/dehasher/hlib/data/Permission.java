@@ -73,6 +73,7 @@ public enum Permission {
 	HCORE_ANNOUNCER(false, false), // Позволяет получать объявления в чате.
 	HCORE_CUSTOMCOOLDOWN(false, false), // Позволяет использовать команды с определённой задержкой.
 	HCORE_GM3WATCHER(false, false), // Позволяет видеть всех игроков в /gm 3, находясь при этом в любом другом игровом режиме.
+	HCORE_CHATGAMES(false, false), // Позволяет участвовать в чат-играх.
 
 	HCORE_COMMAND_死(false, false),
 	HCORE_COMMAND_ARROW(false, false),
