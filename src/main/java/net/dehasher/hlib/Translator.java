@@ -35,7 +35,7 @@ public final class Translator {
 	private static final Map<Character, Character> russianKeymap = createRussianKeymap();
 
 	private static final Locale  DEFAULT_LOCALE    = Locale.US;
-	private static final String  LANG_MANIFEST_URL = "${url_repos}/minecraft/version/%s/manifest_lang.json";
+	private static final String  LANG_MANIFEST_URL = "${url_repos}/minecraft/version/%s/lang_manifest.json";
 	private static final Path    LANG_DIRECTORY    = Platform.get().isProxy() ? null : HLib.getInstance().getDataFolder().toPath().resolve("lang");
 	private static final Pattern FORMAT_PATTERN    = Pattern.compile("%(?:(\\d+)\\$)?(?:[-#+ 0,(<]*)?(?:\\d+)?(?:\\.\\d+)?([A-Za-z%])");
 
