@@ -21,8 +21,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.security.MessageDigest;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -142,7 +144,7 @@ public final class Translator {
 
 		for (LocaleFileInfo localeFile : localeFiles) {
 			Path file = resolveLocaleFile(minecraftVersion, localeFile.id());
-			if (isLocaleFileReady(file)) continue;
+			if (isLocaleFileReady(file, localeFile.sha1())) continue;
 
 			String content = readText(localeFile.url());
 			if (content.isBlank()) throw new IllegalStateException("Empty locale content for locale: " + localeFile.id());
@@ -215,18 +217,21 @@ public final class Translator {
 		if (element == null || !element.isJsonObject()) return null;
 
 		JsonObject object = element.getAsJsonObject();
-		if (!object.has("id") || !object.has("url")) return null;
+		if (!object.has("id") || !object.has("url") || !object.has("sha1")) return null;
 
 		String id = normalizeMinecraftLocaleId(object.get("id").getAsString());
 		String url = object.get("url").getAsString();
+		String sha1 = object.get("sha1").getAsString();
 
-		if (id.isBlank() || url.isBlank()) return null;
-		return new LocaleFileInfo(id, url);
+		if (id.isBlank() || url.isBlank() || sha1.isBlank()) return null;
+		return new LocaleFileInfo(id, url, sha1);
 	}
 
-	private static boolean isLocaleFileReady(Path file) {
+	private static boolean isLocaleFileReady(Path file, String expectedSha1) {
 		try {
-			return Files.isRegularFile(file) && Files.size(file) > 0;
+			if (!Files.isRegularFile(file)) return false;
+			String actualSha1 = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-1").digest(Files.readAllBytes(file)));
+			return actualSha1.equalsIgnoreCase(expectedSha1);
 		} catch (Throwable ignored) {
 			return false;
 		}
@@ -352,7 +357,7 @@ public final class Translator {
 		return keymap;
 	}
 
-	private record LocaleFileInfo(String id, String url) {}
+	private record LocaleFileInfo(String id, String url, String sha1) {}
 
 	public static final class VanillaTranslationRegistry {
 		private final TranslationRegistry registry = TranslationRegistry.create(Key.key("minecraft", "vanilla"));
