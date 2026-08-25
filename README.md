@@ -36,8 +36,6 @@ HLib — вспомогательная библиотека-плагин для
 | Velocity                      | сборка использует API `3.4.0-SNAPSHOT`               |
 | Дополнения                    | устанавливаются только для используемых hook-классов |
 
-Paper loader ниже 1.21 не поддержит `paper-plugin.yml` HLib с `api-version: 1.21`. В JAR также есть classic `plugin.yml` с `api-version: 1.16`, однако совместимость через Bukkit/Spigot loader отдельно не подтверждена.
-
 ## Установка
 
 1. Скачайте [последний `HLib.jar`](https://github.com/deHasher/HLib/releases/latest/download/HLib.jar).

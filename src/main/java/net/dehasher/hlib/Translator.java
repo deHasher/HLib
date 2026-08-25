@@ -35,7 +35,7 @@ public final class Translator {
 	private static final Map<Character, Character> russianKeymap = createRussianKeymap();
 
 	private static final Locale  DEFAULT_LOCALE    = Locale.US;
-	private static final String  LANG_MANIFEST_URL = "${url_repos}/minecraft/version/%s/lang_manifest.json";
+	private static final String  VERSION_MANIFEST_URL = "${url_repos}/minecraft/version_manifest.json";
 	private static final Path    LANG_DIRECTORY    = Platform.get().isProxy() ? null : HLib.getInstance().getDataFolder().toPath().resolve("lang");
 	private static final Pattern FORMAT_PATTERN    = Pattern.compile("%(?:(\\d+)\\$)?(?:[-#+ 0,(<]*)?(?:\\d+)?(?:\\.\\d+)?([A-Za-z%])");
 
@@ -189,8 +189,8 @@ public final class Translator {
 
 		JsonObject object = element.getAsJsonObject();
 
-		if (object.has("files") && object.get("files").isJsonArray()) {
-			for (JsonElement entry : object.getAsJsonArray("files")) {
+		if (object.has("languages") && object.get("languages").isJsonArray()) {
+			for (JsonElement entry : object.getAsJsonArray("languages")) {
 				LocaleFileInfo localeFile = parseLocaleFileInfo(entry);
 				if (localeFile != null) localeFiles.add(localeFile);
 			}
@@ -241,7 +241,14 @@ public final class Translator {
 	}
 
 	private static String buildLangManifestUrl(String minecraftVersion) {
-		return String.format(LANG_MANIFEST_URL, minecraftVersion);
+		JsonObject manifest = readJsonElement(VERSION_MANIFEST_URL).getAsJsonObject();
+		for (JsonElement element : manifest.getAsJsonArray("versions")) {
+			JsonObject version = element.getAsJsonObject();
+			if (!minecraftVersion.equals(version.get("id").getAsString())) continue;
+			if (version.has("lang") && version.get("lang").isJsonObject()) return version.getAsJsonObject("lang").get("url").getAsString();
+			break;
+		}
+		throw new IllegalStateException("Language manifest not found for version: " + minecraftVersion);
 	}
 
 	private static Locale resolveLocale(Player player) {
