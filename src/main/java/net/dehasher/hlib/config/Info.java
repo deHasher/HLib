@@ -282,7 +282,8 @@ public class Info extends Configuration {
 	@Comment({
 			"",
 			"Форматы времени в винительном падеже.",
-			"Форматы месяцев в родительном падеже.",
+			"Названия дней недели в именительном падеже.",
+			"Названия месяцев в именительном и родительном падежах.",
 			"Форматы наречий само собой не измеряются по падежам.",
 	})
 	@Key("date-time")
@@ -298,30 +299,68 @@ public class Info extends Configuration {
 		public static String tomorrow = "Завтра";
 		@Key("after-tomorrow")
 		public static String afterTomorrow = "Послезавтра";
-		@Key("january")
-		public static String january = "января";
-		@Key("february")
-		public static String february = "февраля";
-		@Key("march")
-		public static String march = "марта";
-		@Key("april")
-		public static String april = "апреля";
-		@Key("may")
-		public static String may = "мая";
-		@Key("june")
-		public static String june = "июня";
-		@Key("july")
-		public static String july = "июля";
-		@Key("august")
-		public static String august = "августа";
-		@Key("september")
-		public static String september = "сентября";
-		@Key("october")
-		public static String october = "октября";
-		@Key("november")
-		public static String november = "ноября";
-		@Key("december")
-		public static String december = "декабря";
+		@Key("january-1")
+		public static String january1 = "январь";
+		@Key("january-2")
+		public static String january2 = "января";
+		@Key("february-1")
+		public static String february1 = "февраль";
+		@Key("february-2")
+		public static String february2 = "февраля";
+		@Key("march-1")
+		public static String march1 = "март";
+		@Key("march-2")
+		public static String march2 = "марта";
+		@Key("april-1")
+		public static String april1 = "апрель";
+		@Key("april-2")
+		public static String april2 = "апреля";
+		@Key("may-1")
+		public static String may1 = "май";
+		@Key("may-2")
+		public static String may2 = "мая";
+		@Key("june-1")
+		public static String june1 = "июнь";
+		@Key("june-2")
+		public static String june2 = "июня";
+		@Key("july-1")
+		public static String july1 = "июль";
+		@Key("july-2")
+		public static String july2 = "июля";
+		@Key("august-1")
+		public static String august1 = "август";
+		@Key("august-2")
+		public static String august2 = "августа";
+		@Key("september-1")
+		public static String september1 = "сентябрь";
+		@Key("september-2")
+		public static String september2 = "сентября";
+		@Key("october-1")
+		public static String october1 = "октябрь";
+		@Key("october-2")
+		public static String october2 = "октября";
+		@Key("november-1")
+		public static String november1 = "ноябрь";
+		@Key("november-2")
+		public static String november2 = "ноября";
+		@Key("december-1")
+		public static String december1 = "декабрь";
+		@Key("december-2")
+		public static String december2 = "декабря";
+		@Key("monday")
+		public static String monday = "понедельник";
+		@Key("tuesday")
+		public static String tuesday = "вторник";
+		@Key("wednesday")
+		public static String wednesday = "среда";
+		@Key("thursday")
+		public static String thursday = "четверг";
+		@Key("friday")
+		public static String friday = "пятница";
+		@Key("saturday")
+		public static String saturday = "суббота";
+		@Key("sunday")
+		public static String sunday = "воскресенье";
 		@Key("year")
 		public static String year = " год";
 		@Key("years-1")

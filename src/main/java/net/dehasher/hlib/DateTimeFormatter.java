@@ -6,8 +6,10 @@ import net.dehasher.hlib.data.CompiledPattern;
 
 import java.text.SimpleDateFormat;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -56,13 +58,58 @@ public class DateTimeFormatter {
 	}};
 
 	private static final Map<Integer, String> months = new ConcurrentHashMap<>(){{
-		put(1,  Info.DateTime.january  ); put(2,  Info.DateTime.february);
-		put(3,  Info.DateTime.march    ); put(4,  Info.DateTime.april   );
-		put(5,  Info.DateTime.may      ); put(6,  Info.DateTime.june    );
-		put(7,  Info.DateTime.july     ); put(8,  Info.DateTime.august  );
-		put(9,  Info.DateTime.september); put(10, Info.DateTime.october );
-		put(11, Info.DateTime.november ); put(12, Info.DateTime.december);
+		put(1,  Info.DateTime.january2  ); put(2,  Info.DateTime.february2);
+		put(3,  Info.DateTime.march2    ); put(4,  Info.DateTime.april2   );
+		put(5,  Info.DateTime.may2      ); put(6,  Info.DateTime.june2    );
+		put(7,  Info.DateTime.july2     ); put(8,  Info.DateTime.august2  );
+		put(9,  Info.DateTime.september2); put(10, Info.DateTime.october2 );
+		put(11, Info.DateTime.november2 ); put(12, Info.DateTime.december2);
 	}};
+
+	public static String getDayOfWeek() {
+		return getDayOfWeek(new Date());
+	}
+
+	public static String getDayOfWeek(Date date) {
+		LocalDate localDate = toLocalDate(date);
+
+		return switch (localDate.getDayOfWeek()) {
+			case MONDAY -> Info.DateTime.monday;
+			case TUESDAY -> Info.DateTime.tuesday;
+			case WEDNESDAY -> Info.DateTime.wednesday;
+			case THURSDAY -> Info.DateTime.thursday;
+			case FRIDAY -> Info.DateTime.friday;
+			case SATURDAY -> Info.DateTime.saturday;
+			case SUNDAY -> Info.DateTime.sunday;
+		};
+	}
+
+	public static String getMonth() {
+		return getMonth(new Date());
+	}
+
+	public static String getMonth(Date date) {
+		LocalDate localDate = toLocalDate(date);
+
+		return switch (localDate.getMonth()) {
+			case JANUARY -> Info.DateTime.january1;
+			case FEBRUARY -> Info.DateTime.february1;
+			case MARCH -> Info.DateTime.march1;
+			case APRIL -> Info.DateTime.april1;
+			case MAY -> Info.DateTime.may1;
+			case JUNE -> Info.DateTime.june1;
+			case JULY -> Info.DateTime.july1;
+			case AUGUST -> Info.DateTime.august1;
+			case SEPTEMBER -> Info.DateTime.september1;
+			case OCTOBER -> Info.DateTime.october1;
+			case NOVEMBER -> Info.DateTime.november1;
+			case DECEMBER -> Info.DateTime.december1;
+		};
+	}
+
+	private static LocalDate toLocalDate(Date date) {
+		return Instant.ofEpochMilli((date != null ? date : new Date()).getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
+	}
 
 	// Осторожно с этой функцией, она довольно-таки сырая...
 	public static String format(Date input, boolean withTime, boolean withCustomDays, boolean color) {
