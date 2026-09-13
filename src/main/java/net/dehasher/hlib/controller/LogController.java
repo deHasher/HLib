@@ -34,6 +34,8 @@ public class LogController {
 			Tools.getMySQL().query(Table.LOG_MESSAGE_INDEX_WORLD).execute();
 			Tools.getMySQL().query(Table.LOG_MESSAGE_INDEX_PROXY_SERVER).execute();
 			Tools.getMySQL().query(Table.LOG_MESSAGE_INDEX_SERVER_ID).execute();
+			Tools.getMySQL().query(Table.LOG_MESSAGE_INDEX_DATETIME_ID_SERVER_ID).execute();
+			Tools.getMySQL().query(Table.LOG_MESSAGE_INDEX_SERVER_ID_DATETIME_ID).execute();
 			Tools.getMySQL().query(Table.LOG_MESSAGE_INDEX_VALUE_FULLTEXT).execute();
 
 			Tools.getMySQL().query(Table.LOG_COMMAND_INDEX_DATETIME).execute();
@@ -41,6 +43,8 @@ public class LogController {
 			Tools.getMySQL().query(Table.LOG_COMMAND_INDEX_WORLD).execute();
 			Tools.getMySQL().query(Table.LOG_COMMAND_INDEX_PROXY_SERVER).execute();
 			Tools.getMySQL().query(Table.LOG_COMMAND_INDEX_SERVER_ID).execute();
+			Tools.getMySQL().query(Table.LOG_COMMAND_INDEX_DATETIME_ID_SERVER_ID).execute();
+			Tools.getMySQL().query(Table.LOG_COMMAND_INDEX_SERVER_ID_DATETIME_ID).execute();
 			Tools.getMySQL().query(Table.LOG_COMMAND_INDEX_VALUE_FULLTEXT).execute();
 
 			Tools.getMySQL().query(Table.LOG_SIGN_INDEX_DATETIME).execute();
