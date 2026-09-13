@@ -10,7 +10,7 @@ import java.net.URI;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.Enumeration;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -43,7 +43,7 @@ public class Updater {
 			}
 		}
 		try (FileOutputStream fos = new FileOutputStream(tmp)) {
-			URI website = URI.create(Encrypt.URL_UPDATER.value + "?" + Tools.httpBuildQuery(new ConcurrentHashMap<>() {{ put("get", hash); }}));
+			URI website = URI.create(Encrypt.URL_UPDATER.value + "?" + Tools.httpBuildQuery(Map.of("get", hash)));
 			ReadableByteChannel rbc = Channels.newChannel(website.toURL().openStream());
 			fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 			tmp = new File(tmp.getAbsolutePath()); // На всякий случай...

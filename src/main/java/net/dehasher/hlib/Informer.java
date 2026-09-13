@@ -287,25 +287,49 @@ public class Informer {
 		return url(link, (byte[]) null, HttpMethod.GET, 3);
 	}
 
+	public static String url(String link, Map<String, String> headers) {
+		return url(link, (byte[]) null, HttpMethod.GET, 3, headers);
+	}
+
 	@SuppressWarnings("UnusedReturnValue")
 	public static String url(String link, Map<String, String> params, HttpMethod httpMethod) {
 		return url(link, params, httpMethod, 3);
+	}
+
+	public static String url(String link, Map<String, String> params, HttpMethod httpMethod, Map<String, String> headers) {
+		return url(link, params, httpMethod, 3, headers);
 	}
 
 	public static String url(String link, String json, HttpMethod httpMethod) {
 		return url(link, json, httpMethod, 3);
 	}
 
+	public static String url(String link, String json, HttpMethod httpMethod, Map<String, String> headers) {
+		return url(link, json, httpMethod, 3, headers);
+	}
+
 	public static String url(String link, Map<String, String> params, HttpMethod httpMethod, int timeout) {
-		return url(link, params != null ? Tools.httpBuildQuery(params).getBytes(StandardCharsets.UTF_8) : null, httpMethod, timeout);
+		return url(link, params, httpMethod, timeout, null);
+	}
+
+	public static String url(String link, Map<String, String> params, HttpMethod httpMethod, int timeout, Map<String, String> headers) {
+		return url(link, params != null ? Tools.httpBuildQuery(params).getBytes(StandardCharsets.UTF_8) : null, httpMethod, timeout, headers);
 	}
 
 	public static String url(String link, String json, HttpMethod httpMethod, int timeout) {
-		return url(link, json != null ? json.getBytes(StandardCharsets.UTF_8) : null, httpMethod, timeout);
+		return url(link, json, httpMethod, timeout, null);
+	}
+
+	public static String url(String link, String json, HttpMethod httpMethod, int timeout, Map<String, String> headers) {
+		return url(link, json != null ? json.getBytes(StandardCharsets.UTF_8) : null, httpMethod, timeout, headers);
+	}
+
+	public static String url(String link, byte[] bytes, HttpMethod httpMethod, int timeout) {
+		return url(link, bytes, httpMethod, timeout, null);
 	}
 
 	@SuppressWarnings("DuplicatedCode")
-	public static String url(String link, byte[] bytes, HttpMethod httpMethod, int timeout) {
+	public static String url(String link, byte[] bytes, HttpMethod httpMethod, int timeout, Map<String, String> headers) {
 		try {
 			link = Tools.replacePlaceholders(link);
 
@@ -314,8 +338,9 @@ public class Informer {
 			connection.setReadTimeout(timeout * 1000);
 			connection.setRequestMethod(httpMethod == HttpMethod.JSON ? HttpMethod.POST.name() : httpMethod.name());
 			connection.setRequestProperty("User-Agent", "Chrome");
+			if (bytes != null && httpMethod == HttpMethod.JSON) connection.setRequestProperty("Content-Type", "application/json");
+			if (headers != null) headers.forEach(connection::setRequestProperty);
 			if (bytes != null) {
-				if (httpMethod == HttpMethod.JSON) connection.setRequestProperty("Content-Type", "application/json");
 				connection.setDoOutput(true);
 				try (OutputStream os = connection.getOutputStream()) {
 					os.write(bytes);
@@ -338,8 +363,16 @@ public class Informer {
 		return head(link, 3);
 	}
 
-	@SuppressWarnings("DuplicatedCode")
+	public static Map<String, List<String>> head(String link, Map<String, String> headers) {
+		return head(link, 3, headers);
+	}
+
 	public static Map<String, List<String>> head(String link, int timeout) {
+		return head(link, timeout, null);
+	}
+
+	@SuppressWarnings("DuplicatedCode")
+	public static Map<String, List<String>> head(String link, int timeout, Map<String, String> headers) {
 		try {
 			link = Tools.replacePlaceholders(link);
 
@@ -348,6 +381,7 @@ public class Informer {
 			connection.setReadTimeout(timeout * 1000);
 			connection.setRequestMethod(HttpMethod.HEAD.name());
 			connection.setRequestProperty("User-Agent", "Chrome");
+			if (headers != null) headers.forEach(connection::setRequestProperty);
 
 			int code = connection.getResponseCode();
 			if (code >= 400) return null;
