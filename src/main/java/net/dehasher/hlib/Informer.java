@@ -3,7 +3,11 @@ package net.dehasher.hlib;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import lombok.Getter;
+import net.dehasher.hlib.config.Info;
 import net.dehasher.hlib.data.BukkitVersion;
 import net.dehasher.hlib.data.Platform;
 import net.dehasher.hlib.hook.PlaceholderAPIHook;
@@ -339,7 +343,7 @@ public class Informer {
 			connection.setRequestMethod(httpMethod == HttpMethod.JSON ? HttpMethod.POST.name() : httpMethod.name());
 			connection.setRequestProperty("User-Agent", "Chrome");
 			if (bytes != null && httpMethod == HttpMethod.JSON) connection.setRequestProperty("Content-Type", "application/json");
-			if (headers != null) headers.forEach(connection::setRequestProperty);
+			applyHeaders(connection, link, headers);
 			if (bytes != null) {
 				connection.setDoOutput(true);
 				try (OutputStream os = connection.getOutputStream()) {
@@ -381,7 +385,7 @@ public class Informer {
 			connection.setReadTimeout(timeout * 1000);
 			connection.setRequestMethod(HttpMethod.HEAD.name());
 			connection.setRequestProperty("User-Agent", "Chrome");
-			if (headers != null) headers.forEach(connection::setRequestProperty);
+			applyHeaders(connection, link, headers);
 
 			int code = connection.getResponseCode();
 			if (code >= 400) return null;
@@ -390,6 +394,26 @@ public class Informer {
 			t.printStackTrace();
 		}
 		return null;
+	}
+
+	private static void applyHeaders(HttpURLConnection connection, String link, Map<String, String> headers) {
+		String json = Info.headers;
+		if (json != null && !json.isBlank()) {
+			try {
+				JsonObject urls = Tools.getGSON().fromJson(json, JsonObject.class);
+				JsonElement configuredHeaders = urls != null ? urls.get(link) : null;
+				if (configuredHeaders != null && configuredHeaders.isJsonObject()) {
+					for (Map.Entry<String, JsonElement> entry : configuredHeaders.getAsJsonObject().entrySet()) {
+						JsonElement value = entry.getValue();
+						if (!value.isJsonPrimitive() || !value.getAsJsonPrimitive().isString()) continue;
+						connection.setRequestProperty(entry.getKey(), value.getAsString());
+					}
+				}
+			} catch (JsonParseException | IllegalArgumentException e) {
+				send("Invalid HTTP headers configuration in info.yml.");
+			}
+		}
+		if (headers != null) headers.forEach(connection::setRequestProperty);
 	}
 
 	public enum HttpMethod { GET, POST, JSON, HEAD }
