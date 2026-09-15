@@ -6,6 +6,9 @@ import java.util.stream.Stream;
 
 @SuppressWarnings("NonAsciiCharacters")
 public enum Permission {
+	HLIB_BYPASS_COOLDOWN_COMMAND(false, false), // Позволяет отправлять команды без задержки.
+	HLIB_BYPASS_LIMIT_COMMAND(false, false), // Позволяет отправлять команды без лимита.
+
 	CMI_COMMAND_FLY(false, false),
 	CMI_COMMAND_WALKSPEED(false, false),
 	CMI_COMMAND_FLYSPEED(false, false),
@@ -40,9 +43,7 @@ public enum Permission {
 	HCORE_BYPASS_COMMANDS_COLON(true, false), // Позволяет отправлять команды, при block.colon-commands: true.
 	HCORE_BYPASS_COMMANDS_FAWE(true, false), // Позволяет отправлять команды, при fix-exploits.fawe-patterns.enabled: true.
 	HCORE_BYPASS_COOLDOWN_EGG(false, false), // Позволяет спавнить мобов с помощью яиц без задержки.
-	HCORE_BYPASS_COOLDOWN_COMMAND(false, false), // Позволяет отправлять команды без задержки.
 	HCORE_BYPASS_COOLDOWN_EMOTES(false, false), // Позволяет использовать эмоции без задержки.
-	HCORE_BYPASS_LIMIT_COMMAND(false, false), // Позволяет отправлять команды без лимита.
 	HCORE_BYPASS_CUSTOMCOOLDOWN(false, false), // Позволяет использовать команды из файла customcooldown.yml без задержки всегда.
 	HCORE_BYPASS_CHATSPAMMING(false, false), // Позволяет спамить в чат.
 	HCORE_BYPASS_EVENTS(true, false), // Позволяет обходить выключенные эвенты.
@@ -67,7 +68,6 @@ public enum Permission {
 	HCORE_INFORM_AI(false, false), // Позволяет получать уведомление о том, что игрок отправил запрос в AI.
 	HCORE_INFORM_DEBUG(false, false), // Позволяет получать сообщения отладки.
 	HCORE_INFORM_LOG4J(false, false), // Позволяет получать уведомление о том, что игрок попытался внедрить вредоносный код.
-	HCORE_INFORM_REPORT(false, false), // Позволяет получать отправленные игроками репорты.
 	HCORE_INFORM_ANTIREDSTONECLOCK(false, false), // Позволяет получать уведомление о том, что игрок спамит редстоуном.
 
 	HCORE_ANNOUNCER(false, false), // Позволяет получать объявления в чате.

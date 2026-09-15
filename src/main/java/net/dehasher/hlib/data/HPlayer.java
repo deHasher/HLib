@@ -31,23 +31,23 @@ public record HPlayer(int id, String name) {
 		Tools.getMySQL().query(Table.PLAYER)
 				.execute();
 		List.of(Info.consoleName, "${author}")
-				.forEach(name -> Tools.getMySQL().query("SELECT id FROM hcore_player WHERE name = ?")
+				.forEach(name -> Tools.getMySQL().query("SELECT id FROM hlib_player WHERE name = ?")
 						.setArgs(name)
 						.setResult(resultSet -> {
 							if (Tools.getMySQL() == null) throw new RuntimeException("MySQL has not been initialized");
-							if (!resultSet.next()) Tools.getMySQL().query("INSERT INTO hcore_player (name) VALUES (?)")
+							if (!resultSet.next()) Tools.getMySQL().query("INSERT INTO hlib_player (name) VALUES (?)")
 									.setArgs(name)
 									.execute();
 						})
 						.execute());
-		Tools.getMySQL().query("SELECT * FROM hcore_player")
+		Tools.getMySQL().query("SELECT * FROM hlib_player")
 				.setResult(resultSet -> {
 					while (resultSet.next()) {
 						int id = resultSet.getInt("id");
 						String name = resultSet.getString("name");
 						if (!name.equals(Info.consoleName) && !Tools.validateNickname(name)) {
 							if (Tools.getMySQL() == null) throw new RuntimeException("MySQL has not been initialized");
-							Tools.getMySQL().query("DELETE FROM hcore_player WHERE id = ?")
+							Tools.getMySQL().query("DELETE FROM hlib_player WHERE id = ?")
 									.setArgs(id)
 									.execute();
 							continue;
@@ -78,7 +78,7 @@ public record HPlayer(int id, String name) {
 		int id = getHPlayerId(name);
 		if (id == 0) {
 			if (Tools.getMySQL() == null) throw new RuntimeException("MySQL has not been initialized");
-			Optional<Integer> insertId = Tools.getMySQL().query("INSERT IGNORE INTO hcore_player (name) VALUES (?)")
+			Optional<Integer> insertId = Tools.getMySQL().query("INSERT IGNORE INTO hlib_player (name) VALUES (?)")
 					.setArgs(name)
 					.executeInsert();
 			id = insertId.orElseGet(() -> getHPlayerId(name));
@@ -90,7 +90,7 @@ public record HPlayer(int id, String name) {
 	private static Integer getHPlayerId(String name) {
 		AtomicInteger id = new AtomicInteger(0);
 		if (Tools.getMySQL() == null) throw new RuntimeException("MySQL has not been initialized");
-		Tools.getMySQL().query("SELECT id FROM hcore_player WHERE name = ?")
+		Tools.getMySQL().query("SELECT id FROM hlib_player WHERE name = ?")
 				.setArgs(name)
 				.setResult(resultSet -> {
 					while (resultSet.next()) id.set(resultSet.getInt("id"));

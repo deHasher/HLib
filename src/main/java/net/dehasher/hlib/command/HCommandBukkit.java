@@ -65,13 +65,13 @@ public abstract class HCommandBukkit extends BukkitCommand {
 		}
 
 		if (isPlayer(sender)) {
-			if (Cooldowner.inCooldown(Cooldowner.key(key, getPermission()), Cooldowner.Type.COMMAND) && !Tools.isPerm(sender, Permission.HCORE_BYPASS_COOLDOWN_COMMAND)) {
+			if (Cooldowner.inCooldown(Cooldowner.key(key, getPermission()), Cooldowner.Type.COMMAND) && !Tools.isPerm(sender, Permission.HLIB_BYPASS_COOLDOWN_COMMAND)) {
 				Informer.send(sender, StorageController.getCommandCooldownMessage()
 						.replace("{time}", DateTimeFormatter.format(Cooldowner.getTimeLeft(Cooldowner.key(key, getPermission()), Cooldowner.Type.COMMAND))));
 				return false;
 			}
 
-			if (getLimit() > 0 && count >= getLimit() && !Tools.isPerm(sender, Permission.HCORE_BYPASS_LIMIT_COMMAND)) {
+			if (getLimit() > 0 && count >= getLimit() && !Tools.isPerm(sender, Permission.HLIB_BYPASS_LIMIT_COMMAND)) {
 				Informer.send(sender, StorageController.getCommandLimitMessage());
 				return false;
 			}
@@ -79,7 +79,7 @@ public abstract class HCommandBukkit extends BukkitCommand {
 
 		if (run(sender, alias, arguments)) {
 			if (getLimit() > 0) getCount().merge(key, 1, Integer::sum);
-			if (getCooldown() > 0 && !Tools.isPerm(sender, Permission.HCORE_BYPASS_COOLDOWN_COMMAND)) {
+			if (getCooldown() > 0 && !Tools.isPerm(sender, Permission.HLIB_BYPASS_COOLDOWN_COMMAND)) {
 				Cooldowner.start(Cooldowner.key(key, getPermission()), Cooldowner.Type.COMMAND, getCooldown());
 			}
 		}

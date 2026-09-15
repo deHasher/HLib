@@ -13,7 +13,6 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import net.dehasher.hlib.Tools;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 // Attribute незя тут обработать из-за несоответствия классов...
@@ -146,16 +145,22 @@ public class NMS {
 	}
 
 	public static Sound getSound(String name) {
-		Sound sound = Registry.SOUNDS.get(NamespacedKey.minecraft(name.toLowerCase().replace("_", ".")));
-		if (sound == null) {
-			try {
-				Field f = Sound.class.getField(name);
-				return (Sound) f.get(null);
-			} catch (Throwable t) {
-				t.printStackTrace();
+		if (name == null) return null;
+
+		if (Tools.requireBukkitVersion(BukkitVersion.V1_21)) {
+			NamespacedKey key = NamespacedKey.fromString(name.toLowerCase());
+			if (key != null) {
+				Sound sound = Registry.SOUNDS.get(key);
+				if (sound != null) return sound;
 			}
 		}
-		return null;
+
+		try {
+			return (Sound) Sound.class.getField(name.toUpperCase().replace(".", "_")).get(null);
+		} catch (Throwable t) {
+			t.printStackTrace();
+			return null;
+		}
 	}
 
 	public static class Inventory {

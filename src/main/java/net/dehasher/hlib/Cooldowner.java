@@ -24,7 +24,7 @@ public class Cooldowner {
 		if (!type.isStrict()) return;
 		Scheduler.doAsync(() -> {
 			if (Tools.getMySQL() == null) throw new RuntimeException("MySQL has not been initialized");
-			Tools.getMySQL().query("INSERT IGNORE INTO hcore_cooldown (cooldown_id, server_id, until) VALUES (?, ?, ?)")
+			Tools.getMySQL().query("INSERT IGNORE INTO hlib_cooldown (cooldown_id, server_id, until) VALUES (?, ?, ?)")
 					.setArgs(key, Tools.getServerID(), DateTimeFormatter.DATE_TIME.format(new Date(endTime)))
 					.execute();
 		});
@@ -38,7 +38,7 @@ public class Cooldowner {
 		if (!type.isStrict()) return;
 		Scheduler.doAsync(() -> {
 			if (Tools.getMySQL() == null) throw new RuntimeException("MySQL has not been initialized");
-			Tools.getMySQL().query("DELETE FROM hcore_cooldown WHERE cooldown_id = ? AND server_id = ?")
+			Tools.getMySQL().query("DELETE FROM hlib_cooldown WHERE cooldown_id = ? AND server_id = ?")
 					.setArgs(key, Tools.getServerID())
 					.execute();
 		});
@@ -50,9 +50,9 @@ public class Cooldowner {
 			if (Tools.getMySQL() == null) throw new RuntimeException("MySQL has not been initialized");
 			Tools.getMySQL().query(Table.COOLDOWN)
 					.execute();
-			Tools.getMySQL().query("DELETE FROM hcore_cooldown WHERE until < NOW()")
+			Tools.getMySQL().query("DELETE FROM hlib_cooldown WHERE until < NOW()")
 					.execute();
-			Tools.getMySQL().query("SELECT * FROM hcore_cooldown WHERE until > NOW() AND server_id = ?")
+			Tools.getMySQL().query("SELECT * FROM hlib_cooldown WHERE until > NOW() AND server_id = ?")
 					.setArgs(Tools.getServerID())
 					.setResult(resultSet -> {
 						while (resultSet.next()) cooldowns.put(resultSet.getString("cooldown_id"), resultSet.getTimestamp("until").getTime());

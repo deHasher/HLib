@@ -8,10 +8,6 @@ import java.lang.reflect.Modifier;
 // HLib.getReflections().invokeStaticVoid("command.piss", "unined", location);
 @SuppressWarnings("unchecked")
 public record Reflections(String defaultPath, ClassLoader classLoader) {
-	public Reflections(ClassLoader classLoader) {
-		this(classLoader, "net.dehasher.hcore.platform.bukkit.nms.v");
-	}
-
 	public Reflections(ClassLoader classLoader, String defaultPath) {
 		this(defaultPath, classLoader);
 	}

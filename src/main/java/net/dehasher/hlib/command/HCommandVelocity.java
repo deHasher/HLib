@@ -60,13 +60,13 @@ public abstract class HCommandVelocity implements SimpleCommand {
 		}
 
 		if (isPlayer(source)) {
-			if (Cooldowner.inCooldown(Cooldowner.key(key, getPermission()), Cooldowner.Type.COMMAND) && !Tools.isPerm(source, Permission.HCORE_BYPASS_COOLDOWN_COMMAND)) {
+			if (Cooldowner.inCooldown(Cooldowner.key(key, getPermission()), Cooldowner.Type.COMMAND) && !Tools.isPerm(source, Permission.HLIB_BYPASS_COOLDOWN_COMMAND)) {
 				Informer.send(source, StorageController.getCommandCooldownMessage()
 						.replace("{time}", DateTimeFormatter.format(Cooldowner.getTimeLeft(Cooldowner.key(key, getPermission()), Cooldowner.Type.COMMAND))));
 				return;
 			}
 
-			if (getLimit() > 0 && count >= getLimit() && !Tools.isPerm(source, Permission.HCORE_BYPASS_LIMIT_COMMAND)) {
+			if (getLimit() > 0 && count >= getLimit() && !Tools.isPerm(source, Permission.HLIB_BYPASS_LIMIT_COMMAND)) {
 				Informer.send(source, StorageController.getCommandLimitMessage());
 				return;
 			}
@@ -74,7 +74,7 @@ public abstract class HCommandVelocity implements SimpleCommand {
 
 		if (run(source, alias, arguments)) {
 			if (getLimit() > 0) getCount().merge(key, 1, Integer::sum);
-			if (getCooldown() > 0 && !Tools.isPerm(invocation.source(), Permission.HCORE_BYPASS_COOLDOWN_COMMAND)) {
+			if (getCooldown() > 0 && !Tools.isPerm(invocation.source(), Permission.HLIB_BYPASS_COOLDOWN_COMMAND)) {
 				Cooldowner.start(Cooldowner.key(key, getPermission()), Cooldowner.Type.COMMAND, getCooldown());
 			}
 		}
