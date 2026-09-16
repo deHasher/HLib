@@ -31,7 +31,6 @@ repositories {
     maven("https://mvn.lib.co.nz/public")                                       // LibsDisguises.
     maven("https://repo.dmulloy2.net/repository/public/")                       // ProtocolLib.
     maven("https://repo1.maven.org/maven2/")                                    // LuckPerms.
-    maven("https://maven.devs.beer/")                                           // ItemsAdder.
     maven("https://repo.codemc.io/repository/maven-public/")                    // NBT-API.
     maven("https://repo.plasmoverse.com/releases")                              // PlasmoVoice.
 }
