@@ -1,4 +1,4 @@
-@file:Suppress("VulnerableLibrariesLocal", "UnstableApiUsage")
+@file:Suppress("VulnerableLibrariesLocal", "UnstableApiUsage", "HasPlatformType")
 
 import com.github.spotbugs.snom.SpotBugsTask
 import org.gradle.api.plugins.quality.Checkstyle
@@ -40,7 +40,6 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:${providers.gradleProperty("dependency_version_bukkit").get()}")
     compileOnly("net.md-5:bungeecord-api:${providers.gradleProperty("dependency_version_bungee").get()}")
     compileOnly("me.clip:placeholderapi:${providers.gradleProperty("dependency_version_placeholderapi").get()}")
-    compileOnly("dev.lone:api-itemsadder:${providers.gradleProperty("dependency_version_itemsadder").get()}")
     compileOnly("net.luckperms:api:${providers.gradleProperty("dependency_version_luckperms").get()}")
     compileOnly("org.apache.logging.log4j:log4j-core:${providers.gradleProperty("dependency_version_log4j").get()}")
     compileOnly("me.libraryaddict.disguises:libsdisguises:${providers.gradleProperty("dependency_version_libsdisguises").get()}")
@@ -70,6 +69,7 @@ dependencies {
     compileOnly(files("libs/MobFarmManager-LEAKED.jar"))
     compileOnly(files("libs/BotSentry-LEAKED.jar"))
     compileOnly(files("libs/ForceResourcepacks-LEAKED.jar"))
+    compileOnly(files("libs/ItemsAdder-LEAKED.jar"))
     compileOnly(files("libs/Nexo-LEAKED.jar"))
 
     // Аннотации.
