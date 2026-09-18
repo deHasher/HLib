@@ -20,9 +20,10 @@ public class NexoHook {
 		return NexoItems.builderFromItem(item);
 	}
 
-	public static ItemBuilder getCustomItem(String item) {
-		if (item == null) return null;
-		return NexoItems.itemFromId(item);
+	public static ItemBuilder getCustomItem(String itemId) {
+		String cleanItemId = cleanItemId(itemId);
+		if (cleanItemId == null) return null;
+		return NexoItems.itemFromId(cleanItemId);
 	}
 
 	public static boolean hasPermission(ItemBuilder customItem) {
@@ -60,11 +61,12 @@ public class NexoHook {
 	}
 
 	public static File getItemConfigFile(String itemId) {
-		if (itemId == null) return null;
+		String cleanItemId = cleanItemId(itemId);
+		if (cleanItemId == null) return null;
 		return NexoItems.itemMap()
 				.entrySet()
 				.stream()
-				.filter(entry -> entry.getValue().containsKey(itemId))
+				.filter(entry -> entry.getValue().containsKey(cleanItemId))
 				.map(Map.Entry::getKey)
 				.findFirst()
 				.orElse(null);
@@ -86,5 +88,11 @@ public class NexoHook {
 	public static String getId(ItemBuilder customItem) {
 		if (customItem == null) return null;
 		return NexoItems.idFromItem(customItem);
+	}
+
+	public static String cleanItemId(String itemId) {
+		if (itemId == null) return null;
+		int index = itemId.lastIndexOf(":");
+		return (index >= 0 ? itemId.substring(index + 1) : itemId).trim();
 	}
 }
