@@ -139,30 +139,28 @@ public class ItemBuilder {
 	@SuppressWarnings("UnreachableCode")
 	public ItemBuilder setMaterial(String material, Player player) {
 		material = PlaceholderAPIHook.setPlaceholders(player, material);
-		if (material.contains(":")) {
-			if (Plugin.ITEMS_ADDER.isEnabled()) {
-				CustomStack customStack = ItemsAdderHook.getCustomItem(material);
-				if (customStack != null) {
-					ItemStack itemStack = customStack.getItemStack();
-					material = itemStack.getType().name();
-					if (Tools.requireBukkitVersion(BukkitVersion.V1_21) && ItemsAdderHook.hasItemModel(customStack)) {
-						setItemModel(ItemsAdderHook.getItemModel(customStack));
-					} else {
-						setCustomModelData(ItemsAdderHook.getCustomModelData(customStack));
-					}
+		if (Plugin.ITEMS_ADDER.isEnabled()) {
+			CustomStack customStack = ItemsAdderHook.getCustomItem(material);
+			if (customStack != null) {
+				ItemStack itemStack = customStack.getItemStack();
+				material = itemStack.getType().name();
+				if (Tools.requireBukkitVersion(BukkitVersion.V1_21) && ItemsAdderHook.hasItemModel(customStack)) {
+					setItemModel(ItemsAdderHook.getItemModel(customStack));
+				} else {
+					setCustomModelData(ItemsAdderHook.getCustomModelData(customStack));
 				}
 			}
-			if (Plugin.NEXO.isEnabled()) {
-				com.nexomc.nexo.items.ItemBuilder itemBuilder = NexoHook.getCustomItem(material);
-				if (itemBuilder != null) {
-					ItemStack itemStack = itemBuilder.getFinalItemStack();
-					if (itemStack != null) {
-						material = itemStack.getType().name();
-						if (Tools.requireBukkitVersion(BukkitVersion.V1_21) && NexoHook.hasItemModel(itemBuilder)) {
-							setItemModel(NexoHook.getItemModel(itemBuilder));
-						} else {
-							setCustomModelData(NexoHook.getCustomModelData(itemBuilder));
-						}
+		}
+		if (Plugin.NEXO.isEnabled()) {
+			com.nexomc.nexo.items.ItemBuilder itemBuilder = NexoHook.getCustomItem(material);
+			if (itemBuilder != null) {
+				ItemStack itemStack = itemBuilder.getFinalItemStack();
+				if (itemStack != null) {
+					material = itemStack.getType().name();
+					if (Tools.requireBukkitVersion(BukkitVersion.V1_21) && NexoHook.hasItemModel(itemBuilder)) {
+						setItemModel(NexoHook.getItemModel(itemBuilder));
+					} else {
+						setCustomModelData(NexoHook.getCustomModelData(itemBuilder));
 					}
 				}
 			}
