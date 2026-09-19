@@ -1,5 +1,6 @@
 package net.dehasher.hlib.hook;
 
+import com.nexomc.nexo.NexoPlugin;
 import com.nexomc.nexo.api.NexoItems;
 import com.nexomc.nexo.items.ItemBuilder;
 import net.dehasher.hlib.file.configuration.ConfigurationSection;
@@ -11,6 +12,10 @@ import java.io.File;
 import java.util.Map;
 
 public class NexoHook {
+	public static NexoPlugin getPlugin() {
+		return NexoPlugin.instance();
+	}
+
 	public static boolean isCustomItem(ItemStack item) {
 		return item != null && NexoItems.exists(item);
 	}
