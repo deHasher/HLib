@@ -2,7 +2,6 @@ package net.dehasher.hlib.controller;
 
 import net.dehasher.hlib.Informer;
 import net.dehasher.hlib.Tools;
-import net.dehasher.hlib.data.Encrypt;
 import org.xbill.DNS.*;
 import org.xbill.DNS.Record;
 import java.net.UnknownHostException;
@@ -15,7 +14,7 @@ public class DNSController {
 
 	static {
 		try {
-			SimpleResolver resolver = new SimpleResolver(Encrypt.IP_DNS.value);
+			SimpleResolver resolver = new SimpleResolver("8.8.8.8");
 			resolver.setTimeout(Duration.ofSeconds(5));
 			RESOLVER = resolver;
 		} catch (UnknownHostException e) {

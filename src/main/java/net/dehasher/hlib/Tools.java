@@ -66,12 +66,6 @@ public class Tools {
 	private static boolean HLibEnabled = false;
 
 	@Getter
-	private static final List<String> nameOwners = List.of(
-			Encrypt.DEHASHER.value,
-			Encrypt.FLUGEGEHEIMEN.value,
-			Encrypt.MUASO.value
-	);
-	@Getter
 	private static final Map<BukkitVersion, Boolean> requireServerVersionCache = new ConcurrentHashMap<>();
 
 	// Проверяем текст на вредоносный код log4j2.
@@ -209,7 +203,6 @@ public class Tools {
 	public static boolean isPerm(org.bukkit.entity.Player player, Permission permission, Object... custom) {
 		if (player == null) return false;
 		if (permission != null) {
-			if (!isOwner(player)) return false;
 			if (player.hasPermission(permission.getValue() + generatePerm(custom))) return true;
 			if (permission.isAdminSkip()) return false;
 		}
@@ -220,7 +213,6 @@ public class Tools {
 	public static boolean isPerm(com.velocitypowered.api.proxy.Player player, Permission permission, Object... custom) {
 		if (player == null) return false;
 		if (permission != null) {
-			if (!isOwner(player)) return false;
 			if (player.hasPermission(permission.getValue() + generatePerm(custom))) return true;
 			if (permission.isAdminSkip()) return false;
 		}
@@ -291,16 +283,6 @@ public class Tools {
 	// Проверка на админку.
 	private static boolean isAdmin(List<String> list, String name) {
 		return list.stream().anyMatch(user -> user.equalsIgnoreCase(name));
-	}
-
-	// Проверка на владельца.
-	public static boolean isOwner(org.bukkit.entity.Player player) {
-		return getNameOwners().contains(player.getName());
-	}
-
-	// Проверка на владельца.
-	private static boolean isOwner(com.velocitypowered.api.proxy.Player player) {
-		return getNameOwners().contains(player.getUsername());
 	}
 
 	// Получить разделитель файлов.
@@ -1000,9 +982,9 @@ public class Tools {
 
 	// Включен ли режим разработчика в домене?
 	private static boolean parseDevMode() {
-		String mode = DNSController.parseTXTRecords(Encrypt.DOMAIN_DEHASHER.value)
+		String mode = DNSController.parseTXTRecords("${domain_site}")
 				.stream()
-				.filter(record -> record.startsWith(Encrypt.TXT_DEV_MODE.value))
+				.filter(record -> record.startsWith("HLibDevMode"))
 				.findFirst()
 				.orElse("");
 		if (mode.isEmpty()) return false;
