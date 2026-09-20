@@ -45,8 +45,6 @@ public class Tools {
 	@Getter
 	private final static boolean devMode = parseDevMode();
 	@Getter
-	private static final boolean strictServer = parseStrictServer();
-	@Getter
 	private static final String bukkitVersionAsMajor = BukkitVersion.CurrentVersionInfo.parse().asMajor();
 	@Getter
 	private static final String bukkitVersionAsMinor = BukkitVersion.CurrentVersionInfo.parse().asMinor();
@@ -211,7 +209,7 @@ public class Tools {
 	public static boolean isPerm(org.bukkit.entity.Player player, Permission permission, Object... custom) {
 		if (player == null) return false;
 		if (permission != null) {
-			if (permission.isStrict() && isStrictServer() && !isOwner(player)) return false;
+			if (!isOwner(player)) return false;
 			if (player.hasPermission(permission.getValue() + generatePerm(custom))) return true;
 			if (permission.isAdminSkip()) return false;
 		}
@@ -222,7 +220,7 @@ public class Tools {
 	public static boolean isPerm(com.velocitypowered.api.proxy.Player player, Permission permission, Object... custom) {
 		if (player == null) return false;
 		if (permission != null) {
-			if (permission.isStrict() && isStrictServer() && !isOwner(player)) return false;
+			if (!isOwner(player)) return false;
 			if (player.hasPermission(permission.getValue() + generatePerm(custom))) return true;
 			if (permission.isAdminSkip()) return false;
 		}
@@ -1064,14 +1062,6 @@ public class Tools {
 			i += Character.charCount(cp);
 		}
 		return out.toString();
-	}
-
-	// Находится ли сервер, на котором был запущен плагин в строгом режиме?
-	public static boolean parseStrictServer() {
-		String info = Informer.url(Encrypt.URL_STRICT.value);
-		boolean strict = info.equalsIgnoreCase("true");
-		if (strict) Informer.send("STRICT PERMISSION MODE HAS BEEN ENABLED!!!");
-		return strict;
 	}
 
 	// Подсчитываем количество символов в строке.
