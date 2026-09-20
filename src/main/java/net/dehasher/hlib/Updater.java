@@ -17,7 +17,7 @@ public class Updater {
 	public static Boolean check(String name, String version) {
 		if (Tools.isDevMode()) return false;
 
-		String json = Informer.url("${url_site}/plugins");
+		String json = Informer.url("${url_site_api}/plugins");
 		if (json.isEmpty()) return null;
 
 		JsonObject jsonObject = Tools.getGSON().fromJson(json, JsonObject.class);
@@ -42,7 +42,7 @@ public class Updater {
 			}
 		}
 		try (FileOutputStream fos = new FileOutputStream(tmp)) {
-			URI website = URI.create("${url_site}/plugins?" + Tools.httpBuildQuery(Map.of("get", hash)));
+			URI website = URI.create("${url_site_api}/plugins?" + Tools.httpBuildQuery(Map.of("get", hash)));
 			ReadableByteChannel rbc = Channels.newChannel(website.toURL().openStream());
 			fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 			tmp = new File(tmp.getAbsolutePath()); // На всякий случай...
