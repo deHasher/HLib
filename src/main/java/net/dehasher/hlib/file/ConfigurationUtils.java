@@ -121,10 +121,10 @@ public class ConfigurationUtils {
 				}
 
 				if (clazz.isInstance(value)) {
-					setFieldValue(configuration, field, value);
+					field.set(configuration, value);
 				} else {
 					try {
-						setFieldValue(configuration, field, value);
+						field.set(configuration, value);
 					} catch (Exception e) {
 						LOGGER.log(Level.WARNING, "Can't set '" + value + " (" + value.getClass().getSimpleName() + ")' to '" + field + " (" + clazz.getSimpleName() + ")' for path '" + path + "': " + e.getMessage());
 					}
@@ -155,37 +155,6 @@ public class ConfigurationUtils {
 				throw e;
 			}
 			return tryGetEnum(clazz, enumField.toUpperCase(), true);
-		}
-	}
-
-	@SuppressWarnings({"deprecation"})
-	private static <T> void setFieldValue(final Object object, final Field field, final T value) throws IllegalAccessException {
-		Field modifiersField;
-		boolean isModifiersAccessible;
-		try {
-			modifiersField = Field.class.getDeclaredField("modifiers");
-			isModifiersAccessible = modifiersField.isAccessible();
-			modifiersField.setAccessible(true);
-		} catch (final NoSuchFieldException e) {
-			modifiersField = null;
-			isModifiersAccessible = false;
-		}
-
-		final boolean isFieldAccessible = field.isAccessible();
-		field.setAccessible(true);
-
-		if (modifiersField != null) {
-			final int modifiers = field.getModifiers();
-			modifiersField.setInt(field, modifiers & ~Modifier.FINAL);
-			field.set(object, value);
-			modifiersField.setInt(field, modifiers);
-		} else {
-			field.set(object, value);
-		}
-
-		field.setAccessible(isFieldAccessible);
-		if (modifiersField != null) {
-			modifiersField.setAccessible(isModifiersAccessible);
 		}
 	}
 
