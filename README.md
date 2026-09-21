@@ -151,7 +151,7 @@ public final class JoinListener implements Listener {
 
 ## Сборка из исходников
 
-Для полного build требуется JDK 21: локальная compile-only зависимость Nexo содержит Java 21 bytecode.
+Для полного build требуется JDK 25: локальная compile-only зависимость Nexo содержит Java 25 bytecode.
 
 ```powershell
 .\gradlew.bat clean build
