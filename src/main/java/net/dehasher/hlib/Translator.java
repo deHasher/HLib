@@ -3,7 +3,6 @@ package net.dehasher.hlib;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.Getter;
-import net.dehasher.hlib.data.BukkitVersion;
 import net.dehasher.hlib.data.Platform;
 import net.dehasher.hlib.platform.bukkit.HLib;
 import net.kyori.adventure.key.Key;
@@ -374,18 +373,18 @@ public final class Translator {
 
 		@SuppressWarnings("JavaReflectionMemberAccess")
 		public void install() {
-			if (Tools.requireBukkitVersion(BukkitVersion.V1_19)) {
-				GlobalTranslator.translator().addSource(registry);
-			} else {
+			try {
+				Method method;
 				try {
-					Class<?> clazz = Class.forName("net.kyori.adventure.translation.GlobalTranslator");
-					Object translator = clazz.getMethod("get").invoke(null);
-					translator.getClass()
-							.getMethod("addSource", registry.getClass().getInterfaces()[0])
-							.invoke(translator, registry);
-				} catch (ReflectiveOperationException e) {
-					throw new RuntimeException("Legacy GlobalTranslator install failed", e);
+					method = GlobalTranslator.class.getMethod("translator");
+				} catch (NoSuchMethodException ignored) {
+					method = GlobalTranslator.class.getMethod("get");
 				}
+
+				GlobalTranslator translator = (GlobalTranslator) method.invoke(null);
+				translator.addSource(registry);
+			} catch (ReflectiveOperationException e) {
+				throw new IllegalStateException("GlobalTranslator install failed", e);
 			}
 		}
 
