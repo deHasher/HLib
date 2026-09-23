@@ -23,33 +23,35 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: "Setup Java 25"
+      - name: "Resolve release metadata"
+        id: "meta"
+        shell: "bash"
+        run: |
+          VERSION="$(python3 scripts/render-docs.py --property lib_version_plugin)"
+          JAVA_VERSION="$(python3 scripts/render-docs.py --property java_version_build)"
+
+          if [ -z "$VERSION" ] || [ -z "$JAVA_VERSION" ]; then
+            echo "Properties \"lib_version_plugin\" and \"java_version_build\" must not be empty."
+            exit 1
+          fi
+
+          TAG="v$VERSION"
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "java_version=$JAVA_VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: "Setup Java"
         uses: actions/setup-java@v5
         with:
           distribution: "temurin"
-          java-version: "25"
+          java-version: "${{ steps.meta.outputs.java_version }}"
 
       - name: "Setup Gradle cache"
         uses: gradle/actions/setup-gradle@v6
 
       - name: "Make gradlew executable"
         run: chmod +x ./gradlew
-
-      - name: "Resolve release metadata"
-        id: "meta"
-        shell: "bash"
-        run: |
-          VERSION="$(sed -n 's/^lib_version_plugin[[:space:]]*=[[:space:]]*//p' gradle.properties | head -n 1 | tr -d '\r')"
-
-          if [ -z "$VERSION" ]; then
-          	echo "Property \"lib_version_plugin\" not found in gradle.properties."
-          	exit 1
-          fi
-
-          TAG="v$VERSION"
-
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
       - name: "Build shadow jar"
         run: ./gradlew clean shadowJar --no-daemon
@@ -61,8 +63,8 @@ jobs:
           JAR_PATH="$(find result -maxdepth 1 -type f -name "*.jar" | head -n 1)"
 
           if [ -z "$JAR_PATH" ]; then
-          	echo "Built jar not found in result/."
-          	exit 1
+            echo "Built jar not found in result/."
+            exit 1
           fi
 
           echo "jar_path=$JAR_PATH" >> "$GITHUB_OUTPUT"

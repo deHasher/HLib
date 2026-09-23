@@ -1,0 +1,68 @@
+name: "docs"
+
+on:
+  push:
+    branches: ["master"]
+    paths: ["docs/**", "README.md", "gradle.properties", "scripts/render-docs.py", ".github/workflows/docs.yml"]
+  pull_request:
+    paths: ["docs/**", "README.md", "gradle.properties", "scripts/render-docs.py", ".github/workflows/docs.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "docs-${{ github.event_name == 'pull_request' && github.ref || 'master' }}"
+  cancel-in-progress: false
+
+jobs:
+  docs:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Checkout latest documentation sources"
+        uses: actions/checkout@v6
+        with:
+          ref: "${{ github.event_name == 'pull_request' && github.sha || 'master' }}"
+          fetch-depth: 0
+
+      - name: "Check documentation"
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/render-docs.py --check
+
+      - name: "Checkout Wiki"
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v6
+        with:
+          repository: "${{ github.repository }}.wiki"
+          ref: "master"
+          path: ".wiki"
+
+      - name: "Render documentation"
+        if: github.event_name != 'pull_request'
+        run: python3 scripts/render-docs.py --wiki-dir .wiki
+
+      - name: "Publish README"
+        if: github.event_name != 'pull_request'
+        shell: "bash"
+        run: |
+          git add README.md
+          if ! git diff --cached --quiet -- README.md; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "docs: render README from project properties"
+            git push origin HEAD:master
+          fi
+
+      - name: "Publish Wiki"
+        if: github.event_name != 'pull_request'
+        shell: "bash"
+        run: |
+          while IFS= read -r -d "" TEMPLATE; do
+            git -C .wiki add -- "${TEMPLATE#docs/wiki/}"
+          done < <(find docs/wiki -type f -name "*.md" -print0)
+          if ! git -C .wiki diff --cached --quiet; then
+            git -C .wiki config user.name "github-actions[bot]"
+            git -C .wiki config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git -C .wiki commit -m "docs: synchronize project documentation"
+            git -C .wiki push origin HEAD:master
+          fi
