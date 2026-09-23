@@ -88,6 +88,11 @@ dependencies {
     implementation("de.tr7zw:item-nbt-api:${providers.gradleProperty("dependency_version_itemnbt").get()}")
     implementation("dnsjava:dnsjava:${providers.gradleProperty("dependency_version_dns").get()}")
     implementation("org.gagravarr:vorbis-java-core:${providers.gradleProperty("dependency_version_vorbis").get()}")
+	implementation("org.commonmark:commonmark:${providers.gradleProperty("dependency_version_commonmark").get()}")
+	implementation("org.commonmark:commonmark-ext-gfm-strikethrough:${providers.gradleProperty("dependency_version_commonmark").get()}")
+	implementation("org.commonmark:commonmark-ext-gfm-tables:${providers.gradleProperty("dependency_version_commonmark").get()}")
+	implementation("org.commonmark:commonmark-ext-task-list-items:${providers.gradleProperty("dependency_version_commonmark").get()}")
+	implementation("org.commonmark:commonmark-ext-footnotes:${providers.gradleProperty("dependency_version_commonmark").get()}")
 }
 
 extensions.configure<CheckstyleExtension> {
@@ -195,6 +200,7 @@ tasks {
             include(dependency("de.tr7zw:.*"))
             include(dependency("dnsjava:.*"))
             include(dependency("org.gagravarr:.*"))
+			include(dependency("org.commonmark:.*"))
         }
 
         relocate("de.tr7zw.changeme.nbtapi", project.providers.gradleProperty("lib_path").get() + ".shaded.nbt")
