@@ -3,6 +3,7 @@ package net.dehasher.hlib.wrapper.packet.bukkit;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.EnumWrappers.SoundCategory;
+import org.bukkit.Location;
 
 public class WrapperPlayServerNamedSoundEffect extends AbstractPacket {
 	public static final PacketType TYPE = PacketType.Play.Server.NAMED_SOUND_EFFECT;
@@ -28,6 +29,12 @@ public class WrapperPlayServerNamedSoundEffect extends AbstractPacket {
 
 	public void setSoundCategory(SoundCategory value) {
 		getHandle().getSoundCategories().write(0, value);
+	}
+
+	public void setEffectPosition(Location location) {
+		setEffectPositionX((int) (location.getX() * 8.0));
+		setEffectPositionY((int) (location.getY() * 8.0));
+		setEffectPositionZ((int) (location.getZ() * 8.0));
 	}
 
 	public int getEffectPositionX() {
@@ -68,5 +75,13 @@ public class WrapperPlayServerNamedSoundEffect extends AbstractPacket {
 
 	public void setPitch(float value) {
 		getHandle().getFloat().write(1, value);
+	}
+
+	public long getSeed() {
+		return getHandle().getLongs().read(0);
+	}
+
+	public void setSeed(long value) {
+		getHandle().getLongs().write(0, value);
 	}
 }
