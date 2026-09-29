@@ -163,7 +163,6 @@ public enum Permission {
 	HTOKENS_BALANCE_OTHERS(false),
 	HTOKENS_SEND(false),
 	HTOKENS_SHOP(false),
-	HTOKENS_TOP(false),
 	HTOKENS_GIVE(false),
 	HTOKENS_TAKE(false),
 	HTOKENS_SET(false),

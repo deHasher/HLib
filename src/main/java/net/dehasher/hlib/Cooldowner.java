@@ -111,6 +111,8 @@ public class Cooldowner {
 		SWAP(false),
 		RAPE_EFFECTS(false),
 		CRATE_OPEN(false),
+		TOKENS_SHOP(false),
+		TOKENS_WARNING(false),
 		SWAP_INVENTORY(false),
 		PVP(false),
 		PVP_ARENA_LEAVE(false),
