@@ -60,7 +60,6 @@ dependencies {
     compileOnly(files("libs/emotecraft.jar"))
     compileOnly(files("libs/ProtocolLib.jar"))
     compileOnly(files("libs/ItemJoin.jar"))
-    compileOnly(files("libs/TokenManager.jar"))
 
     // Это слитые платные плагины с сайтов по типу black-minecraft.
     // Не используйте их для собственной безопасности, они нужны ТОЛЬКО для компиляции проекта.

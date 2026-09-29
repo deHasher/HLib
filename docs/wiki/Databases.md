@@ -104,6 +104,39 @@ int[] result = mysql.query("INSERT INTO player_tags (player_id, tag) VALUES (?, 
 
 Batch выполняется без явной транзакции. Пустой массив означает и пустой batch, и ошибку.
 
+## Транзакции
+
+Для атомарного изменения нескольких записей используйте `MySQL.transaction(...)`. Callback получает один `MySQL.Transaction`, связанный с одним JDBC connection и текущим потоком:
+
+```java
+long purchaseId = mysql.transaction(transaction -> {
+	int changed = transaction.update(
+		"UPDATE wallets SET balance = balance - ? WHERE name = ? AND balance >= ?",
+		price, name, price
+	);
+	if (changed != 1) throw new java.sql.SQLException("Недостаточный баланс или неизвестный игрок");
+	return transaction.insert(
+		"INSERT INTO purchases (name, price) VALUES (?, ?)",
+		name, price
+	);
+});
+```
+
+| Метод | Результат |
+|---|---|
+| `transaction.update(sql, args...)` | Количество изменённых строк как `int` |
+| `transaction.insert(sql, args...)` | Generated key как `long`; требует ровно одну вставленную строку и непустой ключ |
+| `transaction.query(sql, reader, args...)` | Значение, возвращённое `reader.apply(ResultSet)` |
+| `mysql.transaction(action)` | Значение callback после успешного commit |
+
+Оба callback используют `MySQL.ThrowingFunction<T, R>` и могут выбрасывать `SQLException`. `ResultSet` открыт только во время `reader`; сохраняйте извлечённые значения, а не JDBC-объекты. При выходе из основного callback транзакция закрывается для последующих вызовов, даже если её объект был сохранён. Использование из другого потока запрещено.
+
+При нормальном возврате callback выполняется commit. `SQLException`, `RuntimeException` и `Error` приводят к попытке rollback и передаются вызывающему коду. Ошибка rollback добавляется к исходной как suppressed; statements, result sets и connection закрываются автоматически. Автоматических повторов нет. Ошибка связи во время commit может означать неопределённый результат на стороне сервера: не повторяйте денежную операцию вслепую.
+
+Все вызовы остаются синхронными; выполняйте их через async `Scheduler`. Не вызывайте команды Bukkit, внешние HTTP API или выдачу предметов внутри callback: SQL rollback не отменяет эти действия. Транзакции гарантируют атомарность только для transactional таблиц (например, InnoDB); DDL и другие команды с неявным commit в callback не допускаются. Вложенный `mysql.query(...)` открывает отдельное соединение и не входит в текущую транзакцию — используйте только переданный объект `Transaction`.
+
+Новое API не подавляет и не логирует SQL-ошибки: обработка и безопасное сообщение об ошибке остаются ответственностью вызывающего кода. Старый builder `MySQL.Query` сохраняет прежнее поведение.
+
 ## Своя DDL-константа
 
 ```java

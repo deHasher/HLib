@@ -52,7 +52,7 @@ checkstyleMain + spotbugsMain + test → check
 assemble + check + shadowJar → build
 ```
 
-В текущем репозитории нет `src/test`, поэтому Gradle сообщает `test NO-SOURCE`. Полный `build` включает также Checkstyle и SpotBugs. Успех этих проверок не подтверждает совместимость каждой интеграции с реальным сервером.
+Тестовых исходников в `src/test` нет, поэтому стандартная задача `test` не выполняет тесты. Полный `build` включает Checkstyle и SpotBugs. Успех этих проверок не подтверждает совместимость каждой интеграции с реальным сервером.
 
 Workflow `build` запускает `clean shadowJar` на Temurin {{java_version_build}}, создаёт или обновляет release и принудительно перемещает тег `v<version>` на текущий commit. Один и тот же version tag не следует считать неизменяемым артефактом. Этот workflow не запускает `checkstyleMain`, `spotbugsMain` и тесты.
 

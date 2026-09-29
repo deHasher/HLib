@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.*;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
@@ -71,6 +72,86 @@ public class MySQL {
 	@FunctionalInterface
 	public interface ThrowingConsumer<T> {
 		void accept(T t) throws SQLException;
+	}
+
+	@FunctionalInterface
+	public interface ThrowingFunction<T, R> {
+		R apply(T value) throws SQLException;
+	}
+
+	public <T> T transaction(ThrowingFunction<Transaction, T> action) throws SQLException {
+		Objects.requireNonNull(action, "Transaction action");
+		if (!isEnabled()) throw new SQLException("MySQL is disabled");
+		try (Connection connection = getConnection()) {
+			if (connection == null) throw new SQLException("MySQL connection is unavailable");
+			connection.setAutoCommit(false);
+			Transaction transaction = new Transaction(this, connection);
+			try {
+				T result = action.apply(transaction);
+				connection.commit();
+				return result;
+			} catch (SQLException | RuntimeException | Error failure) {
+				try {
+					connection.rollback();
+				} catch (SQLException rollbackFailure) {
+					failure.addSuppressed(rollbackFailure);
+				}
+				throw failure;
+			} finally {
+				transaction.closed = true;
+			}
+		}
+	}
+
+	public static final class Transaction {
+		private final MySQL mysql;
+		private final Connection connection;
+		private final Thread owner;
+		private boolean closed;
+
+		private Transaction(MySQL mysql, Connection connection) {
+			this.mysql = mysql;
+			this.connection = connection;
+			this.owner = Thread.currentThread();
+		}
+
+		public int update(String query, Object... args) throws SQLException {
+			checkOpen();
+			try (PreparedStatement statement = connection.prepareStatement(query)) {
+				mysql.prepare(statement, args);
+				return statement.executeUpdate();
+			}
+		}
+
+		public long insert(String query, Object... args) throws SQLException {
+			checkOpen();
+			try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+				mysql.prepare(statement, args);
+				if (statement.executeUpdate() != 1) throw new SQLException("Expected one inserted row");
+				try (ResultSet keys = statement.getGeneratedKeys()) {
+					if (!keys.next()) throw new SQLException("Insert did not return a generated key");
+					long key = keys.getLong(1);
+					if (keys.wasNull()) throw new SQLException("Insert returned a null generated key");
+					return key;
+				}
+			}
+		}
+
+		public <T> T query(String query, ThrowingFunction<ResultSet, T> reader, Object... args) throws SQLException {
+			checkOpen();
+			Objects.requireNonNull(reader, "Result reader");
+			try (PreparedStatement statement = connection.prepareStatement(query)) {
+				mysql.prepare(statement, args);
+				try (ResultSet result = statement.executeQuery()) {
+					return reader.apply(result);
+				}
+			}
+		}
+
+		private void checkOpen() throws SQLException {
+			if (closed) throw new SQLException("Transaction is closed");
+			if (owner != Thread.currentThread()) throw new SQLException("Transaction belongs to another thread");
+		}
 	}
 
 	public void shutdown() {

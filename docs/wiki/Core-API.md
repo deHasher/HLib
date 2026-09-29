@@ -179,6 +179,8 @@ NBT API версии `{{dependency_version_itemnbt}}` включён в HLib. Pl
 
 Не переиспользуйте один builder после смены material между potion, armor, banner и shield: внутренние type-флаги не сбрасываются. Не передавайте `null` в `setAmount`.
 
+Для optional custom item предусмотрен `setMaterial("namespace:id", player, Material.EMERALD)`: если идентификатор не разрешился в ItemsAdder/Nexo или Bukkit Material, либо строка пуста, используется указанный fallback. Это относится и к Nexo ID без namespace. `null` fallback означает `STONE`; overload без явного fallback также использует `STONE`. Обычные Bukkit material names дополнительно валидируйте при чтении настройки.
+
 ## Время и числа
 
 ### Длительность

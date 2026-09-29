@@ -83,7 +83,7 @@
 
 | Класс | Назначение | Статус и важные условия |
 | --- | --- | --- |
-| `MySQL` | HikariCP-пул и builder подготовленных запросов | Основной; все JDBC-операции синхронные |
+| `MySQL` | HikariCP-пул, builder подготовленных запросов и callback-транзакции | Основной; все JDBC-операции синхронные; `Transaction` предоставляет affected rows, 64-bit generated key и typed query |
 | `MySQLTable` | Интерфейс SQL/DDL-константы с методом `getValue()` | Основной; SQL формирует реализующий enum или класс |
 | `Redis` | Jedis-пул, publish и базовый Pub/Sub | Основной; подписка блокирует выделенный поток |
 

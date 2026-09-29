@@ -138,6 +138,12 @@ public class ItemBuilder {
 
 	@SuppressWarnings("UnreachableCode")
 	public ItemBuilder setMaterial(String material, Player player) {
+		return setMaterial(material, player, Material.STONE);
+	}
+
+	@SuppressWarnings("UnreachableCode")
+	public ItemBuilder setMaterial(String material, Player player, Material fallback) {
+		if (material == null || material.isBlank()) return setMaterial(fallback != null ? fallback : Material.STONE);
 		material = PlaceholderAPIHook.setPlaceholders(player, material);
 		if (Plugin.ITEMS_ADDER.isEnabled()) {
 			CustomStack customStack = ItemsAdderHook.getCustomItem(material);
@@ -165,8 +171,9 @@ public class ItemBuilder {
 				}
 			}
 		}
-		if (material.contains(":")) material = Material.STONE.name();
-		setMaterial(Material.matchMaterial(material));
+		if (material.contains(":")) material = (fallback != null ? fallback : Material.STONE).name();
+		Material resolved = Material.matchMaterial(material);
+		setMaterial(resolved != null ? resolved : fallback != null ? fallback : Material.STONE);
 		return this;
 	}
 
