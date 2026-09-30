@@ -246,6 +246,8 @@ String materialName = Translator.getMaterialName(Material.DIAMOND, player);
 
 Для команд с произвольными permission nodes используйте штатный command API Paper или Velocity. Базовые классы HLib подходят проектам, чьи права уже представлены в `Permission`.
 
+Для HCalendar зарегистрированы `hcalendar.command.calendar`, `hcalendar.admin`, `hcalendar.heads`, `hcalendar.reload`. Все четыре элемента созданы без глобального admin-skip; сам HCalendar объединяет специализированные административные права с `hcalendar.admin`. Базовое право команды проверяется отдельно обёрткой HLib. В каталоге `Plugin` есть `HCALENDAR` с именем `HCalendar`. При установке нового модуля обновляйте HLib вместе с ним.
+
 ## Другие специализированные классы
 
 | Класс | Когда использовать |

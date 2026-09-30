@@ -23,6 +23,7 @@ public enum Plugin {
 	GADGETS_MENU("GadgetsMenu"),
 	HANTIRELOG("HAntiRelog"),
 	HBUYER("HBuyer"),
+	HCALENDAR("HCalendar"),
 	HDISCORD("HDiscord"),
 	HCLANS("HClans"),
 	HCRATES("HCrates"),
