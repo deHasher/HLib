@@ -44,9 +44,6 @@ dependencies:
     emotecraft:
       load: BEFORE
       required: false
-    ajParkour:
-      load: BEFORE
-      required: false
     WorldEdit:
       load: BEFORE
       required: false

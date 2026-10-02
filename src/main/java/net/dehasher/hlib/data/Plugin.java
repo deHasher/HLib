@@ -9,7 +9,6 @@ import org.bukkit.Bukkit;
 import java.util.*;
 
 public enum Plugin {
-	AJ_PARKOUR("ajParkour"),
 	AURA_SKILLS("AuraSkills"),
 	AUTO_SAVE_WORLD("AutoSaveWorld"),
 	CHUNKY_BORDER("ChunkyBorder"),
@@ -31,6 +30,7 @@ public enum Plugin {
 	HCORE("HCore"),
 	HKALIAN("HKalian"),
 	HMARRY("HMarry"),
+	HPARKOUR("HParkour"),
 	HPROTECT("HProtect"),
 	HSALARY("HSalary"),
 	HSEX("HSex"),

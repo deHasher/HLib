@@ -19,7 +19,6 @@ softdepend:
   - WorldGuard
   - ItemsAdder
   - emotecraft
-  - ajParkour
   - WorldEdit
   - LuckPerms
   - ItemJoin

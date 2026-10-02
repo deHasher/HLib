@@ -14,6 +14,7 @@ public enum CompiledPattern {
 	MOJANG_HEX_FORMAT(Pattern.compile("&x[&0-9a-fA-F]{12}")),
 	GRADIENT_HEX_FORMAT(Pattern.compile("\\{#[0-9a-fA-F]{6}>}[^{]*\\{#[0-9a-fA-F]{6}<}")),
 	PLAYER(Pattern.compile("^[a-zA-Z0-9_]{3,16}$")),
+	IDENTIFIER(Pattern.compile("[a-z0-9-]{1,32}")),
 	FAWE(Pattern.compile("[a-zA-Z0-9_ /:,%]+")),
 	LOG4J(Pattern.compile(".*\\$\\{[^}]*}.*")),
 	CYRILLIC(Pattern.compile(".*\\p{InCyrillic}.*")),

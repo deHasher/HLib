@@ -55,7 +55,6 @@ dependencies {
     compileOnly(files("libs/UltimateTimber.jar"))
     compileOnly(files("libs/GadgetsMenu.jar"))
     compileOnly(files("libs/CMILib.jar"))
-    compileOnly(files("libs/ajParkour.jar"))
     compileOnly(files("libs/TAB.jar"))
     compileOnly(files("libs/emotecraft.jar"))
     compileOnly(files("libs/ProtocolLib.jar"))
