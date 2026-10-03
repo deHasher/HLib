@@ -119,7 +119,6 @@ public class Cooldowner {
 		STAND(false),
 		COMMAND(false),
 		CONTRACTS(false),
-		KALIAN(false),
 		DEATH(false),
 		PROTECT(false),
 		CRASH(false),

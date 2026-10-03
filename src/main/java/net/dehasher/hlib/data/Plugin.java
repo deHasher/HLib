@@ -28,7 +28,6 @@ public enum Plugin {
 	HCRATES("HCrates"),
 	HCONTRACTS("HContracts"),
 	HCORE("HCore"),
-	HKALIAN("HKalian"),
 	HMARRY("HMarry"),
 	HPARKOUR("HParkour"),
 	HPROTECT("HProtect"),

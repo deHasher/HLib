@@ -248,10 +248,6 @@ String materialName = Translator.getMaterialName(Material.DIAMOND, player);
 
 Для команд с произвольными permission nodes используйте штатный command API Paper или Velocity. Базовые классы HLib подходят проектам, чьи права уже представлены в `Permission`.
 
-Для HCalendar зарегистрированы `hcalendar.command.calendar`, `hcalendar.admin`, `hcalendar.heads`, `hcalendar.reload`. Все четыре элемента созданы без глобального admin-skip; сам HCalendar объединяет специализированные административные права с `hcalendar.admin`. Базовое право команды проверяется отдельно обёрткой HLib. В каталоге `Plugin` есть `HCALENDAR` с именем `HCalendar`. При установке нового модуля обновляйте HLib вместе с ним.
-
-Для HParkour зарегистрированы `hparkour.command.hparkour`, `hparkour.play` и `hparkour.admin`. У права команды и участия разрешён глобальный admin-skip, у административного права он отключён. Флаг enum задаёт именно обход через `Info.admins`, а не выдачу права обычным игрокам по умолчанию. HParkour использует одну команду `/hparkour`, вход на арену через портал и `WorldEditHook.getSelection(...)` для прямоугольных границ арен и порталов. В каталоге `Plugin` добавлен `HPARKOUR` с именем `HParkour`; модуль необходимо устанавливать вместе с обновлённой HLib.
-
 ## Другие специализированные классы
 
 | Класс | Когда использовать |
