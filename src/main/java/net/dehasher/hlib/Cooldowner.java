@@ -116,7 +116,6 @@ public class Cooldowner {
 		SWAP_INVENTORY(false),
 		PVP(false),
 		PVP_ARENA_LEAVE(false),
-		STAND(false),
 		COMMAND(false),
 		CONTRACTS(false),
 		DEATH(false),
