@@ -109,6 +109,7 @@ public class Cooldowner {
 		KILL(false),
 		DRILL3X3(false),
 		SWAP(false),
+		JOB_MINE(false),
 		RAPE_EFFECTS(false),
 		CRATE_OPEN(false),
 		TOKENS_SHOP(false),
