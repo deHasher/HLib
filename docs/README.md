@@ -21,6 +21,7 @@ HLib — публичная библиотека-плагин с общим API 
 - Создание `ItemStack`, custom model data, item model, NBT и адаптеры ItemsAdder/Nexo.
 - Пулы MySQL/MariaDB и Redis, prepared queries, batch и generated keys.
 - Адаптеры LuckPerms, Vault, WorldGuard, WorldEdit, TAB, CMI, PlaceholderAPI и других плагинов.
+- Предварительная проверка настроенных Bukkit-команд через `HCommandPreflight` и `HCommandBukkit.canExecute` перед оплатой внешнего действия.
 - Низкоуровневые обёртки ProtocolLib для клиентских и серверных пакетов.
 - Утилиты для cooldown, времени, чисел, опыта, локаций, переводов и версий сервера.
 

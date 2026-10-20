@@ -49,7 +49,7 @@ public abstract class HCommandBukkit extends BukkitCommand {
 		setCooldown(cooldown);
 		setLimit(limit);
 
-		registeredCommands.add(this);
+		getRegisteredCommands().add(this);
 	}
 
 	@SuppressWarnings("DuplicatedCode")
@@ -84,6 +84,10 @@ public abstract class HCommandBukkit extends BukkitCommand {
 			}
 		}
 
+		return true;
+	}
+
+	public boolean canExecute(CommandSender sender, String alias, String[] arguments) {
 		return true;
 	}
 

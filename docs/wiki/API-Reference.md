@@ -41,7 +41,8 @@
 
 | Класс | Назначение | Статус и важные условия |
 | --- | --- | --- |
-| `HCommandBukkit` | Базовый класс Bukkit-команды с cooldown и лимитом | Специализированный; объект нужно отдельно зарегистрировать в Bukkit, а permission должен существовать в `Permission` |
+| `HCommandBukkit` | Базовый класс Bukkit-команды с cooldown, лимитом и `canExecute` | Специализированный; объект нужно отдельно зарегистрировать в Bukkit, permission должен существовать в `Permission`; `canExecute` по умолчанию разрешает действие и переопределяется для предварительной доменной проверки |
+| `HCommandPreflight` | Предварительная проверка настроенных Bukkit-команд перед внешним действием | `command.HCommandPreflight.prepare(CommandSender, List<String>)` и `Prepared.check()` на main thread; результаты `ALLOWED`/`DENIED`/`UNAVAILABLE`, снимок команд и вызов их `canExecute`; команды не выполняются |
 | `HCommandVelocity` | Аналогичная основа для `SimpleCommand` | Специализированный; нужны регистрация в Velocity и существующий элемент `Permission` |
 | `HCommandAnimatedBukkit` | Учёт задач и игроков для анимированной команды | Специализированный; подкласс сам запускает и регистрирует задачу |
 
@@ -137,7 +138,7 @@
 
 ## Интеграции
 
-Все hook-классы находятся в `net.dehasher.hlib.hook`. Большинство требует соответствующий API в runtime; `PlaceholderAPIHook` отдельно проверяет наличие плагина и при его отсутствии возвращает вход без изменений. `HTokensHook` получает provider через Bukkit services и требует общий контракт HLib в compile classpath вызывающего плагина.
+Все hook-классы находятся в `net.dehasher.hlib.hook`. Большинство требует соответствующий API в runtime; `PlaceholderAPIHook` отдельно проверяет наличие плагина и при его отсутствии возвращает вход без изменений. `HTokensHook` получает provider через Bukkit services.
 
 | Класс | Сторонний компонент | Назначение |
 | --- | --- | --- |

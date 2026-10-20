@@ -9,7 +9,7 @@
 
 HLib — публичная библиотека-плагин с общим API для разработки Minecraft-плагинов. Она собирает в одном JAR работу с цветами и Adventure-компонентами, планировщиком, YAML-конфигурациями, предметами, MySQL/MariaDB, Redis, популярными плагинами и ProtocolLib.
 
-Текущая версия: **6.22**.
+Текущая версия: **6.24**.
 
 Один `HLib.jar` содержит точки входа для Paper/Bukkit loader и Velocity. HLib устанавливается рядом с вашим плагином и подключается к проекту как `compileOnly`: в свой JAR библиотеку встраивать не нужно.
 
@@ -21,6 +21,7 @@ HLib — публичная библиотека-плагин с общим API 
 - Создание `ItemStack`, custom model data, item model, NBT и адаптеры ItemsAdder/Nexo.
 - Пулы MySQL/MariaDB и Redis, prepared queries, batch и generated keys.
 - Адаптеры LuckPerms, Vault, WorldGuard, WorldEdit, TAB, CMI, PlaceholderAPI и других плагинов.
+- Предварительная проверка настроенных Bukkit-команд через `HCommandPreflight` и `HCommandBukkit.canExecute` перед оплатой внешнего действия.
 - Низкоуровневые обёртки ProtocolLib для клиентских и серверных пакетов.
 - Утилиты для cooldown, времени, чисел, опыта, локаций, переводов и версий сервера.
 
@@ -28,7 +29,7 @@ HLib — публичная библиотека-плагин с общим API 
 
 | Компонент | Конфигурация проекта |
 |---|---|
-| Версия HLib | `6.22` |
+| Версия HLib | `6.24` |
 | Bytecode собственных классов HLib | Java `17` |
 | Сборка и CI | JDK `25` |
 | Checkstyle при полном `build` | JDK `21` |
