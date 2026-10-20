@@ -63,6 +63,9 @@ Paper, Velocity, ProtocolLib и API hook-плагинов являются `comp
 - Для массивов объектов вместо `Arrays.stream(array)` используется `Stream.of(array)`. Для `int[]`, `long[]`, `double[]` выбираются `IntStream.of`, `LongStream.of`, `DoubleStream.of`; другие примитивные массивы обходятся через подходящий доступ по индексу, например `IntStream.range`. `Stream.of(primitiveArray)` не является обходом его элементов.
 - Для простых DTO предпочитается `record`, если сохраняются логика, идентичность, ограничения API и приемлемая производительность. Неизменяемость ссылок компонентов не заменяет защитную копию вложенных коллекций; объекты с изменяемым состоянием, наследованием или обязательным закрытым конструктором публичного API остаются обычными классами.
 - Тривиальные геттеры и сеттеры создаются через Lombok `@Getter`/`@Setter`, включая явные аннотации статических полей: аннотации класса на них не действуют. Доступность сохраняется; внутреннее состояние использует `AccessLevel.PRIVATE`, `final`-поля имеют только геттер. Обращение к состоянию идёт через эти методы, кроме инициализации. Публичный API и видимость mutable-объектов не расширяются. Методы с валидацией, вычислениями, защитным копированием или побочными эффектами остаются явными, у record используются нативные методы компонентов.
+- Для изменения регистра строк обязательны `.toUpperCase()` и `.toLowerCase()` без аргументов. Передача `Locale.ROOT` в `toUpperCase` или `toLowerCase` запрещена.
+- Отладка выводится только через `Tools.debug(player, message)`; для консоли используется `Tools.debug(null, message)`. Logger любого уровня, `System.out` и `System.err` для отладочных сообщений запрещены.
+- Обычные сообщения игроку или в консоль отправляются только через `Informer.send(player, message)` или `Informer.send(message)` соответственно. `Informer.component(...)` создаёт компонент, отправка выполняется через `Informer.send(...)`. Для title, action bar и boss bar используются API соответствующих специальных каналов.
 
 ## Проверки проекта
 
@@ -95,7 +98,7 @@ Workflow `build` запускает `clean shadowJar` на Temurin {{java_versio
 | Класс HLib компилируется, но недоступен на Paper | Paper plugin classpath изолирован | Добавьте `dependencies.server.HLib` с `join-classpath: true` |
 | Плейсхолдеры PAPI остались в тексте | PlaceholderAPI отсутствует или ещё не загружен | Установите его для нужных подстановок; без PAPI hook возвращает исходный текст |
 | `NoClassDefFoundError` из hook-класса | API optional-плагина отсутствует | Установите плагин, добавьте его API как `compileOnly` и проверяйте `Plugin.X.isEnabled()` после загрузки |
-| Строка не приходит игроку Velocity | String path использует незарегистрированный `hlib:main` | Передавайте `Informer.component(...)` либо используйте native Velocity `sendMessage` |
+| Строка не приходит игроку Velocity | String path использует незарегистрированный `hlib:main` | Используйте `Informer.send(player, Informer.component(...))` |
 | Сервер останавливается при старте HLib | Сервис обновлений недоступен на non-Windows | Проверьте DNS, HTTPS, proxy/firewall и `{{url_site_api}}/plugins` |
 | Новый `HCommand*` падает на `Permission.getEnum` | Автосгенерированного permission нет в enum HLib | Используйте native command API или добавьте permission в исходники HLib |
 | Команда создана, но не появилась | Constructor хранит объект, но не регистрирует его | Зарегистрируйте команду в `CommandMap`/`CommandManager` самостоятельно |
