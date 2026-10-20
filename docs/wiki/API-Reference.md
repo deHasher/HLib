@@ -137,7 +137,7 @@
 
 ## Интеграции
 
-Все hook-классы находятся в `net.dehasher.hlib.hook`. Большинство требует соответствующий API в runtime; `PlaceholderAPIHook` отдельно проверяет наличие плагина и при его отсутствии возвращает вход без изменений.
+Все hook-классы находятся в `net.dehasher.hlib.hook`. Большинство требует соответствующий API в runtime; `PlaceholderAPIHook` отдельно проверяет наличие плагина и при его отсутствии возвращает вход без изменений. `HTokensHook` получает provider через Bukkit services и требует общий контракт HLib в compile classpath вызывающего плагина.
 
 | Класс | Сторонний компонент | Назначение |
 | --- | --- | --- |
@@ -147,6 +147,7 @@
 | `EmoteCraftHook` | Emotecraft | Запуск и остановка анимаций |
 | `ForceResourcepacksHook` | ForceResourcepacks | Получение и обновление resource pack |
 | `GadgetsMenuHook` | GadgetsMenu | Получение `PlayerManager` |
+| `HTokensHook` | HTokens service provider | `getBalance(HPlayer/Player/String)` возвращает `CompletableFuture<Long>` из SQL; отсутствие сервиса и ошибки не подменяются нулём. `withdraw`/`deposit` возвращают `CompletableFuture<Boolean>`: подтверждённое изменение, известный отказ или exceptional future при неизвестном результате SQL; внешние команды выполняет потребитель |
 | `ItemJoinHook` | ItemJoin | Проверка custom item |
 | `ItemsAdderHook` | ItemsAdder | Custom items, модели, permission и pack metadata |
 | `LibsDisguisesHook` | LibsDisguises | Проверка и снятие disguise |

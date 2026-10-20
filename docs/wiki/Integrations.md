@@ -1,6 +1,6 @@
 # Интеграции
 
-Hook-классы HLib — тонкие адаптеры над API сторонних плагинов. Они не устанавливают зависимости, обычно не проверяют их наличие и могут не загрузиться без соответствующего API.
+Hook-классы HLib — тонкие адаптеры над API сторонних плагинов. Они не устанавливают зависимости, обычно не проверяют их наличие и могут не загрузиться без соответствующего API. `HTokensHook` использует общий контракт HLib через Bukkit services; для его вызова не нужны классы HTokens в compile classpath.
 
 ## Безопасный шаблон
 
@@ -30,6 +30,7 @@ if (Plugin.WORLD_GUARD.isEnabled()) {
 | `EmoteCraftHook` | Emotecraft, косвенно ProtocolLib | play/stop emote, client detection | `reload` ожидает отсутствующие ресурсы и может удалить старые JSON |
 | `ForceResourcepacksHook` | ForceResourcepacks Velocity | поиск и обновление URL/SHA-1 pack | URL, UUID и hash не валидируются |
 | `GadgetsMenuHook` | GadgetsMenu | `PlayerManager` игрока | `getPlugin(Player)` возвращает manager, не plugin instance |
+| `HTokensHook` | HTokens с зарегистрированным provider | асинхронные `withdraw`/`deposit` с журналом баланса | `withdraw` требует main thread и online-игрока; неизвестный результат SQL передаётся exceptional future |
 | `ItemJoinHook` | ItemJoin | проверка custom item | API создаётся в static initializer |
 | `ItemsAdderHook` | ItemsAdder | custom item, model, permission, pack URL/SHA-1 | SHA-1 вычисляется синхронно с диска |
 | `LibsDisguisesHook` | LibsDisguises | состояние и снятие disguise | сначала проверяйте `isDisguised` |
@@ -62,6 +63,22 @@ if (Plugin.WORLD_GUARD.isEnabled()) {
 | spark | `{{dependency_version_spark}}` |
 
 Часть API подключена из локальных JAR в `libs`; у таких зависимостей нет отдельного параметра версии в `gradle.properties`.
+
+## HTokens
+
+`HTokensHook.Provider` находится в HLib `6.22`. HTokens регистрирует реализацию через Bukkit `ServicesManager` после готовности собственных данных и снимает регистрацию при отключении. Hook каждый раз получает регистрацию заново и проверяет включённость её владельца. `getProvider()` возвращает `null`, если сервиса нет; `isAvailable()` проверяет зарегистрированный сервис, а не кэш `Plugin.isEnabled()`.
+
+Вызывающий плагин использует ту же установленную HLib без её встраивания в свой JAR. Обратной compile-only зависимости HLib от HTokens не требуется.
+
+`HTokensHook.getBalance(HPlayer)`, `getBalance(Player)` и `getBalance(String)` возвращают `CompletableFuture<Long>` с балансом в фэйтиках. Объектные перегрузки передают имя в `Provider.getBalance(String)`. HTokens читает баланс асинхронно через SQL, используя существующий `TokenController.balance`; первый запрос известного HLib-профиля создаёт счёт с настроенной начальной суммой. `Player` не обязан быть online. Отсутствие provider даёт failed future с `IllegalStateException`, неизвестный профиль и ошибка БД сохраняются как исключение future; ноль означает настоящий нулевой баланс. `null` отклоняется синхронно через `Objects.requireNonNull`. Метод не выводит сообщения; поток завершения future не фиксирован. Полученная сумма является снимком и не заменяет проверку достаточности внутри `withdraw`.
+
+`HTokensHook.withdraw(player, amount)` и `deposit(player, amount)` возвращают `CompletableFuture<Boolean>`; без сервиса результат — `false`. Положительная сумма обязательна. `withdraw` запускается на основном потоке и требует online-игрока; `deposit` допускает возврат отключившемуся игроку, если HTokens доступен. `true` подтверждает изменение баланса, `false` обозначает известный отказ. Неопределённый результат SQL передаётся exceptional future; поток завершения future не фиксирован.
+
+HTokens выполняет эти операции через общий busy lock и `TokenController.change`, записывая `TAKE`/`GIVE` в `htokens_log`. Этот API не принимает команды выдачи, не создаёт `htokens_purchase` и не управляет исполнением внешних действий.
+
+Потребитель сначала готовит команды и проверяет возможность действия, затем ждёт успешного `withdraw` и выполняет команды на основном потоке. Компенсацию через `deposit` можно делать одной попыткой, только когда действие заведомо ещё не запускалось. После попытки внешней команды или неизвестной SQL-ошибки автоматический возврат и повтор опасны из-за возможного уже выполненного действия.
+
+В HCore `/iskin` используется фиксированная цена одного случайного скина и настроенный `forceopen` без ключей. Закрытие меню не отменяет оплату/действие. Подтверждённое списание компенсируется одной попыткой `deposit`, если до команды игрок вышел, HCore остановлен или sync-задачу нельзя запланировать; после попытки команды возврата нет. Магазины HTokens используют отдельный путь с аудитом покупок.
 
 ## PlaceholderAPI
 
