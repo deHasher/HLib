@@ -21,7 +21,6 @@ public enum Plugin {
 	BOT_SENTRY("BotSentry"),
 	GADGETS_MENU("GadgetsMenu"),
 	HANTIRELOG("HAntiRelog"),
-	HBUYER("HBuyer"),
 	HCALENDAR("HCalendar"),
 	HDISCORD("HDiscord"),
 	HCLANS("HClans"),

@@ -35,6 +35,17 @@ chmod +x gradlew
 
 `build` зависит от `shadowJar`. Перед компиляцией Gradle копирует Java-файлы в generated sources и заменяет токены `${...}` значениями из `gradle.properties`. Тем же способом заполняются `plugin.yml`, `paper-plugin.yml` и Velocity metadata.
 
+### Локальная проверка без копирования в HCore
+
+`shadowJar` завершает работу задачей `copyShadowJarToHCorePlugins`, которая копирует JAR в локальный каталог `HCore/plugins`, если он существует. Для проверки исходников достаточно `compileJava`; для упаковки без этого копирования исключите завершающую задачу:
+
+```powershell
+.\gradlew.bat compileJava --offline
+.\gradlew.bat shadowJar -x copyShadowJarToHCorePlugins --offline
+```
+
+Команды запускаются из HLib. Его `settings.gradle.kts` не подключает HCore; эти задачи не конфигурируют соседний проект и не запускают плагины. Режим `--offline` требует уже закэшированных зависимостей. Упаковка обновляет локальный `result/HLib.jar` и результаты задач в `build/`, а завершающая задача копирования не запускается. При локальной проверке копия `HCore/plugins/HLib.jar` обновлена отдельно после сравнения содержимого обоих JAR и проверки SHA-256; серверы не запускались. Checkstyle, SpotBugs и серверные сценарии этими командами не проверяются.
+
 ## Что входит в JAR
 
 Shadow JAR включает Jedis, Commons Pool, HikariCP, Gson, SnakeYAML, MySQL Connector/J, MariaDB driver, GeoIP/MaxMind, NBT API, dnsjava и Vorbis core. Только NBT API relocates в namespace HLib; остальные библиотеки потенциально могут пересечься по версиям с окружением.
@@ -102,7 +113,7 @@ python scripts/render-docs.py
 python scripts/render-docs.py --check
 ```
 
-Первая команда обновляет корневой README и создаёт страницы в `build/wiki/`. Вторая проверяет актуальность README и корректность токенов всех шаблонов без записи файлов. Python использует только стандартную библиотеку.
+Первая команда обновляет корневой README и создаёт страницы в `build/wiki/`. Вторая проверяет актуальность README и корректность токенов всех шаблонов без записи файлов. Python использует только стандартную библиотеку. Несовпадение версии в README со значением `lib_version_plugin` также останавливает `--check`, даже если Java-компиляция и рендеринг шаблонов успешны.
 
 Workflow `docs` публикует результат в GitHub Wiki и при необходимости обновляет README после изменения документации или параметров в `master`. Он также доступен для ручного запуска в Actions. Для Wiki используется штатный `GITHUB_TOKEN` с `contents: write`; отдельный токен не нужен. Изменяйте страницы в `docs/wiki`: ручная правка управляемой страницы непосредственно в Wiki будет заменена следующей синхронизацией. [Инструкция для участников](https://github.com/deHasher/HLib/blob/master/CONTRIBUTING.md).
 
