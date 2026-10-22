@@ -34,7 +34,6 @@ if (Plugin.WORLD_GUARD.isEnabled()) {
 | `ItemJoinHook` | ItemJoin | проверка custom item | API создаётся в static initializer |
 | `ItemsAdderHook` | ItemsAdder | custom item, model, permission, pack URL/SHA-1 | SHA-1 вычисляется синхронно с диска |
 | `LibsDisguisesHook` | LibsDisguises | состояние и снятие disguise | сначала проверяйте `isDisguised` |
-| `LimboAuthHook` | LimboAuth | чтение DB-конфига и отдельный pool | только MySQL/MariaDB; повторная настройка не закрывает старый pool |
 | `LiteBansHook` | LiteBans | ban, mute, warn и kick entries | запросы используют `ANY_SERVER_SCOPE` |
 | `LuckPermsHook` | LuckPerms | permissions, expiry, prefix/suffix, groups | sync lookup блокирует; setPrefix/setSuffix удаляет все старые meta nodes |
 | `NexoHook` | Nexo | custom item, model, permission и item config | config перечитывается с диска; Paper manifest HLib не объявляет Nexo |
@@ -63,6 +62,14 @@ if (Plugin.WORLD_GUARD.isEnabled()) {
 | spark | `{{dependency_version_spark}}` |
 
 Часть API подключена из локальных JAR в `libs`; у таких зависимостей нет отдельного параметра версии в `gradle.properties`.
+
+## Telegram для HAuth
+
+HLib 6.25 предоставляет `net.dehasher.hlib.TelegramClient` с конструктором `TelegramClient(String token)`, методом `JsonObject execute(String method, JsonObject payload) throws IOException` и `close()`. Метод синхронно отправляет JSON POST к официальному Bot API и возвращает полный envelope, включая `ok: false`, `error_code` и `parameters.retry_after`. HAuth разбирает ответ и отвечает за polling, команды, уведомления и повтор после 429. Вызовы следует выполнять вне основного потока.
+
+Один клиент допускает до четырёх параллельных запросов, поэтому long polling не блокирует отправку уведомления. Лимиты: соединение и ожидание connection pool — 10 секунд, чтение — 30 секунд, весь запрос — 45 секунд, ответ — 4 MiB. Автоматические повторы, redirects и cookies выключены. HTTP CONNECT поддерживает scoped proxy credentials без JVM-флагов, SOCKS4a/SOCKS5 передают имя конечного хоста прокси. TLS использует стандартную проверку сертификата и hostname. Глобальные proxy properties и `Authenticator` не меняются.
+
+Токен HAuth не записывается в `info.yml`. Сообщения исключений transport не включают URL, токен, credentials, содержимое запроса или вложенные сетевые исключения. `close()` отменяет активные запросы и закрывает пул; повторный `close()` безопасен, новые запросы после закрытия отклоняются. Настройки прокси описаны в [конфигурации HLib](Configuration#geoip-и-telegram-hauth).
 
 ## HTokens
 
@@ -142,6 +149,5 @@ if (WorldGuardHook.inRegion(location, "spawn")) {
 - Чтение item config в `NexoHook`.
 - SHA-1 resource pack в `ItemsAdderHook`.
 - Синхронные name/UUID lookup в `LuckPermsHook`.
-- Конфигурация отдельного pool в `LimboAuthHook`.
 
 Переносите файловые и сетевые операции в async-поток, но возвращайте любые изменения Bukkit entity/world/inventory в main thread.

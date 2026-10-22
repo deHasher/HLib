@@ -168,6 +168,22 @@ public enum Permission {
 	HPARKOUR_COMMAND_HPARKOUR(true),
 	HPARKOUR_ADMIN(false),
 	HPARKOUR_PLAY(true),
+	HAUTH_COMMAND_LOGIN(true),
+	HAUTH_COMMAND_REGISTER(true),
+	HAUTH_COMMAND_CHANGEPASSWORD(true),
+	HAUTH_COMMAND_DESTROYSESSION(true),
+	HAUTH_COMMAND_TOTP(true),
+	HAUTH_COMMAND_LINK(true),
+	HAUTH_COMMAND_UNLINK(true),
+	HAUTH_COMMAND_HAUTH(false),
+	HAUTH_ADMIN_RELOAD(false),
+	HAUTH_ADMIN_INFO(false),
+	HAUTH_ADMIN_FORCELOGIN(false),
+	HAUTH_ADMIN_FORCEREGISTER(false),
+	HAUTH_ADMIN_FORCEPASSWORD(false),
+	HAUTH_ADMIN_FORCEUNREGISTER(false),
+	HAUTH_ADMIN_UNLINK(false),
+	HAUTH_ADMIN_TOTP(false),
 
 	WORLDGUARD_REGION_LIMIT_BLOCK_UNLIMITED(false),
 	WORLDGUARD_REGION_LIMIT_COUNT_UNLIMITED(false);
@@ -184,7 +200,7 @@ public enum Permission {
 
 	public static Permission getEnum(String permission) {
 		return Stream.of(values())
-				.filter(list -> list.value.equalsIgnoreCase(permission.replace("_", ".")))
+				.filter(list -> list.getValue().equalsIgnoreCase(permission.replace("_", ".")))
 				.findFirst().orElseThrow(() -> new IllegalArgumentException("Wrong permission! Permission: " + permission));
 	}
 }

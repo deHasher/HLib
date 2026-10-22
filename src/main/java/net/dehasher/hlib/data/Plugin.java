@@ -1,5 +1,6 @@
 package net.dehasher.hlib.data;
 
+import com.google.common.collect.Lists;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +22,7 @@ public enum Plugin {
 	BOT_SENTRY("BotSentry"),
 	GADGETS_MENU("GadgetsMenu"),
 	HANTIRELOG("HAntiRelog"),
+	HAUTH("HAuth"),
 	HCALENDAR("HCalendar"),
 	HDISCORD("HDiscord"),
 	HCLANS("HClans"),
@@ -38,7 +40,6 @@ public enum Plugin {
 	ITEMS_ADDER("ItemsAdder"),
 	LIBS_DISGUISES("LibsDisguises"),
 	LITE_BANS("LiteBans"),
-	LIMBO_AUTH("LimboAuth"),
 	LUCK_PERMS("LuckPerms"),
 	MATRIX("Matrix"),
 	MOB_FARM_MANAGER("MobFarmManager"),
@@ -56,6 +57,8 @@ public enum Plugin {
 	WORLD_EDIT("WorldEdit"),
 	WORLD_GUARD("WorldGuard");
 
+	@Getter(AccessLevel.PRIVATE)
+	@Setter(AccessLevel.PRIVATE)
 	private Boolean status;
 	@Getter
 	private final String name;
@@ -65,20 +68,20 @@ public enum Plugin {
 	}
 
 	public boolean isEnabled() {
-		if (this.status != null) return this.status;
+		if (getStatus() != null) return getStatus();
 		if (this == Plugin.SPARK) {
-			this.status = ClassController.isLoaded("me.lucko.spark.api.Spark");
-			return status;
+			setStatus(ClassController.isLoaded("me.lucko.spark.api.Spark"));
+			return getStatus();
 		}
 		switch (Platform.get()) {
 			case BUKKIT:
-				this.status = Bukkit.getPluginManager().getPlugin(this.getName().replace("_", "-")) != null;
+				setStatus(Bukkit.getPluginManager().getPlugin(this.getName().replace("_", "-")) != null);
 				break;
 			case VELOCITY:
-				this.status = HLib.getProxy().getPluginManager().isLoaded(this.getName().replace("_", "-").toLowerCase());
+				setStatus(HLib.getProxy().getPluginManager().isLoaded(this.getName().replace("_", "-").toLowerCase()));
 				break;
 		}
-		return this.status;
+		return getStatus();
 	}
 
 	@Getter
@@ -93,7 +96,7 @@ public enum Plugin {
 
 		Loaded() {
 			setLoaded(false);
-			setRunnables(Collections.synchronizedList(new ArrayList<>()));
+			setRunnables(Collections.synchronizedList(Lists.newArrayList()));
 		}
 
 		public void addCallback(Runnable runnable) {
@@ -105,7 +108,7 @@ public enum Plugin {
 
 			List<Runnable> snapshot;
 			synchronized (getRunnables()) {
-				snapshot = new ArrayList<>(getRunnables());
+				snapshot = Lists.newArrayList(getRunnables());
 			}
 
 			snapshot.forEach(Runnable::run);

@@ -6,6 +6,7 @@ import com.google.common.io.ByteStreams;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import lombok.AccessLevel;
 import lombok.Getter;
 import net.dehasher.hlib.config.Info;
 import net.dehasher.hlib.data.BukkitVersion;
@@ -97,10 +98,10 @@ public class Informer {
 	}
 
 	private static class Velocity {
-		@Getter
+		@Getter(AccessLevel.PRIVATE)
 		private static final Logger logger = LoggerFactory.getLogger(Informer.class.getSimpleName());
 
-		@SuppressWarnings({"UnstableApiUsage", "DuplicatedCode"})
+		@SuppressWarnings({"DuplicatedCode"})
 		private static void requestChat(com.velocitypowered.api.command.CommandSource source, Object message) {
 			if (source == null) {
 				console((String) message);
@@ -400,14 +401,14 @@ public class Informer {
 		String json = Info.headers;
 		if (json != null && !json.isBlank()) {
 			try {
-				JsonObject urls = Tools.getGSON().fromJson(json, JsonObject.class);
+				JsonObject urls = Tools.getGson().fromJson(json, JsonObject.class);
 				JsonElement configuredHeaders = urls != null ? urls.get(link) : null;
 				if (configuredHeaders != null && configuredHeaders.isJsonObject()) {
-					for (Map.Entry<String, JsonElement> entry : configuredHeaders.getAsJsonObject().entrySet()) {
+					configuredHeaders.getAsJsonObject().entrySet().forEach(entry -> {
 						JsonElement value = entry.getValue();
-						if (!value.isJsonPrimitive() || !value.getAsJsonPrimitive().isString()) continue;
+						if (!value.isJsonPrimitive() || !value.getAsJsonPrimitive().isString()) return;
 						connection.setRequestProperty(entry.getKey(), value.getAsString());
-					}
+					});
 				}
 			} catch (JsonParseException | IllegalArgumentException e) {
 				send("Invalid HTTP headers configuration in info.yml.");

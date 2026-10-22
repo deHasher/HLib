@@ -1,5 +1,7 @@
 package net.dehasher.hlib;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import net.dehasher.hlib.data.Table;
 import java.util.Date;
 import java.util.List;
@@ -8,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public class Cooldowner {
+	@Getter(AccessLevel.PRIVATE)
 	private static final Map<String, Long> cooldowns = new ConcurrentHashMap<>();
 
 	// Создаём кулдаун.
@@ -20,7 +23,7 @@ public class Cooldowner {
 		String key   = key(name, type);
 		long addTime = timeUnit.toMillis(time);
 		long endTime = System.currentTimeMillis() + addTime;
-		cooldowns.put(key, endTime);
+		getCooldowns().put(key, endTime);
 		if (!type.isStrict()) return;
 		Scheduler.doAsync(() -> {
 			if (Tools.getMySQL() == null) throw new RuntimeException("MySQL has not been initialized");
@@ -34,7 +37,7 @@ public class Cooldowner {
 	public static void remove(String name, Type type) {
 		if (name == null || type == null) return;
 		String key = key(name, type);
-		cooldowns.remove(key);
+		getCooldowns().remove(key);
 		if (!type.isStrict()) return;
 		Scheduler.doAsync(() -> {
 			if (Tools.getMySQL() == null) throw new RuntimeException("MySQL has not been initialized");
@@ -55,7 +58,7 @@ public class Cooldowner {
 			Tools.getMySQL().query("SELECT * FROM hlib_cooldown WHERE until > NOW() AND server_id = ?")
 					.setArgs(Tools.getServerID())
 					.setResult(resultSet -> {
-						while (resultSet.next()) cooldowns.put(resultSet.getString("cooldown_id"), resultSet.getTimestamp("until").getTime());
+						while (resultSet.next()) getCooldowns().put(resultSet.getString("cooldown_id"), resultSet.getTimestamp("until").getTime());
 					})
 					.execute();
 		});
@@ -73,7 +76,7 @@ public class Cooldowner {
 
 	// Получаем оставшееся время кулдауна.
 	public static long getTimeLeft(String name, Type type, TimeUnit timeUnit) {
-		Long endTime = cooldowns.get(key(name, type));
+		Long endTime = getCooldowns().get(key(name, type));
 		if (endTime == null) return 0;
 		long now = System.currentTimeMillis();
 		long timeLeft = endTime - now;
@@ -118,6 +121,7 @@ public class Cooldowner {
 		PVP(false),
 		PVP_ARENA_LEAVE(false),
 		COMMAND(false),
+		AUTH_SOCIAL(false),
 		CONTRACTS(false),
 		DEATH(false),
 		PROTECT(false),
@@ -139,15 +143,11 @@ public class Cooldowner {
 		ANTIRELOG_MACE(false),
 		ANTIRELOG_ENDER_PEARL(false);
 
+		@Getter
 		private final boolean strict;
 
 		Type(boolean strict) {
 			this.strict = strict;
-		}
-
-		@SuppressWarnings("BooleanMethodIsAlwaysInverted")
-		public boolean isStrict() {
-			return strict;
 		}
 	}
 }

@@ -30,7 +30,8 @@
 | `Scheduler` | Планирование задач Bukkit и Velocity | Основной; используйте ветку своей платформы |
 | `ShortNumbersFormatter` | Компактные числа с суффиксами | Основной |
 | `StringRepairer` | Удаление bidi controls и RTL-диапазонов из строки | Специализированный; удаляет и обычный текст соответствующих письменностей |
-| `Tools` | Общие проверки, парсинг, права и служебные операции | Смешанный API |
+| `Tools` | Общие проверки, парсинг, права, `getGeo(String/InetAddress)` и служебные операции | Смешанный API; GeoIP lookup локальный, результат nullable |
+| `TelegramClient` | JSON Bot API transport HAuth с HTTP/SOCKS proxy | Синхронный `execute`, до четырёх запросов одновременно, владелец закрывает клиент |
 | `Translator` | Загрузка vanilla locale JSON и регистрация Adventure-переводов | Bukkit-only; инициализация асинхронна и требует сети |
 | `Updater` | Проверка и установка обновлений HLib | Внутренний |
 | `Vector3D` | Неизменяемый трёхмерный вектор и операции с ним | Основной |
@@ -62,6 +63,7 @@
 | `DebugController` | Состояние debug-режима и его получателей | Внутренний |
 | `DiscordController` | Состояние Discord-интеграции | Внутренний; сам клиент не создаёт |
 | `DNSController` | Чтение DNS TXT-записей | Низкоуровневый; синхронный DNS |
+| `GeoIPController` | Общий reader GeoLite2 City, обновление на старте и закрытие | Внутренний lifecycle; потребители вызывают `Tools.getGeo` |
 | `ItemsController` | Проверки предметов, inventory и контейнеров | Смешанный Bukkit API; отдельные методы экспериментальны |
 | `StorageController` | Глобальные коллекции состояния и сообщения команд | Специализированный; тексты отказа/cooldown/лимита по умолчанию пустые |
 
@@ -71,11 +73,12 @@
 | --- | --- | --- |
 | `BukkitVersion` | Определение поколения Bukkit/Paper API | Низкоуровневый вспомогательный enum |
 | `CompiledPattern` | Набор заранее собранных регулярных выражений | Основной; IP-шаблон не является строгим валидатором |
-| `HPlayer` | Кэш и SQL-модель игрока по числовому ID и имени | Специализированный; нужны глобальный MySQL, `initMySQL()` и заполнение кэша использующим плагином |
+| `Geo` | Record: код страны, локализованные страна/регион/город, координаты | Результат `Tools.getGeo`; координаты nullable |
+| `HPlayer` | Кэш и SQL-модель игрока по числовому ID и каноническому имени из БД; синхронизированная фабрика | Специализированный; нужны глобальный MySQL, `initMySQL()` и заполнение кэша использующим плагином |
 | `Logo` | Служебные действия для вывода логотипа | Внутренний |
 | `Mod` | Каталог известных клиентских модов | Внутренний/специализированный |
 | `NMS` | Reflection и индексы metadata для разных версий Minecraft | Низкоуровневый и версионно-зависимый |
-| `Permission` | Фиксированный enum прав экосистемы, включая четыре права HCalendar | Внутренний; не конструктор произвольных permission nodes; список HCalendar — в [основном API](Core-API#базовые-классы-команд) |
+| `Permission` | Фиксированный enum прав экосистемы, включая HCalendar и HAuth | Внутренний; не конструктор произвольных permission nodes; список HCalendar — в [основном API](Core-API#базовые-классы-команд) |
 | `Platform` | Определение Bukkit или Velocity | Основной; ОС проверяется отдельно через `Tools.isWindows()` |
 | `Plugin` | Каталог и проверка известных плагинов | Интеграционный; первый результат кэшируется, Bukkit-проверка означает наличие плагина |
 | `Table` | DDL таблиц и индексов | Внутренний; ориентирован на MariaDB |
@@ -152,7 +155,6 @@
 | `ItemJoinHook` | ItemJoin | Проверка custom item |
 | `ItemsAdderHook` | ItemsAdder | Custom items, модели, permission и pack metadata |
 | `LibsDisguisesHook` | LibsDisguises | Проверка и снятие disguise |
-| `LimboAuthHook` | LimboAuth | Создание SQL-подключения по его конфигу |
 | `LiteBansHook` | LiteBans | Проверка наказаний и чтение записей |
 | `LuckPermsHook` | LuckPerms | Prefix/suffix, права, группы и expiry |
 | `NexoHook` | Nexo | Custom items, модели, permission и YAML item config |

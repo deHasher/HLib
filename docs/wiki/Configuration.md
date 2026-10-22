@@ -155,6 +155,8 @@ spawn: {"==": "point", "x": 10, "y": 64, "z": -5}
 | `admins` | fallback-администраторы для `Tools.isPerm` |
 | `fake-online` | расчёт отображаемого online |
 | `headers` | JSON с HTTP-заголовками по точному URL для `Informer.url` и `Informer.head` |
+| `geoip` | HTTPS-источник GeoLite2 City и язык результатов `Tools.getGeo` |
+| `telegram-proxy` | Общий Telegram transport: тип, адрес, порт и учётные данные прокси |
 | `api-notifications` | URL и шаблоны callback-сообщений |
 | `short-numbers-suffixes` | правила `ShortNumbersFormatter` |
 | `date-time` | русские формы дат и длительности |

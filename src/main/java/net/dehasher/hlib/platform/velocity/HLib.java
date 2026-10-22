@@ -16,6 +16,7 @@ import net.dehasher.hlib.HLibCfg;
 import net.dehasher.hlib.Informer;
 import net.dehasher.hlib.Tools;
 import net.dehasher.hlib.Updater;
+import net.dehasher.hlib.controller.GeoIPController;
 import org.xbill.DNS.NioClient;
 
 import java.nio.file.Path;
@@ -62,6 +63,9 @@ public class HLib {
 		// Загружаем все файлы.
 		reloadFiles();
 
+		// Включаем GeoIP контроллер.
+		GeoIPController.start(getDataFolder());
+
 		// Плагин включен.
 		Tools.setHLibEnabled(true);
 	}
@@ -69,6 +73,7 @@ public class HLib {
 	@Subscribe
 	public void onProxyShutdownEvent(ProxyShutdownEvent e) {
 		Tools.setHLibEnabled(false);
+		GeoIPController.close();
 		NioClient.close();
 	}
 

@@ -17,7 +17,7 @@ public class ChunkyBorderHook {
 	public static JsonObject getData(String world) {
 		String json = Tools.readFile(new File(getPlugin().getDataFolder(), "borders.json"));
 		if (json == null || json.isEmpty() || json.equals("{}")) return null;
-		JsonObject jsonObject = Tools.getGSON().fromJson(json, JsonObject.class);
+		JsonObject jsonObject = Tools.getGson().fromJson(json, JsonObject.class);
 		if (jsonObject == null || !jsonObject.has(world)) return null;
 		JsonElement element = jsonObject.get(world);
 		if (element == null || !element.isJsonObject()) return null;

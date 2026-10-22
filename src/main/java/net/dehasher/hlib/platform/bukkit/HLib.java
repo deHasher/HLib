@@ -7,6 +7,7 @@ import net.dehasher.hlib.HLibCfg;
 import net.dehasher.hlib.Informer;
 import net.dehasher.hlib.Tools;
 import net.dehasher.hlib.Updater;
+import net.dehasher.hlib.controller.GeoIPController;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.xbill.DNS.NioClient;
@@ -29,6 +30,9 @@ public class HLib extends JavaPlugin {
 		// Загружаем все файлы.
 		reloadFiles();
 
+		// Включаем GeoIP контроллер.
+		GeoIPController.start(getDataFolder().toPath());
+
 		// Плагин включен.
 		Tools.setHLibEnabled(true);
 	}
@@ -36,6 +40,7 @@ public class HLib extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		Tools.setHLibEnabled(false);
+		GeoIPController.close();
 		NioClient.close();
 		if (Tools.getRedis() != null) Tools.getRedis().shutdown();
 		if (Tools.getMySQL() != null) Tools.getMySQL().shutdown();

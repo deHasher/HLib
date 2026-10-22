@@ -7,8 +7,6 @@ import net.dehasher.hlib.file.Annotations.Final;
 import net.dehasher.hlib.file.Annotations.Key;
 import net.dehasher.hlib.file.Annotations.Comment;
 import net.dehasher.hlib.file.ConfigurationSection;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class Info extends Configuration {
@@ -95,6 +93,43 @@ public class Info extends Configuration {
 	})
 	@Key("headers")
 	public static String headers = "";
+
+	@Comment({
+			"",
+			"Общая база GeoLite2 City."
+	})
+	@Key("geoip")
+	public GeoIP geoIP = new GeoIP();
+	public static class GeoIP implements ConfigurationSection {
+		@Comment("Прямая HTTPS-ссылка на файл .mmdb без ключа лицензии; обновляется при каждом запуске.")
+		@Key("download-url")
+		public static String downloadUrl = "${url_site}/libs/files/GeoLite2-City.mmdb";
+		@Comment("Язык названий; при отсутствии перевода используется английский.")
+		@Key("locale")
+		public static String locale = "ru";
+	}
+
+	@Comment({
+			"",
+			"Прокси Telegram."
+	})
+	@Key("telegram-proxy")
+	public TelegramProxy telegramProxy = new TelegramProxy();
+	public static class TelegramProxy implements ConfigurationSection {
+		@Comment("NO_PROXY, HTTP, SOCKS4 или SOCKS5. HTTP поддерживает авторизацию без параметров JVM.")
+		@Key("type")
+		public static String type = "NO_PROXY";
+		@Comment("Адрес и порт прокси.")
+		@Key("host")
+		public static String host = "";
+		@Key("port")
+		public static int port = 12345;
+		@Comment("Пустое имя отключает авторизацию. SOCKS4 использует только имя.")
+		@Key("username")
+		public static String username = "";
+		@Key("password")
+		public static String password = "";
+	}
 
 	@Comment({
 			"",
@@ -283,7 +318,7 @@ public class Info extends Configuration {
 			"Суффиксы сокращения чисел.",
 	})
 	@Key("short-numbers-suffixes")
-	public static List<String> shortNumbersSuffixes = new ArrayList<>(List.of(
+	public static List<String> shortNumbersSuffixes = Lists.newArrayList(List.of(
 			"",
 			" тыс-1000",
 			" млн-1000000",

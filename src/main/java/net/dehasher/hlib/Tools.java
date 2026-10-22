@@ -11,6 +11,7 @@ import lombok.Setter;
 import net.dehasher.hlib.config.Info;
 import net.dehasher.hlib.controller.DNSController;
 import net.dehasher.hlib.controller.DebugController;
+import net.dehasher.hlib.controller.GeoIPController;
 import net.dehasher.hlib.data.*;
 import net.dehasher.hlib.database.MySQL;
 import net.dehasher.hlib.database.Redis;
@@ -37,11 +38,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class Tools {
 	@Getter
-	private static final Gson GSON = new GsonBuilder().create();
+	private static final Gson gson = new GsonBuilder().create();
 	@Getter
 	private final static boolean devMode = parseDevMode();
 	@Getter
@@ -52,9 +54,6 @@ public class Tools {
 	private static final String bukkitVersionAsPatch = BukkitVersion.CurrentVersionInfo.parse().asPatch();
 	@Getter
 	private static final String velocityVersion = parseVelocityVersion();
-	@Getter
-	@Setter(AccessLevel.PRIVATE)
-	private static Boolean anarchy = null;
 	@Getter(AccessLevel.PRIVATE)
 	@Setter
 	private static MySQL mysqlInstance = null;
@@ -187,6 +186,16 @@ public class Tools {
 		return null;
 	}
 
+	// Получить GEO по адресу.
+	public static Geo getGeo(String address) {
+		return GeoIPController.get(address);
+	}
+
+	// Получить GEO по адресу.
+	public static Geo getGeo(InetAddress address) {
+		return GeoIPController.get(address);
+	}
+
 	// Проверка игрока на наличие прав.
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public static boolean isPerm(org.bukkit.command.CommandSender sender, Permission permission, Object... custom) {
@@ -233,8 +242,7 @@ public class Tools {
 
 	// Округление double числа.
 	public static double round(double number, int symbols) {
-		double math = 1d;
-		for (int i = 0; i < symbols; i++) math *= 10;
+		double math = IntStream.range(0, symbols).mapToDouble(index -> 10d).reduce(1d, (value, factor) -> value * factor);
 		return (double) Math.round(number * math) / math;
 	}
 
@@ -245,8 +253,7 @@ public class Tools {
 
 	// Округление double числа в меньшую сторону.
 	public static double floor(double number, int symbols) {
-		double math = 1d;
-		for (int i = 0; i < symbols; i++) math *= 10;
+		double math = IntStream.range(0, symbols).mapToDouble(index -> 10d).reduce(1d, (value, factor) -> value * factor);
 		return Math.floor(number * math) / math;
 	}
 
@@ -257,21 +264,17 @@ public class Tools {
 
 	// Округление double числа в большую сторону.
 	public static double ceil(double number, int symbols) {
-		double math = 1d;
-		for (int i = 0; i < symbols; i++) math *= 10;
+		double math = IntStream.range(0, symbols).mapToDouble(index -> 10d).reduce(1d, (value, factor) -> value * factor);
 		return Math.ceil(number * math) / math;
 	}
 
 	// Получить ближайшие блоки в радиусе.
 	public static List<org.bukkit.block.Block> getNearbyBlocks(org.bukkit.Location location, int radius) {
 		List<org.bukkit.block.Block> blocks = Lists.newArrayList();
-		for (int x = location.getBlockX() - radius; x <= location.getBlockX() + radius; x++) {
-			for (int y = location.getBlockY() - radius; y <= location.getBlockY() + radius; y++) {
-				for (int z = location.getBlockZ() - radius; z <= location.getBlockZ() + radius; z++) {
-					blocks.add(location.getWorld().getBlockAt(x, y, z));
-				}
-			}
-		}
+		IntStream.iterate(location.getBlockX() - radius, x -> x <= location.getBlockX() + radius, x -> x + 1)
+				.forEach(x -> IntStream.iterate(location.getBlockY() - radius, y -> y <= location.getBlockY() + radius, y -> y + 1)
+						.forEach(y -> IntStream.iterate(location.getBlockZ() - radius, z -> z <= location.getBlockZ() + radius, z -> z + 1)
+								.forEach(z -> blocks.add(location.getWorld().getBlockAt(x, y, z)))));
 		return blocks;
 	}
 
@@ -810,13 +813,13 @@ public class Tools {
 	// Тот же String.join, но с поддержкой всех типов объектов.
 	public static String join(CharSequence delimiter, Object... elements) {
 		StringJoiner joiner = new StringJoiner(delimiter);
-		for (Object o1 : elements) {
-			if (o1 instanceof Collection<?>) {
-				for (Object o2 : (Collection<?>) o1) joiner.add(String.valueOf(o2));
+		Stream.of(elements).forEach(element -> {
+			if (element instanceof Collection<?> collection) {
+				collection.forEach(value -> joiner.add(String.valueOf(value)));
 			} else {
-				joiner.add(String.valueOf(o1));
+				joiner.add(String.valueOf(element));
 			}
-		}
+		});
 		return joiner.toString();
 	}
 
@@ -1031,28 +1034,16 @@ public class Tools {
 	// Удаляем повторяющиеся символы в строке. хуййййй -> хуй
 	public static String removeConsecutiveDuplicates(String text) {
 		if (text == null || text.isEmpty()) return text;
-
 		StringBuilder out = new StringBuilder(text.length());
-		int prev = -1;
-
-		for (int i = 0; i < text.length();) {
-			int cp = text.codePointAt(i);
-			if (cp != prev) {
-				out.appendCodePoint(cp);
-				prev = cp;
-			}
-			i += Character.charCount(cp);
-		}
+		text.codePoints().forEach(point -> {
+			if (out.isEmpty() || out.codePointBefore(out.length()) != point) out.appendCodePoint(point);
+		});
 		return out.toString();
 	}
 
 	// Подсчитываем количество символов в строке.
 	public static int countSymbols(String value, char symbol) {
 		if (value == null || value.isEmpty()) return 0;
-		int count = 0;
-		for (int i = 0, len = value.length(); i < len; i++) {
-			if (value.charAt(i) == symbol) count++;
-		}
-		return count;
+		return (int) value.chars().filter(character -> character == symbol).count();
 	}
 }

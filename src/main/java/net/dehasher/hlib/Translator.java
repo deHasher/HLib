@@ -1,7 +1,9 @@
 package net.dehasher.hlib;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import lombok.AccessLevel;
 import lombok.Getter;
 import net.dehasher.hlib.data.Platform;
 import net.dehasher.hlib.platform.bukkit.HLib;
@@ -15,6 +17,7 @@ import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -22,7 +25,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Locale;
@@ -30,6 +32,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.StreamSupport;
 
 public final class Translator {
 	@Getter
@@ -62,10 +65,11 @@ public final class Translator {
 
 	public static String toRussianKeymap(String input) {
 		StringBuilder builder = new StringBuilder();
-		for (int i = 0; i < input.length(); i++) {
-			Character character = getRussianKeymap().get(input.charAt(i));
-			builder.append(character != null ? character : input.charAt(i));
-		}
+		input.chars().forEach(value -> {
+			char original = (char) value;
+			Character character = getRussianKeymap().get(original);
+			builder.append(character != null ? character : original);
+		});
 		return builder.toString();
 	}
 
@@ -141,14 +145,22 @@ public final class Translator {
 		Path versionDirectory = resolveLangVersionDirectory(minecraftVersion);
 		Files.createDirectories(versionDirectory);
 
-		for (LocaleFileInfo localeFile : localeFiles) {
-			Path file = resolveLocaleFile(minecraftVersion, localeFile.id());
-			if (isLocaleFileReady(file, localeFile.sha1())) continue;
+		try {
+			localeFiles.forEach(localeFile -> {
+				Path file = resolveLocaleFile(minecraftVersion, localeFile.id());
+				if (isLocaleFileReady(file, localeFile.sha1())) return;
 
-			String content = readText(localeFile.url());
-			if (content.isBlank()) throw new IllegalStateException("Empty locale content for locale: " + localeFile.id());
+				String content = readText(localeFile.url());
+				if (content.isBlank()) throw new IllegalStateException("Empty locale content for locale: " + localeFile.id());
 
-			Files.writeString(file, content, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+				try {
+					Files.writeString(file, content, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+				} catch (IOException exception) {
+					throw new UncheckedIOException(exception);
+				}
+			});
+		} catch (UncheckedIOException exception) {
+			throw exception.getCause();
 		}
 
 		return localeFiles;
@@ -157,30 +169,30 @@ public final class Translator {
 	private static Map<Locale, Map<String, String>> loadAllLocaleTranslations(String minecraftVersion, List<LocaleFileInfo> localeFiles) {
 		Map<Locale, Map<String, String>> locales = new ConcurrentHashMap<>();
 
-		for (LocaleFileInfo localeFile : localeFiles) {
+		localeFiles.forEach(localeFile -> {
 			Path file = resolveLocaleFile(minecraftVersion, localeFile.id());
-			if (!Files.isRegularFile(file)) continue;
+			if (!Files.isRegularFile(file)) return;
 
 			try {
 				String json = Files.readString(file, StandardCharsets.UTF_8);
-				if (json.isBlank()) continue;
+				if (json.isBlank()) return;
 				Map<String, String> translations = parseTranslations(json);
 				if (!translations.isEmpty()) locales.put(toLocale(localeFile.id()), translations);
 			} catch (Throwable ignored) {}
-		}
+		});
 
 		return locales;
 	}
 
 	private static List<LocaleFileInfo> parseLocaleManifest(JsonElement element) {
-		List<LocaleFileInfo> localeFiles = new ArrayList<>();
+		List<LocaleFileInfo> localeFiles = Lists.newArrayList();
 		if (element == null || element.isJsonNull()) return localeFiles;
 
 		if (element.isJsonArray()) {
-			for (JsonElement entry : element.getAsJsonArray()) {
+			element.getAsJsonArray().forEach(entry -> {
 				LocaleFileInfo localeFile = parseLocaleFileInfo(entry);
 				if (localeFile != null) localeFiles.add(localeFile);
-			}
+			});
 			return localeFiles;
 		}
 
@@ -191,10 +203,10 @@ public final class Translator {
 		JsonObject object = element.getAsJsonObject();
 
 		if (object.has("languages") && object.get("languages").isJsonArray()) {
-			for (JsonElement entry : object.getAsJsonArray("languages")) {
+			object.getAsJsonArray("languages").forEach(entry -> {
 				LocaleFileInfo localeFile = parseLocaleFileInfo(entry);
 				if (localeFile != null) localeFiles.add(localeFile);
-			}
+			});
 			return localeFiles;
 		}
 
@@ -204,10 +216,10 @@ public final class Translator {
 			return localeFiles;
 		}
 
-		for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
+		object.entrySet().forEach(entry -> {
 			LocaleFileInfo localeFile = parseLocaleFileInfo(entry.getValue());
 			if (localeFile != null) localeFiles.add(localeFile);
-		}
+		});
 
 		return localeFiles;
 	}
@@ -246,12 +258,12 @@ public final class Translator {
 
 	private static String buildLangManifestUrl(String minecraftVersion) {
 		JsonObject manifest = readJsonElement(VERSION_MANIFEST_URL).getAsJsonObject();
-		for (JsonElement element : manifest.getAsJsonArray("versions")) {
-			JsonObject version = element.getAsJsonObject();
-			if (!minecraftVersion.equals(version.get("id").getAsString())) continue;
-			if (version.has("lang") && version.get("lang").isJsonObject()) return version.getAsJsonObject("lang").get("url").getAsString();
-			break;
-		}
+		JsonObject version = StreamSupport.stream(manifest.getAsJsonArray("versions").spliterator(), false)
+				.map(JsonElement::getAsJsonObject)
+				.filter(entry -> minecraftVersion.equals(entry.get("id").getAsString()))
+				.findFirst()
+				.orElse(null);
+		if (version != null && version.has("lang") && version.get("lang").isJsonObject()) return version.getAsJsonObject("lang").get("url").getAsString();
 		throw new IllegalStateException("Language manifest not found for version: " + minecraftVersion);
 	}
 
@@ -284,7 +296,7 @@ public final class Translator {
 	}
 
 	private static String normalizeMinecraftLocaleId(String minecraftLocale) {
-		return minecraftLocale.toLowerCase(Locale.ROOT).replace("-", "_").trim();
+		return minecraftLocale.toLowerCase().replace("-", "_").trim();
 	}
 
 	private static Locale toLocale(String minecraftLocale) {
@@ -299,7 +311,7 @@ public final class Translator {
 
 	private static JsonElement readJsonElement(String url) {
 		String response = readText(url);
-		return Tools.getGSON().fromJson(response, JsonElement.class);
+		return Tools.getGson().fromJson(response, JsonElement.class);
 	}
 
 	private static String readText(String url) {
@@ -309,7 +321,7 @@ public final class Translator {
 	}
 
 	private static Map<String, String> parseTranslations(String json) {
-		JsonObject object = Tools.getGSON().fromJson(json, JsonObject.class);
+		JsonObject object = Tools.getGson().fromJson(json, JsonObject.class);
 		Map<String, String> translations = new ConcurrentHashMap<>();
 		if (object == null) return translations;
 
@@ -359,16 +371,17 @@ public final class Translator {
 	private record LocaleFileInfo(String id, String url, String sha1) {}
 
 	public static final class VanillaTranslationRegistry {
+		@Getter(AccessLevel.PRIVATE)
 		private final TranslationRegistry registry = TranslationRegistry.create(Key.key("minecraft", "vanilla"));
 
 		public void setDefaultLocale(Locale locale) {
-			registry.defaultLocale(locale);
+			getRegistry().defaultLocale(locale);
 		}
 
 		public void registerLocale(Locale locale, Map<String, String> translations) {
 			Map<String, MessageFormat> formats = new ConcurrentHashMap<>();
 			translations.forEach((key, value) -> formats.put(key, createMessageFormat(value, locale)));
-			registry.registerAll(locale, formats);
+			getRegistry().registerAll(locale, formats);
 		}
 
 		@SuppressWarnings("JavaReflectionMemberAccess")
@@ -382,7 +395,7 @@ public final class Translator {
 				}
 
 				GlobalTranslator translator = (GlobalTranslator) method.invoke(null);
-				translator.addSource(registry);
+				translator.addSource(getRegistry());
 			} catch (ReflectiveOperationException e) {
 				throw new IllegalStateException("GlobalTranslator install failed", e);
 			}
@@ -421,24 +434,24 @@ public final class Translator {
 		private String escapeMessageFormat(String value) {
 			StringBuilder builder = new StringBuilder();
 
-			for (int i = 0; i < value.length(); i++) {
-				char character = value.charAt(i);
+			value.chars().forEach(point -> {
+				char character = (char) point;
 
 				if (character == '\'') {
 					builder.append("''");
-					continue;
+					return;
 				}
 				if (character == '{') {
 					builder.append("'{'");
-					continue;
+					return;
 				}
 				if (character == '}') {
 					builder.append("'}'");
-					continue;
+					return;
 				}
 
 				builder.append(character);
-			}
+			});
 
 			return builder.toString();
 		}

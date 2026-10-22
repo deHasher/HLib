@@ -49,7 +49,7 @@ chmod +x gradlew
 
 ## Что входит в JAR
 
-Shadow JAR включает Jedis, Commons Pool, HikariCP, Gson, SnakeYAML, MySQL Connector/J, MariaDB driver, GeoIP/MaxMind, NBT API, dnsjava и Vorbis core. Только NBT API relocates в namespace HLib; остальные библиотеки потенциально могут пересечься по версиям с окружением.
+Shadow JAR включает Jedis, Commons Pool, HikariCP, Gson, SnakeYAML, MySQL Connector/J, MariaDB driver, GeoIP/MaxMind, NBT API, dnsjava и Vorbis core. NBT API и Telegram transport Apache HttpClient {{dependency_version_httpclient}} с Commons Codec/Logging relocates в namespace HLib; остальные библиотеки потенциально могут пересечься по версиям с окружением. Jackson core/databind/annotations включены для фактической работы GeoIP reader.
 
 Paper, Velocity, ProtocolLib и API hook-плагинов являются `compileOnly` и внутрь HLib не входят. Используйте официальные дистрибутивы и соблюдайте лицензии сторонних компонентов; файлы из `libs/` не являются runtime-набором для копирования на сервер.
 
@@ -89,6 +89,8 @@ Workflow `build` запускает `clean shadowJar` на Temurin {{java_versio
 Если проверка обновления не вернула данные, HLib вызывает shutdown всей платформы. При наличии новой версии HLib скачивает JAR, заменяет текущий файл и также завершает платформу для перезапуска. В `info.yml` нет флага отключения updater.
 
 Разрешите исходящие DNS/HTTPS-запросы и заранее проверьте доступность endpoint в закрытой сети.
+
+После загрузки `info.yml` HLib запускает асинхронное обновление GeoLite2 City. Источник `geoip.download-url` должен отдавать файл MMDB напрямую по HTTPS. Сбой GeoIP не останавливает платформу: прежняя рабочая база остаётся в памяти и на диске, если существовала. При первом запуске без базы `Tools.getGeo` возвращает `null` до успешной загрузки. Внешний источник может быть недоступен или содержать старую копию; это не подтверждает успешное обновление данных MaxMind.
 
 ## Частые проблемы
 
@@ -149,3 +151,9 @@ Workflow `docs` публикует результат в GitHub Wiki и при �
 ## Лицензия
 
 Исходный код HLib распространяется по [GNU GPL-3.0](https://github.com/deHasher/HLib/blob/master/LICENSE).
+
+### Канонические профили, созданные сайтом
+
+`HPlayer.createHPlayer` читает из SQL как ID, так и сохранённое имя; это проверено с профилем, добавленным после заполнения начального кэша, и с внешней вставкой между SELECT и INSERT IGNORE. Проверены ошибочный регистр первой попытки, последующий корректный вход, совпадение объекта кэша при параллельных запросах и создание одной строки профиля. Предыдущая реализация воспроизводимо не проходит проверку сохранения регистра имени сайта; исправленная проходит.
+
+Изолированный SQL harness `build/verification/hauth-sql` проверил 178 assertions с реальными HLib `HPlayer`, `MySQL`, Hikari и HAuth `AuthStorage`. База — H2 в памяти в MariaDB mode, без внешнего сервера; адаптер заменяет `<=>` на `IS NOT DISTINCT FROM` и убирает column `CHARACTER SET ascii COLLATE ascii_bin`, таблица имён использует `VARCHAR_IGNORECASE`. Для проверки обработки гонки с сайтом duplicate при вставке аккаунта отображается из H2 `23505` в MariaDB `SQLState 23000 / error 1062`; это имитация метаданных ошибки драйвера. Сайт вставляет аккаунт отдельным соединением между проверкой наличия и INSERT HAuth: новая реализация после отката возвращает сигнал существующего аккаунта, не меняет его пароль и не записывает лишнюю регистрацию; остальные SQL-ошибки передаются вызывающему коду. Это проверка поведения запросов, откатов и конкуренции, а не подтверждение MariaDB-совместимости. Лог — `results.txt`, воспроизведение дефекта до исправления — `regression-before.txt`, прежний отказ при регистрации одновременно с сайтом — `website-race-before.txt`, версии проверенных исходников — `source-hashes.json`.

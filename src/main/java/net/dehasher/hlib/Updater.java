@@ -20,7 +20,7 @@ public class Updater {
 		String json = Informer.url("${url_site_api}/plugins");
 		if (json.isEmpty()) return null;
 
-		JsonObject jsonObject = Tools.getGSON().fromJson(json, JsonObject.class);
+		JsonObject jsonObject = Tools.getGson().fromJson(json, JsonObject.class);
 		if (jsonObject == null) return null;
 
 		String newVersion = jsonObject.get(name).getAsString();

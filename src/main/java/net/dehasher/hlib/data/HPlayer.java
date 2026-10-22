@@ -4,9 +4,10 @@ import net.dehasher.hlib.Tools;
 import net.dehasher.hlib.config.Info;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 public record HPlayer(int id, String name) {
+	private static final Object LOCK = new Object();
 	private static final Map<Integer, HPlayer> PLAYERS_BY_ID = new ConcurrentHashMap<>();
 	private static final Map<String, HPlayer> PLAYERS_BY_NAME = new ConcurrentHashMap<>();
 
@@ -72,37 +73,40 @@ public record HPlayer(int id, String name) {
 
 	// Вызывать только 1 раз при подключении игрока к серверу.
 	public static HPlayer createHPlayer(String name) {
-		HPlayer existing = PLAYERS_BY_NAME.get(name.toLowerCase());
-		if (existing != null) return existing;
+		synchronized (LOCK) {
+			HPlayer existing = PLAYERS_BY_NAME.get(name.toLowerCase());
+			if (existing != null) return existing;
+			HPlayer stored = loadHPlayer(name);
+			if (stored != null) return stored;
 
-		int id = getHPlayerId(name);
-		if (id == 0) {
 			if (Tools.getMySQL() == null) throw new RuntimeException("MySQL has not been initialized");
-			Optional<Integer> insertId = Tools.getMySQL().query("INSERT IGNORE INTO hlib_player (name) VALUES (?)")
+			Tools.getMySQL().query("INSERT IGNORE INTO hlib_player (name) VALUES (?)")
 					.setArgs(name)
-					.executeInsert();
-			id = insertId.orElseGet(() -> getHPlayerId(name));
+					.execute();
+			stored = loadHPlayer(name);
+			if (stored == null) throw new IllegalStateException("Cannot load player identity");
+			return stored;
 		}
-		if (id == 0) throw new NullPointerException();
-		return createHPlayer(id, name);
 	}
 
-	private static Integer getHPlayerId(String name) {
-		AtomicInteger id = new AtomicInteger(0);
+	private static HPlayer loadHPlayer(String name) {
+		AtomicReference<HPlayer> player = new AtomicReference<>();
 		if (Tools.getMySQL() == null) throw new RuntimeException("MySQL has not been initialized");
-		Tools.getMySQL().query("SELECT id FROM hlib_player WHERE name = ?")
+		Tools.getMySQL().query("SELECT id, name FROM hlib_player WHERE name = ?")
 				.setArgs(name)
 				.setResult(resultSet -> {
-					while (resultSet.next()) id.set(resultSet.getInt("id"));
+					if (resultSet.next()) player.set(createHPlayer(resultSet.getInt("id"), resultSet.getString("name")));
 				})
 				.execute();
-		return id.get();
+		return player.get();
 	}
 
 	private static HPlayer createHPlayer(int id, String name) {
-		if (id < 0) throw new IllegalArgumentException("Invalid player ID: " + id);
-		if (PLAYERS_BY_ID.containsKey(id)) throw new IllegalStateException("Player with ID " + id + " already exists.");
-		if (PLAYERS_BY_NAME.containsKey(name.toLowerCase())) throw new IllegalStateException("Player with name " + name + " already exists.");
-		return new HPlayer(id, name);
+		synchronized (LOCK) {
+			if (id < 0) throw new IllegalArgumentException("Invalid player ID: " + id);
+			if (PLAYERS_BY_ID.containsKey(id)) throw new IllegalStateException("Player with ID " + id + " already exists.");
+			if (PLAYERS_BY_NAME.containsKey(name.toLowerCase())) throw new IllegalStateException("Player with name " + name + " already exists.");
+			return new HPlayer(id, name);
+		}
 	}
 }
