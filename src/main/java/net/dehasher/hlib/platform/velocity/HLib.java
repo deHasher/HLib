@@ -21,6 +21,7 @@ import org.xbill.DNS.NioClient;
 
 import java.nio.file.Path;
 
+@SuppressWarnings("PatternValidation")
 @Getter
 @Plugin(
 		id           = "${lib_name_id}",
