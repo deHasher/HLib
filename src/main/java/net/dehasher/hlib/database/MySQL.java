@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
+@SuppressWarnings("SqlNoDataSourceInspection")
 public class MySQL {
 	@Setter
 	@Getter
@@ -80,25 +81,75 @@ public class MySQL {
 	}
 
 	public <T> T transaction(ThrowingFunction<Transaction, T> action) throws SQLException {
+		return transaction(null, 0, action);
+	}
+
+	public <T> T lockedTransaction(String lock, int timeoutSeconds, ThrowingFunction<Transaction, T> action) throws SQLException {
+		if (lock == null || !lock.matches("[a-zA-Z0-9:_-]{1,64}") || timeoutSeconds < 0 || timeoutSeconds > 30) throw new IllegalArgumentException("Invalid transaction lock");
+		return transaction(lock, timeoutSeconds, action);
+	}
+
+	private <T> T transaction(String lock, int timeoutSeconds, ThrowingFunction<Transaction, T> action) throws SQLException {
 		Objects.requireNonNull(action, "Transaction action");
 		if (!isEnabled()) throw new SQLException("MySQL is disabled");
 		try (Connection connection = getConnection()) {
 			if (connection == null) throw new SQLException("MySQL connection is unavailable");
-			connection.setAutoCommit(false);
-			Transaction transaction = new Transaction(this, connection);
+			boolean locked = false;
+			Throwable failure = null;
 			try {
-				T result = action.apply(transaction);
-				connection.commit();
-				return result;
-			} catch (SQLException | RuntimeException | Error failure) {
-				try {
-					connection.rollback();
-				} catch (SQLException rollbackFailure) {
-					failure.addSuppressed(rollbackFailure);
+				if (lock != null) {
+					try (PreparedStatement statement = connection.prepareStatement("SELECT GET_LOCK(?, ?)")) {
+						statement.setString(1, lock);
+						statement.setInt(2, timeoutSeconds);
+						try (ResultSet result = statement.executeQuery()) {
+							if (!result.next() || result.getInt(1) != 1) throw new SQLException("Transaction lock unavailable");
+							locked = true;
+						}
+					}
 				}
-				throw failure;
+				connection.setAutoCommit(false);
+				Transaction transaction = new Transaction(this, connection);
+				try {
+					T result = action.apply(transaction);
+					connection.commit();
+					return result;
+				} catch (SQLException | RuntimeException | Error exception) {
+					try {
+						connection.rollback();
+					} catch (SQLException rollbackFailure) {
+						exception.addSuppressed(rollbackFailure);
+					}
+					throw exception;
+				} finally {
+					transaction.closed = true;
+				}
+			} catch (SQLException | RuntimeException | Error exception) {
+				failure = exception;
+				if (lock != null && !locked) {
+					try {
+						connection.abort(Runnable::run);
+					} catch (SQLException abortFailure) {
+						exception.addSuppressed(abortFailure);
+					}
+				}
+				throw exception;
 			} finally {
-				transaction.closed = true;
+				if (locked) {
+					try (PreparedStatement statement = connection.prepareStatement("SELECT RELEASE_LOCK(?)")) {
+						statement.setString(1, lock);
+						try (ResultSet result = statement.executeQuery()) {
+							if (!result.next() || result.getInt(1) != 1) throw new SQLException("Transaction lock release failed");
+						}
+					} catch (SQLException releaseFailure) {
+						try {
+							connection.abort(Runnable::run);
+						} catch (SQLException abortFailure) {
+							releaseFailure.addSuppressed(abortFailure);
+						}
+						if (failure != null) failure.addSuppressed(releaseFailure);
+						else throw releaseFailure;
+					}
+				}
 			}
 		}
 	}

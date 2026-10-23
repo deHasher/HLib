@@ -137,6 +137,24 @@ long purchaseId = mysql.transaction(transaction -> {
 
 Новое API не подавляет и не логирует SQL-ошибки: обработка и безопасное сообщение об ошибке остаются ответственностью вызывающего кода. Старый builder `MySQL.Query` сохраняет прежнее поведение.
 
+## Транзакция под именованной блокировкой
+
+HLib `{{lib_version_plugin}}` добавляет `mysql.lockedTransaction(lockName, timeoutSeconds, callback)`. API получает MySQL/MariaDB `GET_LOCK` на том же выделенном connection **до** callback и освобождает `RELEASE_LOCK` во внешнем finally **после** commit либо rollback. Это подходит для общей квоты, которую одновременно применяют несколько сервисов.
+
+```java
+mysql.lockedTransaction("wonderfate:registration", 5, transaction -> {
+	long count = transaction.query("SELECT COUNT(*) FROM hauth_registration_event WHERE registered_at >= ?", result -> {
+		result.next();
+		return result.getLong(1);
+	}, since);
+	if (count >= maximum) throw new java.sql.SQLException("Registration quota reached");
+	transaction.update("INSERT INTO hauth_registration_event (registered_at) VALUES (?)", now);
+	return null;
+});
+```
+
+Имя допускает 1–64 символа `a-z A-Z 0-9 : _ -`, ожидание — 0–30 секунд. Timeout либо ошибка получения lock не запускает callback. Ошибка освобождения закрывает физическое соединение через `abort`, чтобы блокировка не осталась в пуле. Первичная ошибка сохраняется; ошибки rollback/release/abort/close добавляются как suppressed. Нельзя вручную освобождать lock или выполнять COMMIT внутри callback. Обычный `transaction` сохраняет прежнюю семантику. HTTP-политику и другие внешние чтения готовьте до захвата блокировки, а актуальные SQL-счётчики читайте внутри неё.
+
 ## Своя DDL-константа
 
 ```java
