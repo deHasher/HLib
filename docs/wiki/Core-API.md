@@ -256,6 +256,8 @@ String materialName = Translator.getMaterialName(Material.DIAMOND, player);
 
 Для команд с произвольными permission nodes используйте штатный command API Paper или Velocity. Базовые классы HLib подходят проектам, чьи права уже представлены в `Permission`.
 
+Для HFriends предусмотрены `HFRIENDS_COMMAND_FRIENDS` (`hfriends.command.friends`), `HFRIENDS_COMMAND_FMSG` (`hfriends.command.fmsg`), `HFRIENDS_ADMIN_RELOAD` (`hfriends.admin.reload`) и `HFRIENDS_BYPASS_FRIENDSHIP` (`hfriends.bypass.friendship`). Последнее право позволяет отправлять личные сообщения без дружбы. Все четыре элемента допускают стандартный обход для `Info.admins` при проверке через `Tools.isPerm`; значение enum само по себе не выдаёт право игрокам.
+
 ### Предварительная проверка команд
 
 `net.dehasher.hlib.command.HCommandPreflight` и `HCommandBukkit.canExecute(sender, alias, arguments)` добавлены в HLib `6.24`. Базовый `canExecute` возвращает `true`; подкласс команды переопределяет его для проверки доменных условий без запуска команды, оплаты или изменения игрового состояния. При отказе реализация может сообщить причину нужному адресату и вернуть `false`. `HCommandPreflight` не отправляет сообщения и не выполняет команды.

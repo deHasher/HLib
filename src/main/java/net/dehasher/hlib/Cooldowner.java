@@ -100,6 +100,7 @@ public class Cooldowner {
 		ONE_SECOND_MESSAGE(false), // Общий кулдаун для сообщений, которые могут спамить в чате.
 		REQUESTOR_MARRY(false),
 		REQUESTOR_CLANS(false),
+		FRIENDS_REQUEST(false),
 		MARRY_PVP(false),
 		MARRY_GIFT(false),
 		MARRY_HEAL(false),
