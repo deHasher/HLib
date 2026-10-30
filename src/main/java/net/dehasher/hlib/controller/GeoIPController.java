@@ -15,17 +15,21 @@ import net.dehasher.hlib.data.Geo;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URI;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 public final class GeoIPController {
 	@Getter(AccessLevel.PRIVATE)
@@ -90,12 +94,36 @@ public final class GeoIPController {
 		}
 	}
 
+	@SuppressWarnings("ResultOfMethodCallIgnored")
 	public static void close() {
+		ExecutorService current;
+		HttpURLConnection request;
 		synchronized (getLock()) {
-			if (getExecutor() != null) getExecutor().shutdownNow();
-			if (getConnection() != null) getConnection().disconnect();
+			current = getExecutor();
+			if (current != null) current.shutdownNow();
+			request = getConnection();
 			close(getReader());
 			setReader(null);
+		}
+		if (request != null) request.disconnect();
+		if (current == null) return;
+		boolean interrupted = false;
+		long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(45);
+		try {
+			while (!current.isTerminated()) {
+				long remaining = deadline - System.nanoTime();
+				if (remaining <= 0) {
+					Informer.send("Не удалось дождаться завершения загрузчика GeoLite2 HLib. Временные файлы будут очищены при следующем запуске.");
+					return;
+				}
+				try {
+					current.awaitTermination(remaining, TimeUnit.NANOSECONDS);
+				} catch (InterruptedException exception) {
+					interrupted = true;
+				}
+			}
+		} finally {
+			if (interrupted) Thread.currentThread().interrupt();
 		}
 	}
 
@@ -104,10 +132,12 @@ public final class GeoIPController {
 		DatabaseReader replacement = null;
 		HttpURLConnection request = null;
 		try {
-			URI uri = URI.create(source);
-			if (!"https".equalsIgnoreCase(uri.getScheme())) throw new IOException("GeoIP requires HTTPS");
 			Path directory = Objects.requireNonNull(database.getParent());
 			Files.createDirectories(directory);
+			cleanTemporaryFiles(directory);
+			if (Thread.currentThread().isInterrupted()) return;
+			URI uri = URI.create(source);
+			if (!"https".equalsIgnoreCase(uri.getScheme())) throw new IOException("GeoIP requires HTTPS");
 			temporary = Files.createTempFile(directory, ".GeoLite2-", ".mmdb");
 			request = (HttpURLConnection) uri.toURL().openConnection();
 			request.setConnectTimeout(10000);
@@ -151,13 +181,25 @@ public final class GeoIPController {
 			synchronized (getLock()) {
 				setConnection(null);
 			}
-			if (temporary != null) {
-				try {
-					Files.deleteIfExists(temporary);
-				} catch (IOException exception) {
-					Informer.send("Не удалось удалить временный файл GeoLite2 HLib.");
-				}
-			}
+			if (temporary != null) deleteTemporaryFile(temporary);
+		}
+	}
+
+	private static void cleanTemporaryFiles(Path directory) {
+		try (Stream<Path> files = Files.list(directory)) {
+			files.filter(file -> Objects.toString(file.getFileName(), "").matches("\\.GeoLite2-[0-9]+\\.mmdb"))
+					.filter(file -> Files.isRegularFile(file, LinkOption.NOFOLLOW_LINKS))
+					.forEach(GeoIPController::deleteTemporaryFile);
+		} catch (IOException | UncheckedIOException exception) {
+			Informer.send("Не удалось проверить временные файлы GeoLite2 HLib.");
+		}
+	}
+
+	private static void deleteTemporaryFile(Path file) {
+		try {
+			Files.deleteIfExists(file);
+		} catch (IOException exception) {
+			Informer.send("Не удалось удалить временный файл GeoLite2 HLib.");
 		}
 	}
 

@@ -77,14 +77,15 @@ public abstract class HCommandBukkit extends BukkitCommand {
 			}
 		}
 
-		if (run(sender, alias, arguments)) {
+		boolean result = run(sender, alias, arguments);
+		if (result) {
 			if (getLimit() > 0) getCount().merge(key, 1, Integer::sum);
 			if (getCooldown() > 0 && !Tools.isPerm(sender, Permission.HLIB_BYPASS_COOLDOWN_COMMAND)) {
 				Cooldowner.start(Cooldowner.key(key, getPermission()), Cooldowner.Type.COMMAND, getCooldown());
 			}
 		}
 
-		return true;
+		return result;
 	}
 
 	public boolean canExecute(CommandSender sender, String alias, String[] arguments) {
