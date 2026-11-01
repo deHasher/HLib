@@ -12,7 +12,13 @@
 
 Версии Java берутся из `gradle.properties`: `java_version_target={{java_version_target}}`, `java_version_build={{java_version_build}}` и `java_version_checkstyle={{java_version_checkstyle}}`. Собственные классы HLib компилируются с `sourceCompatibility` и `targetCompatibility` Java {{java_version_target}}; это не гарантия, что все включённые библиотеки и сторонние плагины имеют такой же bytecode.
 
-Paper compile dependency: `{{dependency_version_bukkit}}`. Дескрипторы объявляют Paper API `{{api_version_paper}}` и Bukkit API `{{api_version_bukkit}}`. Velocity API для компиляции берётся из `libs/Velocity.jar`, версия annotation processor — `{{dependency_version_velocity}}`.
+Paper compile dependency: `{{dependency_version_bukkit}}`. Дескрипторы объявляют Paper API `{{api_version_paper}}` и Bukkit API `{{api_version_bukkit}}`. Velocity API для компиляции берётся из подготовленной копии актуального `libs/Velocity.jar`, версия annotation processor — `{{dependency_version_velocity}}`.
+
+### Совместимость Adventure
+
+Задача `velocityCompileJar` создаёт `build/dependencies/Velocity-compile.jar` без встроенных `net/kyori/**`, включая multi-release варианты. Этот файл подключается как `compileOnly`; исходный `libs/Velocity.jar` не изменяется и не откатывается. BOM Adventure `{{dependency_version_adventure}}` задаёт отдельные Maven-зависимости компилятора. Эта версия нужна общему Bukkit/Velocity classpath: современный `Velocity Player` наследует `PlayerHeadObjectContents.SkinSource`, которого нет в старой Adventure 4.8.1. Adventure и подготовленный Velocity не включаются в HLib; при запуске их предоставляет платформа.
+
+Это предотвращает скрытую компиляцию против Adventure 5 из полного JAR прокси. При новых Bukkit-вызовах всё равно нужно проверять JVM-сигнатуры API минимальной целевой платформы: успешная компиляция с BOM сама по себе не гарантирует runtime-совместимость. Статический анализ прежнего `HLib.jar` 6.29 не выявил незащищённого Bukkit-вызова с тем же `TextComponent.toBuilder()`-дефектом: ссылок на `toBuilder()` или Adventure `Builder.build()` в нём нет. Две ссылки, отсутствующие в Adventure 4.8.1, имеют отдельные условия: `Title.Times.times(...)` вызывается только на Velocity, а `Component.decorationIfAbsent(...)` — после проверки Bukkit 1.20+; последний метод уже есть в Adventure 4.13.1. Это анализ байткода и исходников, не проверка живого сервера.
 
 ### Windows
 
@@ -67,12 +73,22 @@ Paper, Velocity, ProtocolLib и API hook-плагинов являются `comp
 - Отладка выводится только через `Tools.debug(player, message)`; для консоли используется `Tools.debug(null, message)`. Logger любого уровня, `System.out` и `System.err` для отладочных сообщений запрещены.
 - Обычные сообщения игроку или в консоль отправляются только через `Informer.send(player, message)` или `Informer.send(message)` соответственно. `Informer.component(...)` создаёт компонент, отправка выполняется через `Informer.send(...)`. Для title, action bar и boss bar используются API соответствующих специальных каналов.
 
+### Проверка зависимостей Adventure 1 ноября 2026 года
+
+В HLib 6.30 изменены только зависимости сборки; Java-код сообщений и переводов сохранён. Отдельная копия в `build/verification/adventure-dependencies/isolated/HLib` прошла `compileJava`, экспорт compile classpath и `shadowJar -x copyShadowJarToHCorePlugins`: 127 Java-исходников, 211 собственных классов. Компилятор выдал 14 предупреждений о deprecated API; ошибок компиляции не было. Checkstyle и SpotBugs в этой проверке не запускались. Settings HLib не подключает HCore; конфигурация соседнего проекта и его модулей не выполнялась.
+
+В compile classpath подтверждён единственный `Component.class` из Adventure {{dependency_version_adventure}}. Производный Velocity не содержит Kyori; исходный `libs/Velocity.jar` сохранён без изменения. В новом Shadow JAR нет классов Kyori или Velocity, Bukkit/Paper/Velocity metadata содержат версию 6.30. Снимок 149 исходных файлов, scripts и локальных зависимостей сверён по SHA-256.
+
+В изолированных JVM настоящие `Colors` и `CompiledPattern` проверены на Adventure 4.8.1, 4.13.1, 4.26.1 и 5.2.0: legacy-цвет, HEX, извлечение plain text, `Component.empty().toBuilder()`, кнопка с click/hover и `build()` прошли на всех четырёх версиях. Для этих проверок загружались только два класса HLib и нужные библиотеки, без Tools и plugin entrypoints. Статический разбор 20 уникальных Kyori references новых классов повторно подтвердил: относительно 4.8.1 остаются только описанные выше два обращения с платформенным/версионным ограничением; новых незащищённых ссылок нет.
+
+Артефакт проверки находится в `build/verification/adventure-dependencies/isolated/HLib/result/HLib.jar`; отчёты — `results.json`, `abi-results.json`, `source-hashes.json` и `compile.log` в каталоге проверки. Обычный `result/HLib.jar`, `HCore/plugins/HLib.jar` и серверные JAR не заменялись. Сеть, БД, updater, startup плагинов и игровые серверы не запускались; совместимость остальных API HLib этими проверками не заявляется.
+
 ## Проверки проекта
 
 Основные задачи сборки:
 
 ```text
-generateTokenizedJava → compileJava
+generateTokenizedJava + velocityCompileJar → compileJava
 processResources → classes → jar / shadowJar
 checkstyleMain + spotbugsMain + test → check
 assemble + check + shadowJar → build
@@ -100,6 +116,7 @@ Workflow `build` запускает `clean shadowJar` на Temurin {{java_versio
 | Класс HLib компилируется, но недоступен на Paper | Paper plugin classpath изолирован | Добавьте `dependencies.server.HLib` с `join-classpath: true` |
 | Плейсхолдеры PAPI остались в тексте | PlaceholderAPI отсутствует или ещё не загружен | Установите его для нужных подстановок; без PAPI hook возвращает исходный текст |
 | `NoClassDefFoundError` из hook-класса | API optional-плагина отсутствует | Установите плагин, добавьте его API как `compileOnly` и проверяйте `Plugin.X.isEnabled()` после загрузки |
+| `NoSuchMethodError` у Adventure | Байткод скомпилирован против другой JVM-сигнатуры API; её могла скрыто предоставить встроенная Adventure полного JAR прокси | Сверьте фактический compile classpath с Adventure целевого сервера, исключите встроенный Kyori из вспомогательного Velocity JAR и пересоберите затронутый плагин; простой перезапуск или замена build script прежний байткод не исправляют |
 | Строка не приходит игроку Velocity | String path использует незарегистрированный `hlib:main` | Используйте `Informer.send(player, Informer.component(...))` |
 | Сервер останавливается при старте HLib | Сервис обновлений недоступен на non-Windows | Проверьте DNS, HTTPS, proxy/firewall и `{{url_site_api}}/plugins` |
 | Новый `HCommand*` падает на `Permission.getEnum` | Автосгенерированного permission нет в enum HLib | Используйте native command API или добавьте permission в исходники HLib |

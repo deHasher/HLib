@@ -17,6 +17,19 @@ java {
 	targetCompatibility = sourceCompatibility
 }
 
+tasks.register<Jar>("velocityCompileJar") {
+	description = "Подготовка Velocity для компиляции Bukkit без встроенной Adventure"
+	archiveFileName.set("Velocity-compile.jar")
+	destinationDirectory.set(layout.buildDirectory.dir("dependencies"))
+	from(zipTree(layout.projectDirectory.file("libs/Velocity.jar"))) {
+		exclude("net/kyori/**", "META-INF/versions/**/net/kyori/**")
+		exclude("META-INF/MANIFEST.MF", "META-INF/*.SF", "META-INF/*.RSA", "META-INF/*.DSA")
+		exclude("module-info.class", "META-INF/versions/**/module-info.class")
+	}
+	includeEmptyDirs = false
+	manifest.attributes("Multi-Release" to "true")
+}
+
 repositories {
     mavenLocal()
     gradlePluginPortal()
@@ -36,6 +49,7 @@ repositories {
 }
 
 dependencies {
+	compileOnly(platform("net.kyori:adventure-bom:${providers.gradleProperty("dependency_version_adventure").get()}"))
     compileOnly("io.papermc.paper:paper-api:${providers.gradleProperty("dependency_version_bukkit").get()}")
     compileOnly("net.md-5:bungeecord-api:${providers.gradleProperty("dependency_version_bungee").get()}")
     compileOnly("me.clip:placeholderapi:${providers.gradleProperty("dependency_version_placeholderapi").get()}")
@@ -50,7 +64,7 @@ dependencies {
     compileOnly("org.projectlombok:lombok:${providers.gradleProperty("dependency_version_lombok").get()}")
 
     // Плагины, которые легче импортировать вручную, чем пытаться подгрузить их репозиторий.
-    compileOnly(files("libs/Velocity.jar"))
+	compileOnly(files(tasks.named("velocityCompileJar")))
     compileOnly(files("libs/FastAsyncWorldEdit.jar"))
     compileOnly(files("libs/UltimateTimber.jar"))
     compileOnly(files("libs/GadgetsMenu.jar"))
