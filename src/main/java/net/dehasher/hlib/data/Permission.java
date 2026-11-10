@@ -164,6 +164,7 @@ public enum Permission {
 	HCALENDAR_ADMIN(false),
 	HCALENDAR_HEADS(false),
 	HCALENDAR_RELOAD(false),
+	HCALENDAR_PARTICLES(true),
 	HPARKOUR_COMMAND_HPARKOUR(true),
 	HPARKOUR_ADMIN(false),
 	HPARKOUR_PLAY(true),
