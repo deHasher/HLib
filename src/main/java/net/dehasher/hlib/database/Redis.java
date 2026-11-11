@@ -35,7 +35,7 @@ public class Redis {
 	public JedisPool getPool() {
 		try {
 			return getPoolDefault();
-		} catch (Throwable t) {
+		} catch (Throwable _) {
 			shutdown();
 			Informer.send("Failed to connect to the Redis! Check your configuration...");
 			return null;
@@ -45,7 +45,7 @@ public class Redis {
 	public void publish(String channel, String message) {
 		try (Jedis jedis = getPool().getResource()) {
 			jedis.publish(channel, message);
-		} catch (Throwable ignored) {
+		} catch (Throwable _) {
 			shutdown();
 		}
 	}

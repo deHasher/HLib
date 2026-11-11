@@ -33,7 +33,7 @@ public class ConfigurationUtils {
 			Files.write(tmpfile.toPath(), outList, StandardCharsets.UTF_8, StandardOpenOption.CREATE);
 			try {
 				Files.move(tmpfile.toPath(), out.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-			} catch (AtomicMoveNotSupportedException e) {
+			} catch (AtomicMoveNotSupportedException _) {
 				Files.move(tmpfile.toPath(), out.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			}
 		} catch (IOException e) {

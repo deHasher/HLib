@@ -43,7 +43,7 @@ public class StandaloneConfigurationProvider implements ConfigurationProvider {
 			this.fileLoadedWithoutErrors = false;
 			this.yamlConfiguration.load(file);
 			this.fileLoadedWithoutErrors = true;
-		} catch (FileNotFoundException ignored) {
+		} catch (FileNotFoundException _) {
 		} catch (IOException | InvalidConfigurationException e) {
 			ConfigurationUtils.LOGGER.log(Level.SEVERE, "Cannot load " + file, e);
 		}

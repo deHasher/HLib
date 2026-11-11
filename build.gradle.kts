@@ -13,6 +13,7 @@ plugins {
 }
 
 java {
+	toolchain.languageVersion.set(JavaLanguageVersion.of(providers.gradleProperty("java_version_build").get().toInt()))
 	sourceCompatibility = JavaVersion.toVersion(providers.gradleProperty("java_version_target").get())
 	targetCompatibility = sourceCompatibility
 }
@@ -46,6 +47,11 @@ repositories {
     maven("https://repo1.maven.org/maven2/")                                    // LuckPerms.
     maven("https://repo.codemc.io/repository/maven-public/")                    // NBT-API.
     maven("https://repo.plasmoverse.com/releases")                              // PlasmoVoice.
+}
+
+configurations.configureEach {
+	exclude(group = "org.bukkit", module = "bukkit")
+	exclude(group = "org.spigotmc", module = "spigot-api")
 }
 
 dependencies {
@@ -234,6 +240,7 @@ tasks {
 	named<JavaCompile>("compileJava") {
 		dependsOn(generateTokenizedJava)
 		source = fileTree(tokenizedJavaDir)
+		options.release.set(providers.gradleProperty("java_version_target").get().toInt())
 		options.compilerArgs.add("-Xlint:deprecation")
 	}
 

@@ -5,8 +5,8 @@
 ## 1. Проверьте окружение
 
 - Для сборки исходников используйте JDK {{java_version_build}}; полный `build` также использует JDK {{java_version_checkstyle}} для Checkstyle.
-- Paper descriptor объявляет API `{{api_version_paper}}`, Bukkit descriptor — `{{api_version_bukkit}}`.
-- Для запуска выберите Java по требованиям своей версии сервера и плагинов. Для Paper 1.20–1.21.11 рекомендована Java 21, для Paper 26.1+ — Java 25. [Требования Paper](https://docs.papermc.io/paper/getting-started/).
+- Единственный серверный дескриптор `paper-plugin.yml` объявляет API `{{api_version_paper}}`; metadata Velocity сохраняется отдельно.
+- Для запуска HLib требуется Java 25 на Paper и Velocity. Минимальная серверная платформа — Paper 1.21.11. Старые Bukkit/Paper не поддерживаются. [Требования Paper](https://docs.papermc.io/paper/getting-started/).
 
 Собственные классы HLib компилируются в bytecode Java {{java_version_target}}. Это не обещание поддержки любой платформы на Java {{java_version_target}}; низкоуровневые API и интеграции зависят от версии Minecraft.
 
@@ -46,12 +46,6 @@ HLib не имеет официальных Maven-координат. `compileOn
 ## 4. Объявите зависимость плагина
 
 Без декларации зависимости ваш плагин может загрузиться раньше HLib или не получить доступ к его classpath.
-
-### Файл `plugin.yml`
-
-```yaml
-depend: [HLib]
-```
 
 ### Файл `paper-plugin.yml`
 
@@ -159,7 +153,6 @@ PlaceholderAPI необязателен: без него `PlaceholderAPIHook` о
 
 ## Официальные справочники платформ
 
-- [Paper: plugin.yml](https://docs.papermc.io/paper/dev/plugin-yml/)
 - [Paper: paper-plugin.yml и classpath dependencies](https://docs.papermc.io/paper/dev/getting-started/paper-plugins/)
 - [Velocity: зависимости плагинов](https://docs.papermc.io/velocity/dev/dependency-management/)
 - [Paper: требования Java](https://docs.papermc.io/paper/getting-started/)

@@ -2,9 +2,7 @@ package net.dehasher.hlib.wrapper.packet.bukkit;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
-import net.dehasher.hlib.data.BukkitVersion;
-import net.dehasher.hlib.Tools;
-import java.util.Collections;
+import java.util.stream.IntStream;
 import java.util.List;
 
 public class WrapperPlayServerEntityDestroy extends AbstractPacket {
@@ -20,25 +18,21 @@ public class WrapperPlayServerEntityDestroy extends AbstractPacket {
 	}
 
 	public int getCount() {
-		return getHandle().getIntegerArrays().read(0).length;
+		return getHandle().getIntLists().read(0).size();
 	}
 
-	// Для версий 1.16.5 и ниже.
+	// Массив идентификаторов.
 	public void setEntityIds(int[] value) {
-		getHandle().getIntegerArrays().write(0, value);
+		setEntityIds(IntStream.of(value).boxed().toList());
 	}
 
-	// Для версий 1.17 и выше.
+	// Список идентификаторов.
 	public void setEntityIds(List<Integer> value) {
 		getHandle().getIntLists().write(0, value);
 	}
 
 	// Для всех версий.
 	public void setEntityId(int value) {
-		if (!Tools.requireBukkitVersion(BukkitVersion.V1_17)) {
-			setEntityIds(new int[]{value});
-		} else {
-			setEntityIds(Collections.singletonList(value));
-		}
+		setEntityIds(List.of(value));
 	}
 }

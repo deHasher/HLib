@@ -35,7 +35,7 @@ public class ConfigurationSerialization {
 			}
 
 			return method;
-		} catch (NoSuchMethodException | SecurityException ex) {
+		} catch (NoSuchMethodException | SecurityException _) {
 			return null;
 		}
 	}
@@ -44,7 +44,7 @@ public class ConfigurationSerialization {
 	protected Constructor<? extends ConfigurationSerializable> getConstructor() {
 		try {
 			return clazz.getConstructor(Map.class);
-		} catch (NoSuchMethodException | SecurityException ex) {
+		} catch (NoSuchMethodException | SecurityException _) {
 			return null;
 		}
 	}

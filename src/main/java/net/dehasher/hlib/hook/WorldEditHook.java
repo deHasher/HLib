@@ -25,6 +25,6 @@ public class WorldEditHook {
 			Region region = session.getSelection(weWorld);
 			region.expand(BlockVector3.at(0, (weWorld.getMaxY() + 1), 0), BlockVector3.at(0, -(weWorld.getMaxY() + 1), 0));
 			session.getRegionSelector(weWorld).learnChanges();
-		} catch (Throwable ignored) {}
+		} catch (Throwable _) {}
 	}
 }

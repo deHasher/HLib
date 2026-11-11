@@ -1,6 +1,6 @@
 # Интеграции
 
-Hook-классы HLib — тонкие адаптеры над API сторонних плагинов. Они не устанавливают зависимости, обычно не проверяют их наличие и могут не загрузиться без соответствующего API. `HTokensHook` использует общий контракт HLib через Bukkit services; для его вызова не нужны классы HTokens в compile classpath.
+Hook-классы HLib — тонкие адаптеры над API сторонних плагинов. Они не устанавливают зависимости, обычно не проверяют их наличие и могут не загрузиться без соответствующего API.
 
 ## Безопасный шаблон
 
@@ -30,7 +30,6 @@ if (Plugin.WORLD_GUARD.isEnabled()) {
 | `EmoteCraftHook` | Emotecraft, косвенно ProtocolLib | play/stop emote, client detection | `reload` ожидает отсутствующие ресурсы и может удалить старые JSON |
 | `ForceResourcepacksHook` | ForceResourcepacks Velocity | поиск и обновление URL/SHA-1 pack | URL, UUID и hash не валидируются |
 | `GadgetsMenuHook` | GadgetsMenu | `PlayerManager` игрока | `getPlugin(Player)` возвращает manager, не plugin instance |
-| `HTokensHook` | HTokens с зарегистрированным provider | асинхронные `withdraw`/`deposit` с журналом баланса | `withdraw` требует main thread и online-игрока; неизвестный результат SQL передаётся exceptional future |
 | `ItemJoinHook` | ItemJoin | проверка custom item | API создаётся в static initializer |
 | `ItemsAdderHook` | ItemsAdder | custom item, model, permission, pack URL/SHA-1 | SHA-1 вычисляется синхронно с диска |
 | `LibsDisguisesHook` | LibsDisguises | состояние и снятие disguise | сначала проверяйте `isDisguised` |

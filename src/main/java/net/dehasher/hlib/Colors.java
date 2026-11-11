@@ -256,7 +256,7 @@ public final class Colors {
 
 		try {
 			Integer.parseInt(value, 16);
-		} catch (Throwable t) {
+		} catch (Throwable _) {
 			return Colors.WHITE;
 		}
 
@@ -272,7 +272,7 @@ public final class Colors {
 	public static Color getCustomColor(String value) {
 		try {
 			return Color.decode("#" + value.replace("#", ""));
-		} catch (Throwable ignored) {
+		} catch (Throwable _) {
 			return null;
 		}
 	}

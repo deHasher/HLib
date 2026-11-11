@@ -177,7 +177,7 @@ ItemStack item = new ItemBuilder()
 - Имя, lore, количество и unsafe enchantments.
 - Unbreakable, glow и item flags.
 - Pattern для banner и shield.
-- Custom model data и item model для 1.21.
+- Custom model data и item model для Paper 1.21.11+. Числовой `setCustomModelData(Integer)` хранится в первом float современного `CustomModelDataComponent`; формат пользовательского API сохранён.
 - Строковые и boolean NBT-значения внутри compound `hlib`.
 - Разрешение namespace-предметов ItemsAdder и Nexo при наличии соответствующего плагина.
 
@@ -258,15 +258,9 @@ String materialName = Translator.getMaterialName(Material.DIAMOND, player);
 - Lifetime-limit автоматически не сбрасывается.
 - Сообщения об отсутствии права, cooldown и лимите из `StorageController` по умолчанию пустые. Их задаёт использующий библиотеку плагин через `setNoPermMessage`, `setCommandCooldownMessage` и `setCommandLimitMessage`; для времени cooldown используется `{time}`.
 
-Право `HCORE_COMMAND_RCON` (`hcore.command.rcon`) удалено вместе с командой HCore `/rcon`: доставка магазина выполняется локальной корзиной HCore и не использует отдельное командное разрешение.
-
 Для команд с произвольными permission nodes используйте штатный command API Paper или Velocity. Базовые классы HLib подходят проектам, чьи права уже представлены в `Permission`.
 
-Для HFriends предусмотрены `HFRIENDS_COMMAND_FRIENDS` (`hfriends.command.friends`), `HFRIENDS_COMMAND_FMSG` (`hfriends.command.fmsg`), `HFRIENDS_ADMIN_RELOAD` (`hfriends.admin.reload`) и `HFRIENDS_BYPASS_FRIENDSHIP` (`hfriends.bypass.friendship`). Последнее право позволяет отправлять личные сообщения без дружбы. Все четыре элемента допускают стандартный обход для `Info.admins` при проверке через `Tools.isPerm`; значение enum само по себе не выдаёт право игрокам.
-
-`HCALENDAR_PARTICLES` (`hcalendar.particles`) разрешает праздничные частицы HCalendar. HLib предоставляет элемент enum; в её Bukkit/Paper-дескрипторах это право не объявлено, программной регистрации нет. HCalendar проверяет его обычным вызовом `Tools.isPerm(player, Permission.HCALENDAR_PARTICLES)`. Значение `true` конструктора enum означает `isAdminSkip`: проверка не предоставляет обход игрокам из `Info.admins`. Результат определяется стандартным `Player.hasPermission` и менеджером прав сервера; выдача, наследование групп и wildcard учитываются обычным образом. Проверка текущего права перед отправкой позволяет применять выдачу и отзыв без перезапуска. Для этого API требуется HLib 6.31 или новее; создание элемента enum не меняет права других плагинов.
-
-`HCommandBukkit.execute(...)` возвращает фактический результат `run(...)`: `false` сохраняет отказ команды, `true` означает принятую командой операцию. Счётчик использования и cooldown обновляются только при `true`. Потребителям корзины HCore нужен пересобранный HLib с этим контрактом; прежний бинарник всегда возвращал `true` после `run` и скрывал отказ обработчика. Это не подтверждает завершение внутренней асинхронной задачи стороннего плагина. Штатный Bukkit `dispatchCommand` также не сохраняет результат `Command.execute`; для его проверки вызывающая сторона на основном потоке разрешает зарегистрированный `Command`, проверяет доступность владельца и вызывает `execute` напрямую.
+`HCommandBukkit.execute(...)` возвращает фактический результат `run(...)`: `false` сохраняет отказ команды, `true` означает принятую командой операцию. Счётчик использования и cooldown обновляются только при `true`. Прежняя реализация всегда возвращала `true` после `run` и скрывала отказ обработчика. Это не подтверждает завершение внутренней асинхронной задачи стороннего плагина. Штатный Bukkit `dispatchCommand` также не сохраняет результат `Command.execute`; для его проверки вызывающая сторона на основном потоке разрешает зарегистрированный `Command`, проверяет доступность владельца и вызывает `execute` напрямую.
 
 ### Предварительная проверка команд
 
@@ -292,3 +286,15 @@ String materialName = Translator.getMaterialName(Material.DIAMOND, player);
 Подробные ограничения этих классов приведены в [каталоге API](API-Reference) и разделе [решения проблем](Building-and-Troubleshooting).
 
 `Performance.init()`, периодические вызовы `Performance.update()`, `Translator.init()` и инициализацию SQL-моделей запускает использующий библиотеку плагин. HLib не включает эти подсистемы автоматически.
+
+## Минимальная версия и NMS
+
+Bukkit/Paper-путь рассчитан на Paper 1.21.11 и Java 25. `Tools.requireBukkitVersion` сравнивает полную версию с patch-компонентом, enum `BukkitVersion` содержит протоколы `V1_21_11` и `V26`; прежние server-version ветки удалены из переносимого кода. Исключение владельца — исходный `ProtocolLibHook.java`: для его неизменных guards сохранён порог `V1_21` без старых protocol entries. Это версия серверного API, а не обещание совместимости каждого клиентского протокола.
+
+`NMS.VERSION` определяется поиском версионного `CraftWorld`; при отсутствии подходящего класса возвращается `UNKNOWN`. На Paper 1.21.11 штатный classloader преобразует reflection-имя `v1_21_R7.CraftWorld` в актуальный класс без версии в пакете. `Reflections` сохраняет загрузку самостоятельных версионных адаптеров. Константы эффектов, частиц, зачарований и типов сущностей, а также обёртка `NMS.Inventory` удалены: потребители вызывают `PotionEffectType`, `Particle`, `Enchantment`, `EntityType` и `InventoryView` напрямую. Например, `ItemsController.toggleGlowing` использует `Enchantment.LUCK_OF_THE_SEA`, а чтение предмета по raw slot выполняется через `view.getItem(slot)` с прежними параметрами. `NMS.getSound` и `NMS.Packets` сохранены. `AttributeController` возвращает типизированные `Attribute` и `AttributeInstance` из Registry.
+
+`Tools.headModify` устанавливает текстуру через Paper `PlayerProfile` и `SkullMeta`; `createProfileExact` сохраняет переданные UUID и имя даже при совпадении UUID с онлайн-игроком; при null/пустом имени профиль создаётся без имени с заданным или случайным UUID; старый `UnsafeValues.modifyItemStack` и legacy NBT удалены. `Tools.getDamager` получает владельца любого `Projectile`, включая `Firework`, через `getShooter()`: вызывающий код задаёт его через `setShooter()`. Metadata `arrow-firework-shooter` больше не читается. `Performance.gc()` удалён: на поддерживаемых версиях он ничего не выполнял.
+
+Строковые API сообщений и title сохранены; миграция не переводит их в компоненты. `Translator` использует `translationKey()` и актуальный `TranslationStore`; существующие Adventure-компоненты продолжают обрабатываться как компоненты. `Console` реализует обязательный Paper-метод `name()`, сохраняя строковый `getName()`.
+
+`Translator` сохраняет поддержку пользовательских объектов с публичным `getTranslationKey()`; для Paper/Adventure `Translatable` используется типизированный `translationKey()`. `AttributeController` возвращает null для неизвестного или некорректного имени атрибута, пустой Optional для недоступного экземпляра/значения и false, если установка base value отклонена. Переход на типизированный API сохраняет прежний способ обработки таких ошибок.

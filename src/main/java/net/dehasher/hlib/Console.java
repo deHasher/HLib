@@ -1,6 +1,7 @@
 package net.dehasher.hlib;
 
 import net.dehasher.hlib.config.Info;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
@@ -45,6 +46,11 @@ public record Console(CommandSender commandSender) implements ConsoleCommandSend
 	}
 
 	@Override
+	public @NonNull Component name() {
+		return commandSender instanceof Player ? commandSender.name() : Component.text(Info.consoleName);
+	}
+
+	@Override
 	public @NonNull String getName() {
 		return commandSender instanceof Player ? commandSender.getName() : Info.consoleName;
 	}
@@ -63,20 +69,24 @@ public record Console(CommandSender commandSender) implements ConsoleCommandSend
 	public void acceptConversationInput(@NonNull String input) {}
 
 	@Override
+	@SuppressWarnings("removal")
 	public boolean beginConversation(@NonNull Conversation conversation) {
 		return false;
 	}
 
 	@Override
+	@SuppressWarnings("removal")
 	public void abandonConversation(@NonNull Conversation conversation) {}
 
 	@Override
+	@SuppressWarnings("removal")
 	public void abandonConversation(@NonNull Conversation conversation, @NonNull ConversationAbandonedEvent details) {}
 
 	@Override
 	public void sendRawMessage(@NonNull String message) {}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public void sendRawMessage(UUID sender, @NonNull String message) {}
 
 	@Override

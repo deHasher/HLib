@@ -17,11 +17,12 @@ public class WrapperPlayClientSetCreativeSlot extends AbstractPacket {
 	}
 
 	public int getSlot() {
-		return getHandle().getIntegers().readSafely(0);
+		return getHandle().getShorts().read(0);
 	}
 
 	public void setSlot(int value) {
-		getHandle().getIntegers().write(0, value);
+		if (value < Short.MIN_VALUE || value > Short.MAX_VALUE) throw new IllegalArgumentException("Slot must fit a short");
+		getHandle().getShorts().write(0, (short) value);
 	}
 
 	public ItemStack getClickedItem() {

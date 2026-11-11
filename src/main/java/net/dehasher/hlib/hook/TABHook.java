@@ -89,7 +89,7 @@ public class TABHook {
 		});
 	}
 
-	@SuppressWarnings({"DataFlowIssue", "deprecation"})
+	@SuppressWarnings("DataFlowIssue")
 	public static boolean isAnimated(Player player) {
 		TabPlayer tabPlayer = getPlayer(player);
 		if (tabPlayer == null) return false;
@@ -102,8 +102,8 @@ public class TABHook {
 			   Objects.toString(getPlugin().getTabListFormatManager().getCustomPrefix(tabPlayer), "").contains(ANIMATED) ||
 			   Objects.toString(getPlugin().getTabListFormatManager().getCustomSuffix(tabPlayer), "").contains(ANIMATED) ||
 
-			   Objects.toString(getPlugin().getTabListFormatManager().getOriginalPrefix(tabPlayer), "").contains(ANIMATED) ||
-			   Objects.toString(getPlugin().getTabListFormatManager().getOriginalSuffix(tabPlayer), "").contains(ANIMATED);
+			   Objects.toString(getPlugin().getTabListFormatManager().getOriginalRawPrefix(tabPlayer), "").contains(ANIMATED) ||
+			   Objects.toString(getPlugin().getTabListFormatManager().getOriginalRawSuffix(tabPlayer), "").contains(ANIMATED);
 	}
 
 	public static void save(Player player, Type type, String string) {

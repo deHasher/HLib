@@ -20,7 +20,7 @@ import net.dehasher.hlib.file.ConfigurationProvider;
 import net.dehasher.hlib.file.PluginCfg;
 import net.dehasher.hlib.file.provider.StandaloneConfigurationProvider;
 import net.dehasher.hlib.platform.velocity.HLib;
-import org.bukkit.plugin.Plugin;
+import org.bukkit.enchantments.Enchantment;
 import org.jetbrains.annotations.Nullable;
 import java.io.*;
 import java.lang.reflect.Constructor;
@@ -182,7 +182,7 @@ public class Tools {
 	public static String getDomainIP(String domain) {
 		try {
 			return InetAddress.getByName(domain).getHostAddress();
-		} catch (Throwable ignored) {}
+		} catch (Throwable _) {}
 		return null;
 	}
 
@@ -242,7 +242,7 @@ public class Tools {
 
 	// Округление double числа.
 	public static double round(double number, int symbols) {
-		double math = IntStream.range(0, symbols).mapToDouble(index -> 10d).reduce(1d, (value, factor) -> value * factor);
+		double math = IntStream.range(0, symbols).mapToDouble(_ -> 10d).reduce(1d, (value, factor) -> value * factor);
 		return (double) Math.round(number * math) / math;
 	}
 
@@ -253,7 +253,7 @@ public class Tools {
 
 	// Округление double числа в меньшую сторону.
 	public static double floor(double number, int symbols) {
-		double math = IntStream.range(0, symbols).mapToDouble(index -> 10d).reduce(1d, (value, factor) -> value * factor);
+		double math = IntStream.range(0, symbols).mapToDouble(_ -> 10d).reduce(1d, (value, factor) -> value * factor);
 		return Math.floor(number * math) / math;
 	}
 
@@ -264,7 +264,7 @@ public class Tools {
 
 	// Округление double числа в большую сторону.
 	public static double ceil(double number, int symbols) {
-		double math = IntStream.range(0, symbols).mapToDouble(index -> 10d).reduce(1d, (value, factor) -> value * factor);
+		double math = IntStream.range(0, symbols).mapToDouble(_ -> 10d).reduce(1d, (value, factor) -> value * factor);
 		return Math.ceil(number * math) / math;
 	}
 
@@ -315,7 +315,7 @@ public class Tools {
 	public static String urlEncode(String input) {
 		try {
 			return URLEncoder.encode(input, StandardCharsets.UTF_8);
-		} catch (Throwable t) {
+		} catch (Throwable _) {
 			return input;
 		}
 	}
@@ -324,7 +324,7 @@ public class Tools {
 	public static String urlDecode(String input) {
 		try {
 			return URLDecoder.decode(input, StandardCharsets.UTF_8);
-		} catch (Throwable t) {
+		} catch (Throwable _) {
 			return input;
 		}
 	}
@@ -359,9 +359,10 @@ public class Tools {
 	}
 
 	// Проверка версии ядра на заданную.
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public static boolean requireBukkitVersion(BukkitVersion needed) {
 		if (Platform.get().isProxy()) return true;
-		return getRequireServerVersionCache().computeIfAbsent(needed, key -> compareVersions(getBukkitVersionAsMinor(), key.getValue()));
+		return getRequireServerVersionCache().computeIfAbsent(needed, key -> compareVersions(getBukkitVersionAsPatch(), key.getValue()));
 	}
 
 	// Проверка на винду.
@@ -419,7 +420,7 @@ public class Tools {
 					.flatMap(className -> {
 						try {
 							return Stream.of(classLoader.loadClass(className));
-						} catch (Throwable ignored) {
+						} catch (Throwable _) {
 							return Stream.empty();
 						}
 					})
@@ -469,32 +470,13 @@ public class Tools {
 
 	// Получаем игрока, котороый нанёс урон.
 	public static org.bukkit.entity.Player getDamager(org.bukkit.entity.Entity entity) {
-		org.bukkit.entity.Player player = null;
-		if (entity instanceof org.bukkit.entity.Player) {
-			player = (org.bukkit.entity.Player) entity;
-		} else if (entity instanceof org.bukkit.entity.Projectile projectile) {
-			if (entity instanceof org.bukkit.entity.Firework) {
-				if (entity.hasMetadata("arrow-firework-shooter")) {
-					org.bukkit.metadata.MetadataValue metadata = entity.getMetadata("arrow-firework-shooter").stream()
-							.filter(metadataValue -> metadataValue.getOwningPlugin() == net.dehasher.hlib.platform.bukkit.HLib.getInstance())
-							.findFirst()
-							.orElse(null);
-					if (metadata != null) {
-						@Nullable Plugin owningPlugin = metadata.getOwningPlugin();
-						@Nullable Object value = metadata.value();
-						if (owningPlugin != null) entity.removeMetadata("arrow-firework-shooter", owningPlugin);
-						if (value != null) player = org.bukkit.Bukkit.getPlayer((UUID) value);
-					}
-				}
-			} else {
-				if (projectile.getShooter() instanceof org.bukkit.entity.Player) player = (org.bukkit.entity.Player) projectile.getShooter();
-			}
-		} else if (entity instanceof org.bukkit.entity.TNTPrimed tntPrimed) {
-			player = getDamager(tntPrimed.getSource());
-		} else if (entity instanceof org.bukkit.entity.AreaEffectCloud areaEffectCloud) {
-			if (areaEffectCloud.getSource() instanceof org.bukkit.entity.Player) player = (org.bukkit.entity.Player) areaEffectCloud.getSource();
-		}
-		return player;
+		return switch (entity) {
+			case org.bukkit.entity.Player player -> player;
+			case org.bukkit.entity.Projectile projectile -> projectile.getShooter() instanceof org.bukkit.entity.Player shooter ? shooter : null;
+			case org.bukkit.entity.TNTPrimed tntPrimed -> getDamager(tntPrimed.getSource());
+			case org.bukkit.entity.AreaEffectCloud cloud -> cloud.getSource() instanceof org.bukkit.entity.Player player ? player : null;
+			case null, default -> null;
+		};
 	}
 
 	// Регистрируем слушатель.
@@ -560,7 +542,7 @@ public class Tools {
 			}
 
 			result = stringBuilder.toString();
-		} catch (Throwable ignored) {}
+		} catch (Throwable _) {}
 		return result;
 	}
 
@@ -574,7 +556,7 @@ public class Tools {
 		JsonObject jsonObject;
 		try {
 			jsonObject = gson.fromJson(json, JsonObject.class);
-		} catch (Throwable t) {
+		} catch (Throwable _) {
 			return null;
 		}
 		if (jsonObject == null || !jsonObject.has("id")) return null;
@@ -609,7 +591,7 @@ public class Tools {
 		JsonObject jsonObject;
 		try {
 			jsonObject = gson.fromJson(json, JsonObject.class);
-		} catch (Throwable t) {
+		} catch (Throwable _) {
 			return null;
 		}
 		if (jsonObject == null || !jsonObject.has("properties")) return null;
@@ -628,7 +610,7 @@ public class Tools {
 
 		try {
 			return gson.fromJson(decodedJson, JsonObject.class);
-		} catch (Throwable t) {
+		} catch (Throwable _) {
 			return null;
 		}
 	}
@@ -636,7 +618,7 @@ public class Tools {
 	// Нужно ли повреждать инструмент если событие было отменено?
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public static boolean shouldDamageTool(org.bukkit.inventory.ItemStack tool) {
-		int unbreakingLevel = tool.getEnchantmentLevel(NMS.UNBREAKING);
+		int unbreakingLevel = tool.getEnchantmentLevel(Enchantment.UNBREAKING);
 		if (unbreakingLevel > 0) {
 			double chance = 1.0 / (unbreakingLevel + 1);
 			return Math.random() > chance;
@@ -645,51 +627,21 @@ public class Tools {
 	}
 
 	// Модифицировать голову.
-	@SuppressWarnings({"deprecation", "ExtractMethodRecommender"})
 	public static void headModify(org.bukkit.inventory.ItemStack item, UUID uuid, String name, String textures) {
+		org.bukkit.inventory.meta.ItemMeta meta = item.getItemMeta();
+		if (!(meta instanceof org.bukkit.inventory.meta.SkullMeta skull)) return;
 		if (uuid == null) uuid = UUID.randomUUID();
-		if (name == null || name.isEmpty()) name = uuid.toString();
+		if (name != null && name.isEmpty()) name = null;
 		if (textures == null || textures.isEmpty()) textures = "null";
-		String encode;
-
-		if (requireBukkitVersion(BukkitVersion.V1_20)) {
-			String itemType = item.getType().name().toLowerCase();
-
-			JsonObject texturesObj = new JsonObject();
-			texturesObj.addProperty("name", "textures");
-			texturesObj.addProperty("value", textures);
-
-			JsonArray texturesArray = new JsonArray();
-			texturesArray.add(texturesObj);
-
-			encode = itemType + "[profile={id:[" + serializeUUID(uuid) + "],name:\"" + name + "\",properties:" + texturesArray + "}]";
-		} else {
-			JsonObject texturesObj = new JsonObject();
-			texturesObj.addProperty("Value", textures);
-
-			JsonArray texturesArray = new JsonArray();
-			texturesArray.add(texturesObj);
-
-			JsonObject propertiesObj = new JsonObject();
-			propertiesObj.add("textures", texturesArray);
-
-			JsonObject skullOwnerObj = new JsonObject();
-			skullOwnerObj.addProperty("Id", String.valueOf(uuid));
-			skullOwnerObj.add("Properties", propertiesObj);
-
-			JsonObject json = new JsonObject();
-			json.add("SkullOwner", skullOwnerObj);
-
-			encode = json.toString();
-		}
-
-		debug(null, encode);
-		org.bukkit.Bukkit.getUnsafe().modifyItemStack(item, encode);
+		com.destroystokyo.paper.profile.PlayerProfile profile = org.bukkit.Bukkit.createProfileExact(uuid, name);
+		profile.setProperty(new com.destroystokyo.paper.profile.ProfileProperty("textures", textures));
+		skull.setPlayerProfile(profile);
+		item.setItemMeta(meta);
 	}
 
 	// Получаем список игроков рядом с игроком.
 	public static List<org.bukkit.entity.Player> getNearbyPlayers(org.bukkit.entity.Player player) {
-		return getNearbyPlayers(player, (org.bukkit.Bukkit.getViewDistance() - 1) * 16, requireBukkitVersion(BukkitVersion.V1_18) ? 384 : 255);
+		return getNearbyPlayers(player, (org.bukkit.Bukkit.getViewDistance() - 1) * 16, player.getWorld().getMaxHeight() - player.getWorld().getMinHeight());
 	}
 
 	// Получаем список игроков рядом с игроком.
@@ -703,7 +655,7 @@ public class Tools {
 
 	// Получаем список существ рядом с игроком.
 	public static List<org.bukkit.entity.Entity> getNearbyEntity(org.bukkit.entity.Player player) {
-		return getNearbyEntity(player, (org.bukkit.Bukkit.getViewDistance() - 1) * 16, requireBukkitVersion(BukkitVersion.V1_18) ? 384 : 255);
+		return getNearbyEntity(player, (org.bukkit.Bukkit.getViewDistance() - 1) * 16, player.getWorld().getMaxHeight() - player.getWorld().getMinHeight());
 	}
 
 	// Получаем список существ рядом с игроком.
@@ -724,7 +676,7 @@ public class Tools {
 	public static void sleep(long millis) {
 		try {
 			Thread.sleep(millis);
-		} catch (Throwable ignored) {}
+		} catch (Throwable _) {}
 	}
 
 	// Получаем время выполнения скрипта.
@@ -737,14 +689,14 @@ public class Tools {
 	// Удаляем .DS_Store и desktop.ini файлы.
 	public static void removeStyleFiles() {
 		AtomicInteger deleted = new AtomicInteger();
-		try (Stream<Path> stream = java.nio.file.Files.find(Paths.get(new File("").getPath()), 999, (path, file) -> file.isRegularFile())) {
+		try (Stream<Path> stream = java.nio.file.Files.find(Paths.get(new File("").getPath()), 999, (_, file) -> file.isRegularFile())) {
 			stream.filter(e -> e.endsWith(".DS_Store") || e.endsWith("desktop.ini")).forEach(e -> {
 				try {
 					java.nio.file.Files.delete(e);
 					deleted.getAndIncrement();
-				} catch (Throwable ignored) {}
+				} catch (Throwable _) {}
 			});
-		} catch (Throwable ignored) {}
+		} catch (Throwable _) {}
 		if (deleted.get() > 0) Informer.send("Successfully deleted " + deleted.get() + " .DS_Store and desktop.ini files!");
 	}
 
@@ -774,7 +726,7 @@ public class Tools {
 	public static String base64Decode(String input) {
 		try {
 			return new String(Base64.getDecoder().decode(input));
-		} catch (Throwable t) {
+		} catch (Throwable _) {
 			return null;
 		}
 	}
@@ -783,7 +735,7 @@ public class Tools {
 	public static byte[] base64DecodeRaw(String input) {
 		try {
 			return Base64.getDecoder().decode(input);
-		} catch (Throwable t) {
+		} catch (Throwable _) {
 			return null;
 		}
 	}
@@ -872,7 +824,7 @@ public class Tools {
 			org.bukkit.util.RayTraceResult result = player1.getWorld().rayTraceBlocks(loc1, direction, loc1.distance(loc2), org.bukkit.FluidCollisionMode.NEVER, true);
 
 			return result == null;
-		} catch (Throwable t) { // x is infinity
+		} catch (Throwable _) { // x is infinity
 			return false;
 		}
 	}
@@ -886,7 +838,7 @@ public class Tools {
 	public static byte[] getBytes(String input) {
 		try {
 			return input.getBytes(StandardCharsets.UTF_8);
-		} catch (Throwable ignored) {}
+		} catch (Throwable _) {}
 		return null;
 	}
 
@@ -909,7 +861,7 @@ public class Tools {
 	public static int parseInt(String string) {
 		try {
 			return Integer.parseInt(string);
-		} catch (Throwable t) {
+		} catch (Throwable _) {
 			return 0;
 		}
 	}
@@ -918,7 +870,7 @@ public class Tools {
 	public static long parseLong(String string) {
 		try {
 			return Long.parseLong(string);
-		} catch (Throwable t) {
+		} catch (Throwable _) {
 			return 0L;
 		}
 	}
@@ -927,7 +879,7 @@ public class Tools {
 	public static short parseShort(String string) {
 		try {
 			return Short.parseShort(string);
-		} catch (Throwable t) {
+		} catch (Throwable _) {
 			return 0;
 		}
 	}
@@ -936,7 +888,7 @@ public class Tools {
 	public static float parseFloat(String string) {
 		try {
 			return Float.parseFloat(string);
-		} catch (Throwable t) {
+		} catch (Throwable _) {
 			return 0F;
 		}
 	}
@@ -945,7 +897,7 @@ public class Tools {
 	public static boolean parseBoolean(String string) {
 		try {
 			return Boolean.parseBoolean(string);
-		} catch (Throwable t) {
+		} catch (Throwable _) {
 			return false;
 		}
 	}
@@ -954,7 +906,7 @@ public class Tools {
 	public static byte parseByte(String string) {
 		try {
 			return Byte.parseByte(string);
-		} catch (Throwable t) {
+		} catch (Throwable _) {
 			return (byte) 0;
 		}
 	}
@@ -963,7 +915,7 @@ public class Tools {
 	public static double parseDouble(String string) {
 		try {
 			return Double.parseDouble(string);
-		} catch (Throwable t) {
+		} catch (Throwable _) {
 			return 0D;
 		}
 	}

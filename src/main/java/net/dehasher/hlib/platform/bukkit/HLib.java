@@ -57,8 +57,8 @@ public class HLib extends JavaPlugin {
 	@SuppressWarnings("DuplicatedCode")
 	private void updater() {
 		String name = getClass().getSimpleName();
-		Informer.send("Checking for " + name + " updates... Current version: " + getInstance().getDescription().getVersion());
-		Boolean check = Updater.check(name, getInstance().getDescription().getVersion());
+		Informer.send("Checking for " + name + " updates... Current version: " + getInstance().getPluginMeta().getVersion());
+		Boolean check = Updater.check(name, getInstance().getPluginMeta().getVersion());
 		if (check == null) {
 			Informer.send("Couldn't check the plugin for updates! Restarting...");
 			Bukkit.shutdown();

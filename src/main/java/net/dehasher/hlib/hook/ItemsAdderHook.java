@@ -62,24 +62,26 @@ public class ItemsAdderHook {
 		if (customStack == null) return false;
 		try {
 			return customStack.hasPermission();
-		} catch (Throwable t) {
+		} catch (Throwable _) {
 			return false;
 		}
 	}
 
 	public static boolean hasItemModel(CustomStack customStack) {
 		if (customStack == null) return false;
-		return !customStack.getItemStack().getItemMeta().hasCustomModelData();
+		return !hasCustomModelData(customStack);
 	}
 
+	@SuppressWarnings({"BooleanMethodIsAlwaysInverted", "UnstableApiUsage"})
 	public static boolean hasCustomModelData(CustomStack customStack) {
 		if (customStack == null) return false;
-		return customStack.getItemStack().getItemMeta().hasCustomModelData();
+		return !customStack.getItemStack().getItemMeta().getCustomModelDataComponent().getFloats().isEmpty();
 	}
 
+	@SuppressWarnings("UnstableApiUsage")
 	public static @Nullable Integer getCustomModelData(CustomStack customStack) {
 		if (!hasCustomModelData(customStack)) return null;
-		return customStack.getItemStack().getItemMeta().getCustomModelData();
+		return customStack.getItemStack().getItemMeta().getCustomModelDataComponent().getFloats().getFirst().intValue();
 	}
 
 	public static @Nullable String getItemModel(CustomStack customStack) {

@@ -120,15 +120,22 @@ public class EmoteCraftHook {
 	}
 
 	private static String textToString(final Object text) {
-		if (text == null) return "";
-		if (text instanceof JsonElement json) {
-			return fromJson(json.toString());
-		}
-		if (text instanceof String) {
-			try {
-				return fromJson((String) text);
-			} catch(Exception ignore){}
-			return (String) text;
+		switch (text) {
+			case null -> {
+				return "";
+			}
+			case JsonElement json -> {
+				return fromJson(json.toString());
+			}
+			case String s -> {
+				try {
+					return fromJson(s);
+				} catch (Exception _) {
+				}
+				return s;
+			}
+			default -> {
+			}
 		}
 		return "";
 	}

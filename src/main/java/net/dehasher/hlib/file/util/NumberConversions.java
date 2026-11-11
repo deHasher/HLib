@@ -33,7 +33,7 @@ public final class NumberConversions {
 
 		try {
 			return Tools.parseInt(object.toString());
-		} catch (NumberFormatException | NullPointerException ignored) {}
+		} catch (NumberFormatException | NullPointerException _) {}
 		return 0;
 	}
 
@@ -45,7 +45,7 @@ public final class NumberConversions {
 
 		try {
 			return Tools.parseFloat(object.toString());
-		} catch (NumberFormatException | NullPointerException ignored) {}
+		} catch (NumberFormatException | NullPointerException _) {}
 		return 0;
 	}
 
@@ -57,7 +57,7 @@ public final class NumberConversions {
 
 		try {
 			return Tools.parseDouble(object.toString());
-		} catch (NumberFormatException | NullPointerException ignored) {}
+		} catch (NumberFormatException | NullPointerException _) {}
 		return 0;
 	}
 
@@ -69,7 +69,7 @@ public final class NumberConversions {
 
 		try {
 			return Tools.parseLong(object.toString());
-		} catch (NumberFormatException | NullPointerException ignored) {}
+		} catch (NumberFormatException | NullPointerException _) {}
 		return 0;
 	}
 
@@ -81,7 +81,7 @@ public final class NumberConversions {
 
 		try {
 			return Tools.parseShort(object.toString());
-		} catch (NumberFormatException | NullPointerException ignored) {}
+		} catch (NumberFormatException | NullPointerException _) {}
 		return 0;
 	}
 
@@ -93,7 +93,7 @@ public final class NumberConversions {
 
 		try {
 			return Tools.parseByte(object.toString());
-		} catch (NumberFormatException | NullPointerException ignored) {}
+		} catch (NumberFormatException | NullPointerException _) {}
 		return 0;
 	}
 

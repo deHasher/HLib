@@ -2,10 +2,10 @@ package net.dehasher.hlib.controller;
 
 import net.dehasher.hlib.Informer;
 import net.dehasher.hlib.Scheduler;
-import net.dehasher.hlib.data.NMS;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -138,7 +138,7 @@ public class ItemsController {
 		ItemMeta meta = item.getItemMeta();
 		if (state) {
 			if (!meta.getEnchants().isEmpty()) return;
-			meta.addEnchant(NMS.LUCK_OF_THE_SEA, 1, true);
+			meta.addEnchant(Enchantment.LUCK_OF_THE_SEA, 1, true);
 			meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 		} else {
 			meta.getEnchants().clear();
@@ -151,7 +151,7 @@ public class ItemsController {
 	// Предмет, который будет перемещён: getSwappingItem(e)
 	public static boolean isSwapAction(InventoryClickEvent e) {
 		InventoryAction action = e.getAction();
-		return action == InventoryAction.HOTBAR_SWAP || action == InventoryAction.HOTBAR_MOVE_AND_READD;
+		return action == InventoryAction.HOTBAR_SWAP;
 	}
 
 	// Предмет, который будет установлен в слоте хотабара: e.getCurrentItem()
@@ -211,8 +211,8 @@ public class ItemsController {
 
 		// Обработка предметов, которые уже были перемещены или дублированы.
 		Scheduler.doAsync(() ->
-				e.getNewItems().forEach((slot, item) ->
-						Informer.send(Tools.join(" ", NMS.Inventory.getItem(e.getView(), slot), "MOVE TO", slot < e.getInventory().getSize() ? "OUTSIDE" : "INSIDE"))));
+				e.getNewItems().forEach((slot, _) ->
+						Informer.send(Tools.join(" ", e.getView().getItem(slot), "MOVE TO", slot < e.getInventory().getSize() ? "OUTSIDE" : "INSIDE"))));
 		return null;
 	}
 
@@ -225,7 +225,7 @@ public class ItemsController {
 		Inventory inventory = e.getClickedInventory();
 		if (inventory == null) return null;
 		return switch (e.getAction()) {
-			case PLACE_ALL, PLACE_SOME, PLACE_ONE, SWAP_WITH_CURSOR, COLLECT_TO_CURSOR, HOTBAR_SWAP, HOTBAR_MOVE_AND_READD -> inventory.getType() != InventoryType.PLAYER;
+			case PLACE_ALL, PLACE_SOME, PLACE_ONE, SWAP_WITH_CURSOR, COLLECT_TO_CURSOR, HOTBAR_SWAP -> inventory.getType() != InventoryType.PLAYER;
 			case MOVE_TO_OTHER_INVENTORY -> inventory.getType() == InventoryType.PLAYER;
 			default -> null;
 		};
@@ -256,10 +256,8 @@ public class ItemsController {
 	public static boolean isInventoryFull(Player player, ItemStack toAdd) {
 		PlayerInventory inv = player.getInventory();
 		if (inv.firstEmpty() != -1) return false;
-		for (ItemStack c : inv.getStorageContents()) {
-			if (c.isSimilar(toAdd) && c.getAmount() < c.getMaxStackSize()) return false;
-		}
-		return true;
+		return Stream.of(inv.getStorageContents())
+				.noneMatch(item -> item == null || item.isSimilar(toAdd) && item.getAmount() < item.getMaxStackSize());
 	}
 
 	// Пустой ли шалкер?

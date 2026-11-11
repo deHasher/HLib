@@ -13,7 +13,7 @@ public class SparkHook {
 	public static Spark getPlugin() {
 		try {
 			return SparkProvider.get();
-		} catch (Throwable t) {
+		} catch (Throwable _) {
 			return null;
 		}
 	}

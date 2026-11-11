@@ -4,6 +4,9 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.EnumWrappers.SoundCategory;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
+import org.bukkit.Sound;
 
 public class WrapperPlayServerNamedSoundEffect extends AbstractPacket {
 	public static final PacketType TYPE = PacketType.Play.Server.NAMED_SOUND_EFFECT;
@@ -18,8 +21,9 @@ public class WrapperPlayServerNamedSoundEffect extends AbstractPacket {
 	}
 
 	public String getSoundEffect() {
-		if (getHandle().getSoundEffects() == null || getHandle().getSoundEffects().size() == 0) return "";
-		String data = getHandle().getSoundEffects().read(0) != null ? String.valueOf(getHandle().getSoundEffects().read(0)) : ""; // Тут нельзя .toString()
+		Sound sound = getHandle().getSoundEffects().readSafely(0);
+		NamespacedKey key = sound != null ? Registry.SOUNDS.getKey(sound) : null;
+		String data = key != null ? key.getKey() : ""; // Тут нельзя .toString()
 		return data.replace(".", "_").toUpperCase();
 	}
 

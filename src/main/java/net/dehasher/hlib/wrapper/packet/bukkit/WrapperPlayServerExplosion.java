@@ -1,9 +1,13 @@
 package net.dehasher.hlib.wrapper.packet.bukkit;
 
-import java.util.List;
+import java.util.Optional;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.wrappers.BlockPosition;
+import com.comphenix.protocol.wrappers.BukkitConverters;
+import com.comphenix.protocol.wrappers.WrappedParticle;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.util.Vector;
 
 public class WrapperPlayServerExplosion extends AbstractPacket {
 	public static final PacketType TYPE = PacketType.Play.Server.EXPLOSION;
@@ -11,6 +15,10 @@ public class WrapperPlayServerExplosion extends AbstractPacket {
 	public WrapperPlayServerExplosion() {
 		super(new PacketContainer(TYPE), TYPE);
 		getHandle().getModifier().writeDefaults();
+		getHandle().getNewParticles().write(0, WrappedParticle.create(Particle.EXPLOSION, null));
+		getHandle().getSoundEffects().write(0, Sound.ENTITY_GENERIC_EXPLODE);
+		getHandle().getVectors().write(0, new Vector());
+		getHandle().getOptionals(BukkitConverters.getVectorConverter()).write(0, Optional.empty());
 	}
 
 	public WrapperPlayServerExplosion(PacketContainer packet) {
@@ -18,27 +26,30 @@ public class WrapperPlayServerExplosion extends AbstractPacket {
 	}
 
 	public double getX() {
-		return getHandle().getDoubles().read(0);
+		return getHandle().getVectors().read(0).getX();
 	}
 
 	public void setX(double value) {
-		getHandle().getDoubles().write(0, value);
+		Vector center = getHandle().getVectors().read(0);
+		getHandle().getVectors().write(0, center.setX(value));
 	}
 
 	public double getY() {
-		return getHandle().getDoubles().read(1);
+		return getHandle().getVectors().read(0).getY();
 	}
 
 	public void setY(double value) {
-		getHandle().getDoubles().write(1, value);
+		Vector center = getHandle().getVectors().read(0);
+		getHandle().getVectors().write(0, center.setY(value));
 	}
 
 	public double getZ() {
-		return getHandle().getDoubles().read(2);
+		return getHandle().getVectors().read(0).getZ();
 	}
 
 	public void setZ(double value) {
-		getHandle().getDoubles().write(2, value);
+		Vector center = getHandle().getVectors().read(0);
+		getHandle().getVectors().write(0, center.setZ(value));
 	}
 
 	public float getRadius() {
@@ -49,35 +60,38 @@ public class WrapperPlayServerExplosion extends AbstractPacket {
 		getHandle().getFloat().write(0, value);
 	}
 
-	public List<BlockPosition> getRecords() {
-		return getHandle().getBlockPositionCollectionModifier().read(0);
+	public int getBlockCount() {
+		return getHandle().getIntegers().read(0);
 	}
 
-	public void setRecords(List<BlockPosition> value) {
-		getHandle().getBlockPositionCollectionModifier().write(0, value);
+	public void setBlockCount(int value) {
+		getHandle().getIntegers().write(0, value);
 	}
 
 	public float getPlayerVelocityX() {
-		return getHandle().getFloat().read(1);
+		return (float) getHandle().getOptionals(BukkitConverters.getVectorConverter()).read(0).orElseGet(Vector::new).getX();
 	}
 
 	public void setPlayerVelocityX(float value) {
-		getHandle().getFloat().write(1, value);
+		Vector velocity = getHandle().getOptionals(BukkitConverters.getVectorConverter()).read(0).orElseGet(Vector::new);
+		getHandle().getOptionals(BukkitConverters.getVectorConverter()).write(0, Optional.of(velocity.setX(value)));
 	}
 
 	public float getPlayerVelocityY() {
-		return getHandle().getFloat().read(2);
+		return (float) getHandle().getOptionals(BukkitConverters.getVectorConverter()).read(0).orElseGet(Vector::new).getY();
 	}
 
 	public void setPlayerVelocityY(float value) {
-		getHandle().getFloat().write(2, value);
+		Vector velocity = getHandle().getOptionals(BukkitConverters.getVectorConverter()).read(0).orElseGet(Vector::new);
+		getHandle().getOptionals(BukkitConverters.getVectorConverter()).write(0, Optional.of(velocity.setY(value)));
 	}
 
 	public float getPlayerVelocityZ() {
-		return getHandle().getFloat().read(3);
+		return (float) getHandle().getOptionals(BukkitConverters.getVectorConverter()).read(0).orElseGet(Vector::new).getZ();
 	}
 
 	public void setPlayerVelocityZ(float value) {
-		getHandle().getFloat().write(3, value);
+		Vector velocity = getHandle().getOptionals(BukkitConverters.getVectorConverter()).read(0).orElseGet(Vector::new);
+		getHandle().getOptionals(BukkitConverters.getVectorConverter()).write(0, Optional.of(velocity.setZ(value)));
 	}
 }

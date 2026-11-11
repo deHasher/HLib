@@ -37,7 +37,6 @@ HLib — публичная библиотека-плагин с общим API 
 | Java | собственные классы: bytecode {{java_version_target}}; сборка: JDK {{java_version_build}} |
 | Paper compile classpath | API `{{dependency_version_bukkit}}` |
 | Paper | `paper-plugin.yml` объявляет API {{api_version_paper}} |
-| Bukkit loader | `plugin.yml` объявляет API {{api_version_bukkit}} |
 | Velocity | annotation processor `{{dependency_version_velocity}}`; compile API из `libs/Velocity.jar` |
 
 Один `HLib.jar` содержит все три дескриптора. Paper descriptor требует API {{api_version_paper}}. Наличие Bukkit descriptor не гарантирует совместимость с каждой старой версией сервера: в коде используются Paper API и версионные интеграции. Java для запуска выбирайте по требованиям сервера и его плагинов.

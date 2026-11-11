@@ -58,7 +58,7 @@
 | Класс | Назначение | Статус и важные условия |
 | --- | --- | --- |
 | `APINotificationController` | Отправка служебного HTTP-уведомления | Внутренний; синхронная сеть с большими timeout |
-| `AttributeController` | Reflection-доступ к Bukkit attributes разных версий | Низкоуровневый |
+| `AttributeController` | Типизированный доступ к Bukkit attributes через Registry | Низкоуровневый |
 | `ClassController` | Кэшированная проверка наличия класса | Основной как служебная проверка |
 | `DebugController` | Состояние debug-режима и его получателей | Внутренний |
 | `DiscordController` | Состояние Discord-интеграции | Внутренний; сам клиент не создаёт |
@@ -77,13 +77,13 @@
 | `HPlayer` | Кэш и SQL-модель игрока по числовому ID и каноническому имени; транзакционная фабрика учитывает внешние вставки и публикует кеш после commit | Специализированный; нужны глобальный MySQL, `initMySQL()` и заполнение кэша использующим плагином |
 | `Logo` | Служебные действия для вывода логотипа | Внутренний |
 | `Mod` | Каталог известных клиентских модов | Внутренний/специализированный |
-| `NMS` | Reflection и индексы metadata для разных версий Minecraft | Низкоуровневый и версионно-зависимый |
-| `Permission` | Фиксированный enum прав экосистемы | Внутренний; не конструктор произвольных permission nodes; права модулей описаны в [основном API](Core-API#базовые-классы-команд) |
+| `NMS` | Выбор NMS-пакета, разрешение имён звуков и константы пакетов | Низкоуровневый и версионно-зависимый; эффекты, частицы, зачарования, типы сущностей и InventoryView используются через Paper API напрямую |
+| `Permission` | Фиксированный enum прав | Внутренний; не конструктор произвольных permission nodes; ограничения описаны в [основном API](Core-API#базовые-классы-команд) |
 | `Platform` | Определение Bukkit или Velocity | Основной; ОС проверяется отдельно через `Tools.isWindows()` |
 | `Plugin` | Каталог и проверка известных плагинов | Интеграционный; первый результат кэшируется, Bukkit-проверка означает наличие плагина |
 | `Table` | DDL таблиц и индексов | Внутренний; ориентирован на MariaDB |
 
-При удалении модуля из HCore также удаляются его элементы `Plugin`, `Permission` и `Cooldowner.Type` в HLib. При удалении отдельной команды удаляются её права из `Permission` и выделенный тип задержки из `Cooldowner.Type`, если он больше не используется. Потребители удалённых enum-констант требуют обновления исходников и повторной сборки. Удалённые права также больше не распознаются `Permission.getEnum(...)`: метод выбрасывает `IllegalArgumentException` для отсутствующего значения.
+Потребители удалённых enum-констант требуют обновления исходников и повторной сборки. Удалённые права также больше не распознаются `Permission.getEnum(...)`: метод выбрасывает `IllegalArgumentException` для отсутствующего значения.
 
 ## Базы данных
 
@@ -151,7 +151,6 @@
 | `EmoteCraftHook` | Emotecraft | Запуск и остановка анимаций |
 | `ForceResourcepacksHook` | ForceResourcepacks | Получение и обновление resource pack |
 | `GadgetsMenuHook` | GadgetsMenu | Получение `PlayerManager` |
-| `HTokensHook` | HTokens service provider | `getBalance(HPlayer/Player/String)` возвращает `CompletableFuture<Long>` из SQL; отсутствие сервиса и ошибки не подменяются нулём. `withdraw`/`deposit` возвращают `CompletableFuture<Boolean>`: подтверждённое изменение, известный отказ или exceptional future при неизвестном результате SQL; внешние команды выполняет потребитель |
 | `ItemJoinHook` | ItemJoin | Проверка custom item |
 | `ItemsAdderHook` | ItemsAdder | Custom items, модели, permission и pack metadata |
 | `LibsDisguisesHook` | LibsDisguises | Проверка и снятие disguise |
@@ -160,7 +159,7 @@
 | `NexoHook` | Nexo | Custom items, модели, permission и YAML item config |
 | `PlaceholderAPIHook` | PlaceholderAPI, опционально | Подстановка placeholders или возврат исходной строки/списка |
 | `PlasmoVoiceHook` | Plasmo Voice | Константа permission для речи |
-| `ProtocolLibHook` | ProtocolLib | Listeners, fake armor stand, game-state events и клиентские изменения блоков |
+| `ProtocolLibHook` | ProtocolLib | Listeners, fake armor stand, game-state events и клиентские изменения блоков; исходный файл исключён владельцем из миграции |
 | `SparkHook` | spark | CPU, TPS и MSPT |
 | `TABHook` | TAB, местами LuckPerms/CMI | Prefix/suffix и группы TAB |
 | `UltimateTimberHook` | UltimateTimber | Проверка анимированного падающего блока |

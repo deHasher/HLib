@@ -87,7 +87,7 @@ public enum BukkitVersion {
 		private static int parseInt(String s) {
 			try {
 				return Integer.parseInt(s);
-			} catch (Exception ignored) {
+			} catch (Exception _) {
 				return 0;
 			}
 		}

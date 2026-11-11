@@ -11,7 +11,8 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.translation.GlobalTranslator;
-import net.kyori.adventure.translation.TranslationRegistry;
+import net.kyori.adventure.translation.TranslationStore;
+import net.kyori.adventure.translation.Translatable;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
@@ -178,7 +179,7 @@ public final class Translator {
 				if (json.isBlank()) return;
 				Map<String, String> translations = parseTranslations(json);
 				if (!translations.isEmpty()) locales.put(toLocale(localeFile.id()), translations);
-			} catch (Throwable ignored) {}
+			} catch (Throwable _) {}
 		});
 
 		return locales;
@@ -243,7 +244,7 @@ public final class Translator {
 			if (!Files.isRegularFile(file)) return false;
 			String actualSha1 = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-1").digest(Files.readAllBytes(file)));
 			return actualSha1.equalsIgnoreCase(expectedSha1);
-		} catch (Throwable ignored) {
+		} catch (Throwable _) {
 			return false;
 		}
 	}
@@ -271,7 +272,7 @@ public final class Translator {
 		if (player == null) return DEFAULT_LOCALE;
 		try {
 			return normalizeLocale(player.locale());
-		} catch (Throwable ignored) {
+		} catch (Throwable _) {
 			return DEFAULT_LOCALE;
 		}
 	}
@@ -280,19 +281,21 @@ public final class Translator {
 		return locale != null ? locale : DEFAULT_LOCALE;
 	}
 
+	@SuppressWarnings("SwitchStatementWithTooFewBranches")
 	private static String resolveTranslationKey(Object object) {
 		if (object == null) throw new IllegalArgumentException("Object is null");
 		if (object instanceof String translationKey) return translationKey;
-		if (object instanceof Material material) return material.getTranslationKey();
-		if (object instanceof Block block) return block.getTranslationKey();
-
-		try {
-			Method method = object.getClass().getMethod("getTranslationKey");
-			Object value = method.invoke(object);
-			if (value instanceof String translationKey && !translationKey.isBlank()) return translationKey;
-		} catch (Throwable ignored) {}
-
-		throw new IllegalArgumentException("Object translation key not found: " + object.getClass().getName());
+		return switch (object) {
+			case Translatable translatable -> translatable.translationKey();
+			default -> {
+				try {
+					Method method = object.getClass().getMethod("getTranslationKey");
+					Object value = method.invoke(object);
+					if (value instanceof String translationKey && !translationKey.isBlank()) yield translationKey;
+				} catch (ReflectiveOperationException _) {}
+				throw new IllegalArgumentException("Object translation key not found: " + object.getClass().getName());
+			}
+		};
 	}
 
 	private static String normalizeMinecraftLocaleId(String minecraftLocale) {
@@ -372,7 +375,7 @@ public final class Translator {
 
 	public static final class VanillaTranslationRegistry {
 		@Getter(AccessLevel.PRIVATE)
-		private final TranslationRegistry registry = TranslationRegistry.create(Key.key("minecraft", "vanilla"));
+		private final TranslationStore.StringBased<MessageFormat> registry = TranslationStore.messageFormat(Key.key("minecraft", "vanilla"));
 
 		public void setDefaultLocale(Locale locale) {
 			getRegistry().defaultLocale(locale);
@@ -384,21 +387,8 @@ public final class Translator {
 			getRegistry().registerAll(locale, formats);
 		}
 
-		@SuppressWarnings("JavaReflectionMemberAccess")
 		public void install() {
-			try {
-				Method method;
-				try {
-					method = GlobalTranslator.class.getMethod("translator");
-				} catch (NoSuchMethodException ignored) {
-					method = GlobalTranslator.class.getMethod("get");
-				}
-
-				GlobalTranslator translator = (GlobalTranslator) method.invoke(null);
-				translator.addSource(getRegistry());
-			} catch (ReflectiveOperationException e) {
-				throw new IllegalStateException("GlobalTranslator install failed", e);
-			}
+			GlobalTranslator.translator().addSource(getRegistry());
 		}
 
 		private MessageFormat createMessageFormat(String value, Locale locale) {

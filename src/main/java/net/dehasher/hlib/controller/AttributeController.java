@@ -1,102 +1,51 @@
 package net.dehasher.hlib.controller;
 
 import lombok.Getter;
-import net.dehasher.hlib.Tools;
-import net.dehasher.hlib.data.BukkitVersion;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.LivingEntity;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
 public final class AttributeController {
-
-	public static Object getAttributeConstant(String constantName) {
-		try {
-			Class<?> attrClass = Class.forName("org.bukkit.attribute.Attribute");
-			try {
-				Field f = attrClass.getField(constantName);
-				return f.get(null);
-			} catch (NoSuchFieldException ignored) {
-				try {
-					Method valueOf = attrClass.getMethod("valueOf", String.class);
-					return valueOf.invoke(null, constantName);
-				} catch (Throwable t) {
-					t.printStackTrace();
-					return null;
-				}
-			}
-		} catch (Throwable t) {
-			t.printStackTrace();
-			return null;
-		}
+	public static Attribute getAttributeConstant(String constantName) {
+		if (constantName == null) return null;
+		NamespacedKey key = NamespacedKey.fromString(constantName.toLowerCase());
+		return key == null ? null : Registry.ATTRIBUTE.get(key);
 	}
 
-	public static Optional<Object> getAttributeInstance(LivingEntity living, AttributeType type) {
-		Object attrConst = getAttributeConstant(type.getName());
-		if (attrConst == null) return Optional.empty();
-
+	public static Optional<AttributeInstance> getAttributeInstance(LivingEntity living, AttributeType type) {
+		if (living == null || type == null) return Optional.empty();
+		Attribute attribute = getAttributeConstant(type.getName());
+		if (attribute == null) return Optional.empty();
 		try {
-			Class<?> attrClass = Class.forName("org.bukkit.attribute.Attribute");
-			Method getAttribute = findMethod(living.getClass(), "getAttribute", attrClass);
-			if (getAttribute == null) return Optional.empty();
-			Object inst = getAttribute.invoke(living, attrConst);
-			return Optional.ofNullable(inst);
-		} catch (Throwable t) {
-			t.printStackTrace();
+			return Optional.ofNullable(living.getAttribute(attribute));
+		} catch (RuntimeException _) {
 			return Optional.empty();
 		}
 	}
 
 	public static OptionalDouble getAttributeValue(LivingEntity living, AttributeType type) {
-		Optional<Object> instOpt = getAttributeInstance(living, type);
-		if (instOpt.isEmpty()) return OptionalDouble.empty();
-		Object inst = instOpt.get();
 		try {
-			Method getValue = findMethod(inst.getClass(), "getValue");
-			if (getValue != null) {
-				Object val = getValue.invoke(inst);
-				if (val instanceof Number) return OptionalDouble.of(((Number) val).doubleValue());
-			}
-			Method getBase = findMethod(inst.getClass(), "getBaseValue");
-			if (getBase != null) {
-				Object val = getBase.invoke(inst);
-				if (val instanceof Number) return OptionalDouble.of(((Number) val).doubleValue());
-			}
-		} catch (Throwable t) {
-			t.printStackTrace();
+			return getAttributeInstance(living, type)
+					.map(attribute -> OptionalDouble.of(attribute.getValue()))
+					.orElseGet(OptionalDouble::empty);
+		} catch (RuntimeException _) {
+			return OptionalDouble.empty();
 		}
-		return OptionalDouble.empty();
 	}
 
 	public static boolean setAttributeBaseValue(LivingEntity living, AttributeType type, double baseValue) {
-		Optional<Object> instOpt = getAttributeInstance(living, type);
-		if (instOpt.isEmpty()) return false;
-		Object inst = instOpt.get();
+		Optional<AttributeInstance> attribute = getAttributeInstance(living, type);
+		if (attribute.isEmpty()) return false;
 		try {
-			Method setBase = findMethod(inst.getClass(), "setBaseValue", double.class);
-			if (setBase != null) {
-				setBase.invoke(inst, baseValue);
-				return true;
-			}
-		} catch (Throwable t) {
-			t.printStackTrace();
+			attribute.get().setBaseValue(baseValue);
+			return true;
+		} catch (RuntimeException _) {
+			return false;
 		}
-		return false;
-	}
-
-	private static Method findMethod(Class<?> cls, String name, Class<?>... params) {
-		Class<?> cur = cls;
-		while (cur != null) {
-			try {
-				Method m = cur.getDeclaredMethod(name, params);
-				m.setAccessible(true);
-				return m;
-			} catch (NoSuchMethodException ignored) {
-				cur = cur.getSuperclass();
-			}
-		}
-		return null;
 	}
 
 	public enum AttributeType {
@@ -108,7 +57,7 @@ public final class AttributeController {
 		private final String name;
 
 		AttributeType() {
-			this.name =Tools.requireBukkitVersion(BukkitVersion.V1_21) ? name() : "GENERIC_" + name();
+			this.name = name();
 		}
 	}
 }

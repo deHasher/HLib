@@ -62,7 +62,7 @@ public class Updater {
 						e.printStackTrace();
 					}
 				});
-			} catch (IOException e) {
+			} catch (IOException _) {
 				Informer.send("New plugin has error: zip file closed!");
 				return false;
 			}

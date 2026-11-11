@@ -3,7 +3,6 @@ package net.dehasher.hlib;
 import com.google.common.collect.Lists;
 import net.dehasher.hlib.config.Info;
 import net.dehasher.hlib.data.CompiledPattern;
-
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
@@ -51,7 +50,7 @@ public class DateTimeFormatter {
 				put(DATE.format(CALENDAR.getTime()), Info.DateTime.tomorrow);
 				CALENDAR.add(Calendar.DATE, 1);
 				put(DATE.format(CALENDAR.getTime()), Info.DateTime.afterTomorrow);
-			} catch (Throwable ignored) {}
+			} catch (Throwable _) {}
 		};
 		runnable.run();
 		Scheduler.doAsyncRepeat(runnable, 60 * 20L, 60 * 20L);
@@ -209,7 +208,7 @@ public class DateTimeFormatter {
 			if (multiplier == null) return null;
 
 			return value * multiplier;
-		} catch (Throwable t) {
+		} catch (Throwable _) {
 			return null;
 		}
 	}

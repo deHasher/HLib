@@ -2,7 +2,6 @@ package net.dehasher.hlib;
 
 import com.google.common.collect.Lists;
 import lombok.Getter;
-import net.dehasher.hlib.data.BukkitVersion;
 import net.dehasher.hlib.data.Plugin;
 import redis.clients.jedis.Jedis;
 import net.dehasher.hlib.data.Platform;
@@ -139,10 +138,6 @@ public class Performance {
 		if (data.length > 7) getDisk()      .put(name, Double .valueOf(data[7]));
 		if (data.length > 8) getTPS()       .put(name, Double .valueOf(data[8]));
 		if (data.length > 9) getMSPT()      .put(name, Double .valueOf(data[9]));
-	}
-
-	public static void gc() {
-		if (!Tools.requireBukkitVersion(BukkitVersion.V1_18)) System.gc();
 	}
 
 	private static int calcOnline() {

@@ -101,24 +101,18 @@ public abstract class Configuration implements ConfigurationSection {
 			return this;
 		}
 
-		@SuppressWarnings({"deprecation"})
 		public T build() {
 			Validate.isTrue(this.provider != null || this.providerClass != null, "Provider is not provided");
 			Validate.isTrue(this.configFile != null || this.provider != null, "Config file is not provided");
 
 			try {
-				T configuration = configClass.newInstance();
-				ConfigurationProvider provider = this.provider;
-				if (provider == null) {
-					provider = this.providerClass.newInstance();
-				}
+				T configuration = configClass.getDeclaredConstructor().newInstance();
+				ConfigurationProvider provider = this.provider != null ? this.provider : this.providerClass.getDeclaredConstructor().newInstance();
 				if (configFile != null) {
 					provider.setFile(configFile);
 				}
 				configuration.setConfigurationProvider(provider);
-				for (Class serializable : this.serializable) {
-					provider.getConfigurationSettingsSerializer().registerSerializable(serializable);
-				}
+				this.serializable.forEach(serializable -> provider.getConfigurationSettingsSerializer().registerSerializable(serializable));
 				return configuration;
 			} catch (Exception e) {
 				throw new RuntimeException("Could not build configuration " + configClass, e);

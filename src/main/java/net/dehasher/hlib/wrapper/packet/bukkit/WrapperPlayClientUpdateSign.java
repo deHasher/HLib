@@ -10,6 +10,7 @@ public class WrapperPlayClientUpdateSign extends AbstractPacket {
 	public WrapperPlayClientUpdateSign() {
 		super(new PacketContainer(TYPE), TYPE);
 		getHandle().getModifier().writeDefaults();
+		getHandle().getBooleans().write(0, true);
 	}
 
 	public WrapperPlayClientUpdateSign(PacketContainer packet) {
@@ -22,6 +23,14 @@ public class WrapperPlayClientUpdateSign extends AbstractPacket {
 
 	public void setLocation(BlockPosition value) {
 		getHandle().getBlockPositionModifier().write(0, value);
+	}
+
+	public boolean isFrontText() {
+		return getHandle().getBooleans().read(0);
+	}
+
+	public void setFrontText(boolean value) {
+		getHandle().getBooleans().write(0, value);
 	}
 
 	public String[] getLines() {

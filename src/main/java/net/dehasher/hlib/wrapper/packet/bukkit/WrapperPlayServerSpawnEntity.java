@@ -2,8 +2,6 @@ package net.dehasher.hlib.wrapper.packet.bukkit;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
-import net.dehasher.hlib.Tools;
-import net.dehasher.hlib.data.BukkitVersion;
 import org.bukkit.entity.EntityType;
 import java.util.UUID;
 
@@ -60,35 +58,19 @@ public class WrapperPlayServerSpawnEntity extends AbstractPacket {
 	}
 
 	public float getPitch() {
-		if (Tools.requireBukkitVersion(BukkitVersion.V1_21)) {
-			return (getHandle().getBytes().read(0) * 360.F) / 256.0F;
-		} else {
-			return (getHandle().getIntegers().read(4) * 360.F) / 256.0F;
-		}
+		return (getHandle().getBytes().read(0) * 360.F) / 256.0F;
 	}
 
 	public void setPitch(float value) {
-		if (Tools.requireBukkitVersion(BukkitVersion.V1_21)) {
-			getHandle().getBytes().write(0, (byte) (value * 256.0F / 360.0F));
-		} else {
-			getHandle().getIntegers().write(4, (int) (value * 256.0F / 360.0F));
-		}
+		getHandle().getBytes().write(0, (byte) (value * 256.0F / 360.0F));
 	}
 
 	public float getYaw() {
-		if (Tools.requireBukkitVersion(BukkitVersion.V1_21)) {
-			return (getHandle().getBytes().read(1) * 360.F) / 256.0F;
-		} else {
-			return (getHandle().getIntegers().read(5) * 360.F) / 256.0F;
-		}
+		return (getHandle().getBytes().read(1) * 360.F) / 256.0F;
 	}
 
 	public void setYaw(float value) {
-		if (Tools.requireBukkitVersion(BukkitVersion.V1_21)) {
-			getHandle().getBytes().write(1, (byte) (value * 256.0F / 360.0F));
-		} else {
-			getHandle().getIntegers().write(5, (int) (value * 256.0F / 360.0F));
-		}
+		getHandle().getBytes().write(1, (byte) (value * 256.0F / 360.0F));
 	}
 
 	public EntityType getType() {

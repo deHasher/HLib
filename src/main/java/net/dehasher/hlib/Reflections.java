@@ -78,7 +78,7 @@ public record Reflections(String defaultPath, ClassLoader classLoader) {
 				Constructor<?> c = cur.getDeclaredConstructor(parameterTypes);
 				c.setAccessible(true);
 				return c;
-			} catch (NoSuchMethodException ignored) {
+			} catch (NoSuchMethodException _) {
 				cur = cur.getSuperclass();
 			}
 		}
@@ -121,7 +121,7 @@ public record Reflections(String defaultPath, ClassLoader classLoader) {
 					throw new NoSuchMethodException("Method is not static: " + m.getName());
 				m.setAccessible(true);
 				return m;
-			} catch (NoSuchMethodException ignored) {
+			} catch (NoSuchMethodException _) {
 				cur = cur.getSuperclass();
 			}
 		}

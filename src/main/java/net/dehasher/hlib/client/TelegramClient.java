@@ -68,7 +68,7 @@ public final class TelegramClient implements AutoCloseable {
 						Info.TelegramProxy.username, Info.TelegramProxy.password) : SSLConnectionSocketFactory.getSocketFactory())
 				.build();
 		PoolingHttpClientConnectionManager manager = socks
-				? new PoolingHttpClientConnectionManager(registry, host -> new InetAddress[]{InetAddress.getLoopbackAddress()})
+				? new PoolingHttpClientConnectionManager(registry, _ -> new InetAddress[]{InetAddress.getLoopbackAddress()})
 				: new PoolingHttpClientConnectionManager(registry);
 		manager.setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(30000).build());
 		manager.setMaxTotal(4);
@@ -120,7 +120,7 @@ public final class TelegramClient implements AutoCloseable {
 				if (data.length > 4194304) throw new IOException("Превышен размер ответа Telegram.");
 				return JsonParser.parseString(new String(data, StandardCharsets.UTF_8)).getAsJsonObject();
 			}
-		} catch (IOException | RuntimeException exception) {
+		} catch (IOException | RuntimeException _) {
 			throw new IOException("Не удалось выполнить запрос Telegram.");
 		} finally {
 			deadline.cancel(false);
@@ -143,7 +143,7 @@ public final class TelegramClient implements AutoCloseable {
 		getDeadlines().shutdownNow();
 		try {
 			getClient().close();
-		} catch (IOException exception) {
+		} catch (IOException _) {
 			Informer.send("Не удалось закрыть клиент Telegram.");
 		}
 	}

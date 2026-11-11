@@ -54,7 +54,7 @@ public final class GeoIPController {
 			if (Files.isRegularFile(database)) {
 				try {
 					setReader(open(database, locale));
-				} catch (IOException exception) {
+				} catch (IOException _) {
 					Informer.send("Не удалось открыть GeoLite2 HLib; база будет загружена заново.");
 				}
 			}
@@ -71,7 +71,7 @@ public final class GeoIPController {
 		if (address == null) return null;
 		try {
 			return get(InetAddresses.forString(address));
-		} catch (IllegalArgumentException exception) {
+		} catch (IllegalArgumentException _) {
 			return null;
 		}
 	}
@@ -88,7 +88,7 @@ public final class GeoIPController {
 						Objects.toString(response.getCity().getName(), ""),
 						response.getLocation().getLatitude(), response.getLocation().getLongitude()
 				);
-			} catch (IOException | GeoIp2Exception exception) {
+			} catch (IOException | GeoIp2Exception _) {
 				return null;
 			}
 		}
@@ -118,7 +118,7 @@ public final class GeoIPController {
 				}
 				try {
 					current.awaitTermination(remaining, TimeUnit.NANOSECONDS);
-				} catch (InterruptedException exception) {
+				} catch (InterruptedException _) {
 					interrupted = true;
 				}
 			}
@@ -163,7 +163,7 @@ public final class GeoIPController {
 				if (getExecutor().isShutdown()) return;
 				try {
 					Files.move(temporary, database, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
-				} catch (AtomicMoveNotSupportedException exception) {
+				} catch (AtomicMoveNotSupportedException _) {
 					Files.move(temporary, database, StandardCopyOption.REPLACE_EXISTING);
 				}
 				DatabaseReader previous = getReader();
@@ -171,7 +171,7 @@ public final class GeoIPController {
 				replacement = null;
 				close(previous);
 			}
-		} catch (IOException | IllegalArgumentException exception) {
+		} catch (IOException | IllegalArgumentException _) {
 			synchronized (getLock()) {
 				if (!getExecutor().isShutdown()) Informer.send("Не удалось обновить GeoLite2 HLib. Сохранённая база остаётся доступной, если была загружена.");
 			}
@@ -190,7 +190,7 @@ public final class GeoIPController {
 			files.filter(file -> Objects.toString(file.getFileName(), "").matches("\\.GeoLite2-[0-9]+\\.mmdb"))
 					.filter(file -> Files.isRegularFile(file, LinkOption.NOFOLLOW_LINKS))
 					.forEach(GeoIPController::deleteTemporaryFile);
-		} catch (IOException | UncheckedIOException exception) {
+		} catch (IOException | UncheckedIOException _) {
 			Informer.send("Не удалось проверить временные файлы GeoLite2 HLib.");
 		}
 	}
@@ -198,7 +198,7 @@ public final class GeoIPController {
 	private static void deleteTemporaryFile(Path file) {
 		try {
 			Files.deleteIfExists(file);
-		} catch (IOException exception) {
+		} catch (IOException _) {
 			Informer.send("Не удалось удалить временный файл GeoLite2 HLib.");
 		}
 	}
@@ -220,7 +220,7 @@ public final class GeoIPController {
 		if (database == null) return;
 		try {
 			database.close();
-		} catch (IOException exception) {
+		} catch (IOException _) {
 			Informer.send("Не удалось закрыть базу GeoLite2 HLib.");
 		}
 	}

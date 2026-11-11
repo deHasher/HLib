@@ -88,7 +88,7 @@ public final class VKClient implements AutoCloseable {
 			}
 			if (!response.has("response") || response.get("response").isJsonNull()) throw new IOException("Пустой результат API VK.");
 			return response.get("response");
-		} catch (RuntimeException exception) {
+		} catch (RuntimeException _) {
 			throw new IOException("Некорректный ответ API VK.");
 		}
 	}
@@ -120,7 +120,7 @@ public final class VKClient implements AutoCloseable {
 				}
 				return JsonParser.parseString(new String(data, StandardCharsets.UTF_8)).getAsJsonObject();
 			}
-		} catch (IOException | RuntimeException exception) {
+		} catch (IOException | RuntimeException _) {
 			request.abort();
 			throw new IOException("Не удалось выполнить запрос VK.");
 		} finally {
@@ -151,7 +151,7 @@ public final class VKClient implements AutoCloseable {
 		getDeadlines().shutdownNow();
 		try {
 			getClient().close();
-		} catch (IOException exception) {
+		} catch (IOException _) {
 			Informer.send("Не удалось закрыть клиент VK.");
 		}
 	}

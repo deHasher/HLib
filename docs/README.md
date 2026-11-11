@@ -11,7 +11,7 @@ HLib — публичная библиотека-плагин с общим API 
 
 Текущая версия: **{{lib_version_plugin}}**.
 
-Один `HLib.jar` содержит точки входа для Paper/Bukkit loader и Velocity. HLib устанавливается рядом с вашим плагином и подключается к проекту как `compileOnly`: в свой JAR библиотеку встраивать не нужно.
+Один `HLib.jar` содержит точки входа для Paper и Velocity. HLib устанавливается рядом с вашим плагином и подключается к проекту как `compileOnly`: в свой JAR библиотеку встраивать не нужно.
 
 ## Возможности
 
@@ -35,11 +35,11 @@ HLib — публичная библиотека-плагин с общим API 
 | Сборка и CI | JDK `{{java_version_build}}` |
 | Checkstyle при полном `build` | JDK `{{java_version_checkstyle}}` |
 | Paper API при компиляции | `{{dependency_version_bukkit}}` |
-| API в `paper-plugin.yml` / `plugin.yml` | `{{api_version_paper}}` / `{{api_version_bukkit}}` |
+| API в `paper-plugin.yml` | `{{api_version_paper}}` |
 | Velocity annotation processor | `{{dependency_version_velocity}}` |
 | Дополнения | Только для используемых интеграций |
 
-Для запуска выбирайте Java по требованиям конкретной версии Paper/Velocity и установленных плагинов. Bytecode HLib сам по себе не гарантирует совместимость со старыми серверами. Для Paper 1.20–1.21.11 документация платформы рекомендует Java 21, для Paper 26.1+ — Java 25; совместимость HLib с каждой из этих версий отдельно не подтверждена. [Требования Paper](https://docs.papermc.io/paper/getting-started/).
+Минимальная серверная платформа — Paper 1.21.11 на Java 25; поддержка Bukkit/Paper ниже 1.21.11 удалена. HLib требует Java 25 и на Paper, и на Velocity. API более новых Paper можно использовать через отдельные версионные адаптеры: наличие Java нужной версии не гарантирует совместимость NMS и ProtocolLib. [Требования Paper](https://docs.papermc.io/paper/getting-started/).
 
 ## Установка
 
@@ -59,12 +59,6 @@ dependencies {
 ```
 
 Официальных Maven-координат у HLib пока нет. API используемых hook-плагинов также подключаются отдельно. Не используйте `implementation` и не добавляйте HLib в shadow JAR своего плагина.
-
-### Файл `plugin.yml`
-
-```yaml
-depend: [HLib]
-```
 
 ### Файл `paper-plugin.yml`
 
@@ -153,7 +147,7 @@ public final class JoinListener implements Listener {
 
 ## Сборка из исходников
 
-CI использует JDK {{java_version_build}}. Локальные compile-only JAR, включая Velocity и Nexo, содержат классы новее Java {{java_version_target}}. Для `checkstyleMain` дополнительно нужен доступный Gradle toolchain JDK {{java_version_checkstyle}}.
+CI использует JDK {{java_version_build}}. Компиляция использует toolchain JDK {{java_version_build}} и `--release {{java_version_target}}`; Checkstyle запускается на JDK {{java_version_checkstyle}}.
 
 ```powershell
 .\gradlew.bat clean build

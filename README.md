@@ -2,16 +2,16 @@
 
 [![Build](https://github.com/deHasher/HLib/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/deHasher/HLib/actions/workflows/build.yml)
 [![Latest release](https://img.shields.io/github/v/release/deHasher/HLib?display_name=tag)](https://github.com/deHasher/HLib/releases/latest)
-[![Java](https://img.shields.io/badge/Java-bytecode_17_%7C_build_25-ED8B00?logo=openjdk&logoColor=white)](https://github.com/deHasher/HLib/wiki/Getting-Started)
+[![Java](https://img.shields.io/badge/Java-bytecode_25_%7C_build_25-ED8B00?logo=openjdk&logoColor=white)](https://github.com/deHasher/HLib/wiki/Getting-Started)
 [![GPL-3.0](https://img.shields.io/github/license/deHasher/HLib)](LICENSE)
 
 <img src="https://count.getloli.com/@:hlib?name=%3Ahlib&theme=booru-helltaker&padding=1&offset=0&align=top&scale=1&pixelated=1&darkmode=auto" alt=""/>
 
 HLib — публичная библиотека-плагин с общим API для разработки Minecraft-плагинов. Она собирает в одном JAR работу с цветами и Adventure-компонентами, планировщиком, YAML-конфигурациями, предметами, MySQL/MariaDB, Redis, популярными плагинами и ProtocolLib.
 
-Текущая версия: **6.31**.
+Текущая версия: **7.0**.
 
-Один `HLib.jar` содержит точки входа для Paper/Bukkit loader и Velocity. HLib устанавливается рядом с вашим плагином и подключается к проекту как `compileOnly`: в свой JAR библиотеку встраивать не нужно.
+Один `HLib.jar` содержит точки входа для Paper и Velocity. HLib устанавливается рядом с вашим плагином и подключается к проекту как `compileOnly`: в свой JAR библиотеку встраивать не нужно.
 
 ## Возможности
 
@@ -30,16 +30,16 @@ HLib — публичная библиотека-плагин с общим API 
 
 | Компонент | Конфигурация проекта |
 |---|---|
-| Версия HLib | `6.31` |
-| Bytecode собственных классов HLib | Java `17` |
+| Версия HLib | `7.0` |
+| Bytecode собственных классов HLib | Java `25` |
 | Сборка и CI | JDK `25` |
-| Checkstyle при полном `build` | JDK `21` |
-| Paper API при компиляции | `1.17-R0.1-SNAPSHOT` |
-| API в `paper-plugin.yml` / `plugin.yml` | `1.21` / `1.16` |
+| Checkstyle при полном `build` | JDK `25` |
+| Paper API при компиляции | `1.21.11-R0.1-SNAPSHOT` |
+| API в `paper-plugin.yml` | `1.21.11` |
 | Velocity annotation processor | `4.2.1-SNAPSHOT` |
 | Дополнения | Только для используемых интеграций |
 
-Для запуска выбирайте Java по требованиям конкретной версии Paper/Velocity и установленных плагинов. Bytecode HLib сам по себе не гарантирует совместимость со старыми серверами. Для Paper 1.20–1.21.11 документация платформы рекомендует Java 21, для Paper 26.1+ — Java 25; совместимость HLib с каждой из этих версий отдельно не подтверждена. [Требования Paper](https://docs.papermc.io/paper/getting-started/).
+Минимальная серверная платформа — Paper 1.21.11 на Java 25; поддержка Bukkit/Paper ниже 1.21.11 удалена. HLib требует Java 25 и на Paper, и на Velocity. API более новых Paper можно использовать через отдельные версионные адаптеры: наличие Java нужной версии не гарантирует совместимость NMS и ProtocolLib. [Требования Paper](https://docs.papermc.io/paper/getting-started/).
 
 ## Установка
 
@@ -59,12 +59,6 @@ dependencies {
 ```
 
 Официальных Maven-координат у HLib пока нет. API используемых hook-плагинов также подключаются отдельно. Не используйте `implementation` и не добавляйте HLib в shadow JAR своего плагина.
-
-### Файл `plugin.yml`
-
-```yaml
-depend: [HLib]
-```
 
 ### Файл `paper-plugin.yml`
 
@@ -153,7 +147,7 @@ public final class JoinListener implements Listener {
 
 ## Сборка из исходников
 
-CI использует JDK 25. Локальные compile-only JAR, включая Velocity и Nexo, содержат классы новее Java 17. Для `checkstyleMain` дополнительно нужен доступный Gradle toolchain JDK 21.
+CI использует JDK 25. Компиляция использует toolchain JDK 25 и `--release 25`; Checkstyle запускается на JDK 25.
 
 ```powershell
 .\gradlew.bat clean build

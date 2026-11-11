@@ -7,7 +7,6 @@ import dev.lone.itemsadder.api.CustomStack;
 import lombok.Getter;
 import net.dehasher.hlib.controller.ItemsController;
 import net.dehasher.hlib.controller.StorageController;
-import net.dehasher.hlib.data.BukkitVersion;
 import net.dehasher.hlib.data.Plugin;
 import net.dehasher.hlib.hook.ItemsAdderHook;
 import net.dehasher.hlib.hook.NexoHook;
@@ -15,6 +14,10 @@ import net.dehasher.hlib.hook.PlaceholderAPIHook;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.block.Banner;
 import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.banner.PatternType;
@@ -150,7 +153,7 @@ public class ItemBuilder {
 			if (customStack != null) {
 				ItemStack itemStack = customStack.getItemStack();
 				material = itemStack.getType().name();
-				if (Tools.requireBukkitVersion(BukkitVersion.V1_21) && ItemsAdderHook.hasItemModel(customStack)) {
+				if (ItemsAdderHook.hasItemModel(customStack)) {
 					setItemModel(ItemsAdderHook.getItemModel(customStack));
 				} else {
 					setCustomModelData(ItemsAdderHook.getCustomModelData(customStack));
@@ -163,7 +166,7 @@ public class ItemBuilder {
 				ItemStack itemStack = itemBuilder.getFinalItemStack();
 				if (itemStack != null) {
 					material = itemStack.getType().name();
-					if (Tools.requireBukkitVersion(BukkitVersion.V1_21) && NexoHook.hasItemModel(itemBuilder)) {
+					if (NexoHook.hasItemModel(itemBuilder)) {
 						setItemModel(NexoHook.getItemModel(itemBuilder));
 					} else {
 						setCustomModelData(NexoHook.getCustomModelData(itemBuilder));
@@ -186,7 +189,6 @@ public class ItemBuilder {
 
 	@SuppressWarnings("UnusedReturnValue")
 	public ItemBuilder setItemModel(String modelPath) {
-		if (!Tools.requireBukkitVersion(BukkitVersion.V1_21)) return this;
 		this.useItemModel = modelPath != null && !modelPath.isEmpty();
 		this.itemModel = modelPath;
 		return this;
@@ -206,14 +208,10 @@ public class ItemBuilder {
 	public void addPattern(String stringPattern) {
 		try {
 			String[] split = stringPattern.split(":");
-			for (PatternType pattern : PatternType.values()) {
-				if (split[0].equalsIgnoreCase(pattern.name())) {
-					DyeColor color = getDyeColor(split[1]);
-					if (color != null) addPattern(new Pattern(color, pattern));
-					break;
-				}
-			}
-		} catch (Throwable ignored) {}
+			PatternType pattern = RegistryAccess.registryAccess().getRegistry(RegistryKey.BANNER_PATTERN).get(NamespacedKey.minecraft(split[0].toLowerCase()));
+			DyeColor color = getDyeColor(split[1]);
+			if (pattern != null && color != null) addPattern(new Pattern(color, pattern));
+		} catch (Throwable _) {}
 	}
 
 	public ItemBuilder addPatterns(List<String> stringList) {
@@ -251,12 +249,12 @@ public class ItemBuilder {
 	}
 
 	public ItemBuilder addItemFlags(List<String> flagStrings) {
-		for (String flagString : flagStrings) {
+		flagStrings.forEach(flagString -> {
 			try {
 				ItemFlag itemFlag = ItemFlag.valueOf(flagString.toUpperCase());
 				addItemFlag(itemFlag);
-			} catch (Throwable ignored) {}
-		}
+			} catch (Throwable _) {}
+		});
 		return this;
 	}
 
@@ -279,6 +277,7 @@ public class ItemBuilder {
 		return build(null);
 	}
 
+	@SuppressWarnings("UnstableApiUsage")
 	public ItemStack build(Player player) {
 		ItemStack item = referenceItem != null ? referenceItem : new ItemStack(material);
 		if (item.getType() == Material.AIR) return item;
@@ -309,7 +308,11 @@ public class ItemBuilder {
 			banner.update();
 			shieldMeta.setBlockState(banner);
 		}
-		if (useCustomModelData) itemMeta.setCustomModelData(customModelData);
+		if (useCustomModelData) {
+			CustomModelDataComponent component = itemMeta.getCustomModelDataComponent();
+			component.setFloats(List.of(customModelData.floatValue()));
+			itemMeta.setCustomModelDataComponent(component);
+		}
 		itemFlags.forEach(itemMeta::addItemFlags);
 		item.setItemMeta(itemMeta);
 		hideFlags(item);
@@ -323,7 +326,7 @@ public class ItemBuilder {
 				} else compound.setString(key, value);
 			});
 		});
-		if (Tools.requireBukkitVersion(BukkitVersion.V1_21) && useItemModel) {
+		if (useItemModel) {
 			NBT.modifyComponents(item, nbt -> {
 				nbt.setString("minecraft:item_model", itemModel);
 			});
@@ -344,11 +347,11 @@ public class ItemBuilder {
 		if (color == null) return null;
 		try {
 			return DyeColor.valueOf(color.toUpperCase());
-		} catch (Throwable e) {
+		} catch (Throwable _) {
 			try {
 				String[] rgb = color.split(",");
 				return DyeColor.getByColor(Color.fromRGB(Integer.parseInt(rgb[0]), Integer.parseInt(rgb[1]), Integer.parseInt(rgb[2])));
-			} catch (Throwable ignore) {}
+			} catch (Throwable _) {}
 		}
 		return null;
 	}

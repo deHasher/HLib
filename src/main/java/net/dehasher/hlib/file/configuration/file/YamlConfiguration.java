@@ -47,7 +47,7 @@ public class YamlConfiguration extends FileConfiguration {
 			input = yaml.load(contents);
 		} catch (YAMLException e) {
 			throw new InvalidConfigurationException(e);
-		} catch (ClassCastException e) {
+		} catch (ClassCastException _) {
 			throw new InvalidConfigurationException("Top level is not a Map.");
 		}
 
@@ -142,7 +142,7 @@ public class YamlConfiguration extends FileConfiguration {
 
 		try {
 			config.load(file);
-		} catch (FileNotFoundException ignored) {
+		} catch (FileNotFoundException _) {
 		} catch (IOException | InvalidConfigurationException ex) {
 			Logger.getLogger("minecraft").log(Level.SEVERE, "Cannot load " + file, ex);
 		}

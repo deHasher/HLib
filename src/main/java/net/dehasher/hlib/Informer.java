@@ -9,7 +9,6 @@ import com.google.gson.JsonParseException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import net.dehasher.hlib.config.Info;
-import net.dehasher.hlib.data.BukkitVersion;
 import net.dehasher.hlib.data.Platform;
 import net.dehasher.hlib.hook.PlaceholderAPIHook;
 import net.dehasher.hlib.platform.velocity.HLib;
@@ -40,7 +39,6 @@ public class Informer {
 
 	public static Component parseComponent(String message) {
 		Component component = Colors.setComponent(Tools.replacePlaceholders(message));
-		if (!Tools.requireBukkitVersion(BukkitVersion.V1_20)) return component;
 		return component.decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE);
 	}
 
@@ -70,6 +68,7 @@ public class Informer {
 			}
 		}
 
+		@SuppressWarnings("deprecation")
 		private static void requestTitle(org.bukkit.entity.Player player, String message, int fadeIn, int stay, int fadeOut) {
 			if (player == null) return;
 			message = parse(message);
@@ -87,6 +86,7 @@ public class Informer {
 			player.sendActionBar(component(message));
 		}
 
+		@SuppressWarnings("UnstableApiUsage")
 		private static void console(String message) {
 			message = Colors.clear(message).replace("{prefix}", "");
 			org.bukkit.Bukkit.getLogger().info(message);
@@ -410,7 +410,7 @@ public class Informer {
 						connection.setRequestProperty(entry.getKey(), value.getAsString());
 					});
 				}
-			} catch (JsonParseException | IllegalArgumentException e) {
+			} catch (JsonParseException | IllegalArgumentException _) {
 				send("Invalid HTTP headers configuration in info.yml.");
 			}
 		}

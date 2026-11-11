@@ -16,7 +16,7 @@ public class ClassController {
 			try {
 				Class.forName(name);
 				result = true;
-			} catch (Throwable ignored) {}
+			} catch (Throwable _) {}
 			getClasses().put(name, result);
 			return result;
 		}
