@@ -1,6 +1,7 @@
 package net.dehasher.hlib;
 
 import com.velocitypowered.api.scheduler.ScheduledTask;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import net.dehasher.hlib.data.Platform;
@@ -74,11 +75,13 @@ public class Scheduler {
 	}
 
 	public static class Velocity {
+		@Getter(AccessLevel.PRIVATE)
+		private static final Object lock = new Object();
 		@Getter
 		private static final Map<Integer, ScheduledTask> storage = new ConcurrentHashMap<>();
 		@Getter
 		@Setter
-		private static int last = 0;
+		private static volatile int last = 0;
 
 		public static void doAsync(Runnable runnable) {
 			HLib.getProxy().getScheduler().buildTask(HLib.getInstance(), runnable).schedule();
@@ -89,10 +92,13 @@ public class Scheduler {
 		}
 
 		public static int doAsyncLaterWithId(Runnable runnable, long delay) {
-			setLast(getLast() + 1);
-			getStorage().put(getLast(), HLib.getProxy().getScheduler().buildTask(HLib.getInstance(), runnable).delay(delay * 50, TimeUnit.MILLISECONDS).schedule());
-			getTasks().add(getLast());
-			return getLast();
+			synchronized (getLock()) {
+				int id = getLast() + 1;
+				setLast(id);
+				getStorage().put(id, HLib.getProxy().getScheduler().buildTask(HLib.getInstance(), runnable).delay(delay * 50, TimeUnit.MILLISECONDS).schedule());
+				getTasks().add(id);
+				return id;
+			}
 		}
 
 		public static void doAsyncRepeat(Runnable runnable, long delay, long period) {
@@ -100,17 +106,22 @@ public class Scheduler {
 		}
 
 		public static int doAsyncRepeatWithId(Runnable runnable, long delay, long period) {
-			setLast(getLast() + 1);
-			getStorage().put(getLast(), HLib.getProxy().getScheduler().buildTask(HLib.getInstance(), runnable).delay(delay * 50, TimeUnit.MILLISECONDS).repeat(period * 50, TimeUnit.MILLISECONDS).schedule());
-			getTasks().add(getLast());
-			return getLast();
+			synchronized (getLock()) {
+				int id = getLast() + 1;
+				setLast(id);
+				getStorage().put(id, HLib.getProxy().getScheduler().buildTask(HLib.getInstance(), runnable).delay(delay * 50, TimeUnit.MILLISECONDS).repeat(period * 50, TimeUnit.MILLISECONDS).schedule());
+				getTasks().add(id);
+				return id;
+			}
 		}
 
 		public static void stop(Integer id) {
-			if (id == null || !getStorage().containsKey(id)) return;
-			getStorage().get(id).cancel();
-			getStorage().remove(id);
-			getTasks().remove(id);
+			synchronized (getLock()) {
+				if (id == null || !getStorage().containsKey(id)) return;
+				getStorage().get(id).cancel();
+				getStorage().remove(id);
+				getTasks().remove(id);
+			}
 		}
 	}
 

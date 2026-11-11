@@ -106,6 +106,8 @@ Scheduler.doAsync(() -> {
 
 Общий facade `Scheduler` предоставляет async-задачи. Delay и period задаются в Minecraft-тиках; на Velocity один тик преобразуется в 50 миллисекунд.
 
+Начиная с HLib 7.2, `Scheduler.Velocity.doAsyncLaterWithId`, `doAsyncRepeatWithId` и `stop` используют общую блокировку при выделении ID, регистрации и отмене задачи. ID сохраняется локально до вызова планировщика: параллельные и вложенные вызовы не перепривязывают возвращённый ID к чужому `ScheduledTask`. Тело `Runnable` по-прежнему выполняется планировщиком Velocity.
+
 ```java
 Scheduler.doAsyncLater(() -> Informer.send("Прошла одна секунда"), 20L);
 
