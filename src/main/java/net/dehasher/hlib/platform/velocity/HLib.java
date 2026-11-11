@@ -31,9 +31,6 @@ import java.nio.file.Path;
 		authors      = {"${author}"}
 )
 public class HLib {
-	@Getter(AccessLevel.PRIVATE)
-	private static final String hash = "GexaauiONJgCD3HE09FYXyDyyuzN63dKQU9HVPynReExJrA8Qn2cBvbRVYwTA3me";
-
 	@Getter
 	@Setter(AccessLevel.PRIVATE)
 	private static HLib instance;
@@ -92,7 +89,7 @@ public class HLib {
 			getProxy().shutdown();
 		} else {
 			if (check) {
-				if (Updater.run(Tools.join(Tools.getFileSeparator(), getDataFolder().getParent(), name + ".jar"), getHash())) {
+				if (Updater.run(Tools.join(Tools.getFileSeparator(), getDataFolder().getParent(), name + ".jar"))) {
 					Informer.send("The plugin " + name + " will be updated... Restarting...");
 				} else {
 					Informer.send("An error occurred when updating the plugin! Restarting...");

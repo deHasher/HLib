@@ -33,7 +33,7 @@
 | `Tools` | Общие проверки, парсинг, права, `getGeo(String/InetAddress)` и служебные операции | Смешанный API; GeoIP lookup локальный, результат nullable |
 | `TelegramClient` | JSON Bot API transport с HTTP/SOCKS proxy | Синхронный `execute`, до четырёх запросов одновременно, владелец закрывает клиент |
 | `Translator` | Загрузка vanilla locale JSON и регистрация Adventure-переводов | Bukkit-only; инициализация асинхронна и требует сети |
-| `Updater` | Проверка и установка обновлений HLib | Внутренний |
+| `Updater` | Проверка версии и установка обновления указанного JAR | `check(name, version)` проверяет версию; `run(file)` читает корневой ресурс `hash` из указанного JAR до временного файла и скачивания |
 | `Vector3D` | Неизменяемый трёхмерный вектор и операции с ним | Основной |
 
 Практические примеры для этих классов находятся на странице [«Основной API»](Core-API).
@@ -80,7 +80,7 @@
 | `NMS` | Выбор NMS-пакета, разрешение имён звуков и константы пакетов | Низкоуровневый и версионно-зависимый; эффекты, частицы, зачарования, типы сущностей и InventoryView используются через Paper API напрямую |
 | `Permission` | Фиксированный enum прав | Внутренний; не конструктор произвольных permission nodes; ограничения описаны в [основном API](Core-API#базовые-классы-команд) |
 | `Platform` | Определение Bukkit или Velocity | Основной; ОС проверяется отдельно через `Tools.isWindows()` |
-| `Plugin` | Каталог и проверка известных плагинов | Интеграционный; первый результат кэшируется, Bukkit-проверка означает наличие плагина |
+| `Plugin` | Каталог и проверка известных плагинов, включая `PACKET_EVENTS` и `PROTOCOL_LIB` | Интеграционный; первый результат кэшируется, Bukkit-проверка означает наличие плагина; запись ProtocolLib не включает его API или hook |
 | `Table` | DDL таблиц и индексов | Внутренний; ориентирован на MariaDB |
 
 Потребители удалённых enum-констант требуют обновления исходников и повторной сборки. Удалённые права также больше не распознаются `Permission.getEnum(...)`: метод выбрасывает `IllegalArgumentException` для отсутствующего значения.
@@ -159,7 +159,7 @@
 | `NexoHook` | Nexo | Custom items, модели, permission и YAML item config |
 | `PlaceholderAPIHook` | PlaceholderAPI, опционально | Подстановка placeholders или возврат исходной строки/списка |
 | `PlasmoVoiceHook` | Plasmo Voice | Константа permission для речи |
-| `ProtocolLibHook` | ProtocolLib | Listeners, fake armor stand, game-state events и клиентские изменения блоков; исходный файл исключён владельцем из миграции |
+| `PacketEventsHook` | PacketEvents | Listeners с владельцем, отправка нативных wrappers, fake armor stand, game-state events, клиентские изменения блоков и тестовая нагрузка |
 | `SparkHook` | spark | CPU, TPS и MSPT |
 | `TABHook` | TAB, местами LuckPerms/CMI | Prefix/suffix и группы TAB |
 | `UltimateTimberHook` | UltimateTimber | Проверка анимированного падающего блока |
@@ -176,41 +176,15 @@
 | `platform.bukkit.HLib` | Bukkit/Paper entrypoint, инициализация и обновление | Внутренний entrypoint библиотеки |
 | `platform.velocity.HLib` | Velocity entrypoint, инициализация и обновление | Внутренний entrypoint библиотеки |
 
-Один release JAR содержит обе точки входа и соответствующие descriptors.
+Один release JAR содержит обе точки входа и соответствующие descriptors. Общий ресурс [`src/main/resources/hash`](https://github.com/deHasher/HLib/blob/master/src/main/resources/hash) упаковывается как корневой entry `hash`; обе платформы используют его через `Updater.run(file)`. Значение больше не хранится в Java-полях или Lombok-accessors.
 
-## ProtocolLib packet wrappers
+## PacketEvents
 
-Все классы ниже находятся в `net.dehasher.hlib.wrapper.packet.bukkit`. Это низкоуровневый API: ProtocolLib и структура пакетов меняются вместе с Minecraft, поэтому каждый используемый getter/setter следует проверять на фактической версии сервера.
+Собственный пакет `net.dehasher.hlib.wrapper.packet.bukkit` удалён целиком (26 Java-файлов). Вместо него используются `com.github.retrooper.packetevents.wrapper.play.client` и `.server` из отдельного PacketEvents {{dependency_version_packetevents}}. API HLib не содержит адаптеров совместимости со старыми wrappers.
 
-| Класс | Пакет или роль |
-| --- | --- |
-| `AbstractPacket` | Базовая оболочка `PacketContainer`, чтение, запись и отправка |
-| `WrapperPlayClientChat` | Клиентское chat-сообщение |
-| `WrapperPlayClientCustomPayload` | Клиентский custom payload |
-| `WrapperPlayClientSetCreativeSlot` | Изменение creative slot |
-| `WrapperPlayClientTabComplete` | Клиентский запрос completion |
-| `WrapperPlayClientUpdateSign` | Обновление строк таблички |
-| `WrapperPlayClientUseEntity` | Взаимодействие с entity |
-| `WrapperPlayServerBlockChange` | Изменение блока для клиента |
-| `WrapperPlayServerChat` | Серверное chat-сообщение |
-| `WrapperPlayServerDamageEvent` | Событие урона entity |
-| `WrapperPlayServerEntityDestroy` | Удаление entities |
-| `WrapperPlayServerEntityEquipment` | Экипировка entity |
-| `WrapperPlayServerEntityMetadata` | Metadata entity |
-| `WrapperPlayServerEntityStatus` | Статус entity |
-| `WrapperPlayServerEntityTeleport` | Телепортация entity |
-| `WrapperPlayServerExplosion` | Эффект взрыва |
-| `WrapperPlayServerGameStateChange` | Изменение игрового состояния |
-| `WrapperPlayServerHurtAnimation` | Анимация получения урона |
-| `WrapperPlayServerLogin` | Данные входа; структура особенно чувствительна к версии |
-| `WrapperPlayServerNamedSoundEffect` | Именованный звук |
-| `WrapperPlayServerSetCooldown` | Cooldown предмета |
-| `WrapperPlayServerSpawnEntity` | Создание entity для клиента |
-| `WrapperPlayServerTabComplete` | Серверный ответ completion |
-| `WrapperPlayServerWorldEvent` | Событие мира |
-| `WrapperPlayServerWorldParticles` | Частицы мира |
+`PacketEventsHook` — высокоуровневый helper, а не собственный codec: `ArmorStand` возвращает нативные spawn/metadata/equipment wrappers, `GameEvent` отправляет game-state пакет, регистрация listeners хранит владельца для корректного снятия при отключении.
 
-Начните с проверенных сценариев на странице [«ProtocolLib и пакеты»](Packets). Не используйте wrapper только ради сокращения нескольких строк: прямой ProtocolLib API проще диагностировать при изменении протокола.
+Примеры и lifecycle: [PacketEvents и пакеты](Packets).
 
 ## Как выбрать API
 

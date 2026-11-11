@@ -20,6 +20,8 @@ if (Plugin.WORLD_GUARD.isEnabled()) {
 
 Если исходный код импортирует типы стороннего API, добавьте это API как `compileOnly` и в свой build. HLib не экспортирует compile-only JAR автоматически.
 
+HLib сохраняет PacketEvents необязательным в своём `paper-plugin.yml`. В HCore обязательная packet dependency объявляется только в прежних местах: HCore loader, HCalendar, HAntiRelog и HImages. Остальные manifests новыми зависимостями не дополняются; вызовы PacketEvents выполняются без проверок наличия плагина. В enum `Plugin` доступны одновременно `PACKET_EVENTS` и `PROTOCOL_LIB`; наличие последней константы не возвращает ProtocolLibHook, wrappers или зависимость ProtocolLib в HLib.
+
 ## Каталог hook-классов
 
 | Hook | Требуемый плагин/API | Основные возможности | Важное ограничение |
@@ -27,7 +29,7 @@ if (Plugin.WORLD_GUARD.isEnabled()) {
 | `BotSentryHook` | BotSentry | async добавление IP в whitelist | IP не валидируется, completion не возвращается |
 | `ChunkyBorderHook` | ChunkyBorder | border center и size | синхронно читает `borders.json`; rectangular border не поддержан |
 | `CMIHook` | CMI и CMILib | user, vanish, god, speed, jail, metadata | большинство изменений не переключает поток автоматически |
-| `EmoteCraftHook` | Emotecraft, косвенно ProtocolLib | play/stop emote, client detection | `reload` ожидает отсутствующие ресурсы и может удалить старые JSON |
+| `EmoteCraftHook` | Emotecraft; транспорт определяется установленной версией стороннего плагина | play/stop emote, client detection | `reload` ожидает отсутствующие ресурсы и может удалить старые JSON |
 | `ForceResourcepacksHook` | ForceResourcepacks Velocity | поиск и обновление URL/SHA-1 pack | URL, UUID и hash не валидируются |
 | `GadgetsMenuHook` | GadgetsMenu | `PlayerManager` игрока | `getPlugin(Player)` возвращает manager, не plugin instance |
 | `ItemJoinHook` | ItemJoin | проверка custom item | API создаётся в static initializer |
@@ -38,8 +40,9 @@ if (Plugin.WORLD_GUARD.isEnabled()) {
 | `NexoHook` | Nexo | custom item, model, permission и item config | config перечитывается с диска; Paper manifest HLib не объявляет Nexo |
 | `PlaceholderAPIHook` | PlaceholderAPI, опционально | замена placeholders в строке или списке | без плагина возвращает вход без изменений |
 | `PlasmoVoiceHook` | Plasmo Voice | только permission-константа | полноценной API-интеграции нет |
-| `ProtocolLibHook` | ProtocolLib | listeners, fake armor stand, wrappers | low-level и version-sensitive; см. [Пакеты](Packets) |
-| `SparkHook` | spark | CPU, TPS и MSPT | TPS/MSPT только Bukkit; `-1` означает недоступность |
+| `PacketEventsHook` | PacketEvents | listeners с владельцем, fake armor stand, нативные пакеты | low-level и version-sensitive; см. [Пакеты](Packets) |
+| `SparkHook` | PacketEvents | `{{dependency_version_packetevents}}` |
+| spark | CPU, TPS и MSPT | TPS/MSPT только Bukkit; `-1` означает недоступность |
 | `TABHook` | TAB; для reset также LuckPerms | tab/tag prefix и suffix | изменения планируются sync; `null` reset требует LuckPerms |
 | `UltimateTimberHook` | UltimateTimber | проверка falling block animation | только Bukkit entity state |
 | `VaultHook` | Vault и economy provider | доступ к `Economy` | provider захватывается один раз при загрузке класса |
@@ -58,6 +61,7 @@ if (Plugin.WORLD_GUARD.isEnabled()) {
 | WorldGuard | `{{dependency_version_worldguard}}` |
 | LibsDisguises | `{{dependency_version_libsdisguises}}` |
 | LiteBans | `{{dependency_version_litebans}}` |
+| PacketEvents | `{{dependency_version_packetevents}}` |
 | spark | `{{dependency_version_spark}}` |
 
 Часть API подключена из локальных JAR в `libs`; у таких зависимостей нет отдельного параметра версии в `gradle.properties`.

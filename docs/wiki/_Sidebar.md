@@ -6,7 +6,7 @@
 - [[Конфигурации|Configuration]]
 - [[Базы данных|Databases]]
 - [[Интеграции|Integrations]]
-- [[ProtocolLib и пакеты|Packets]]
+- [[PacketEvents и пакеты|Packets]]
 - [[Каталог API|API-Reference]]
 - [[Сборка и решение проблем|Building-and-Troubleshooting]]
 

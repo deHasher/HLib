@@ -13,9 +13,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.xbill.DNS.NioClient;
 
 public class HLib extends JavaPlugin {
-	@Getter(AccessLevel.PRIVATE)
-	private static final String hash = "GexaauiONJgCD3HE09FYXyDyyuzN63dKQU9HVPynReExJrA8Qn2cBvbRVYwTA3me";
-
 	@Getter
 	@Setter(AccessLevel.PRIVATE)
 	private static HLib instance;
@@ -64,7 +61,7 @@ public class HLib extends JavaPlugin {
 			Bukkit.shutdown();
 		} else {
 			if (check) {
-				if (Updater.run(Tools.join(Tools.getFileSeparator(), getInstance().getDataFolder().getParentFile(), name + ".jar"), getHash())) {
+				if (Updater.run(Tools.join(Tools.getFileSeparator(), getInstance().getDataFolder().getParentFile(), name + ".jar"))) {
 					Informer.send("The plugin " + name + " will be updated... Restarting...");
 				} else {
 					Informer.send("An error occurred when updating the plugin! Restarting...");

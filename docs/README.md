@@ -7,7 +7,7 @@
 
 <img src="https://count.getloli.com/@:hlib?name=%3Ahlib&theme=booru-helltaker&padding=1&offset=0&align=top&scale=1&pixelated=1&darkmode=auto" alt=""/>
 
-HLib — публичная библиотека-плагин с общим API для разработки Minecraft-плагинов. Она собирает в одном JAR работу с цветами и Adventure-компонентами, планировщиком, YAML-конфигурациями, предметами, MySQL/MariaDB, Redis, популярными плагинами и ProtocolLib.
+HLib — публичная библиотека-плагин с общим API для разработки Minecraft-плагинов. Она собирает в одном JAR работу с цветами и Adventure-компонентами, планировщиком, YAML-конфигурациями, предметами, MySQL/MariaDB, Redis, популярными плагинами и PacketEvents.
 
 Текущая версия: **{{lib_version_plugin}}**.
 
@@ -22,7 +22,7 @@ HLib — публичная библиотека-плагин с общим API 
 - Пулы MySQL/MariaDB и Redis, prepared queries, batch и generated keys.
 - Адаптеры LuckPerms, Vault, WorldGuard, WorldEdit, TAB, CMI, PlaceholderAPI и других плагинов.
 - Предварительная проверка настроенных Bukkit-команд через `HCommandPreflight` и `HCommandBukkit.canExecute` перед оплатой внешнего действия.
-- Низкоуровневые обёртки ProtocolLib для клиентских и серверных пакетов.
+- Интеграция PacketEvents: listeners, отправка нативных пакетов, fake armor stand и game-state события.
 - Утилиты для cooldown, времени, чисел, опыта, локаций, переводов и версий сервера.
 - Общая GeoLite2 City с локалью и обновлением при запуске.
 
@@ -39,7 +39,7 @@ HLib — публичная библиотека-плагин с общим API 
 | Velocity annotation processor | `{{dependency_version_velocity}}` |
 | Дополнения | Только для используемых интеграций |
 
-Минимальная серверная платформа — Paper 1.21.11 на Java 25; поддержка Bukkit/Paper ниже 1.21.11 удалена. HLib требует Java 25 и на Paper, и на Velocity. API более новых Paper можно использовать через отдельные версионные адаптеры: наличие Java нужной версии не гарантирует совместимость NMS и ProtocolLib. [Требования Paper](https://docs.papermc.io/paper/getting-started/).
+Минимальная серверная платформа — Paper 1.21.11 на Java 25; поддержка Bukkit/Paper ниже 1.21.11 удалена. HLib требует Java 25 и на Paper, и на Velocity. API более новых Paper можно использовать через отдельные версионные адаптеры: наличие Java нужной версии не гарантирует совместимость NMS и PacketEvents. [Требования Paper](https://docs.papermc.io/paper/getting-started/).
 
 ## Установка
 
@@ -131,7 +131,7 @@ public final class JoinListener implements Listener {
 - [Конфигурации](https://github.com/deHasher/HLib/wiki/Configuration)
 - [MySQL, MariaDB и Redis](https://github.com/deHasher/HLib/wiki/Databases)
 - [Интеграции](https://github.com/deHasher/HLib/wiki/Integrations)
-- [ProtocolLib и пакеты](https://github.com/deHasher/HLib/wiki/Packets)
+- [PacketEvents и пакеты](https://github.com/deHasher/HLib/wiki/Packets)
 - [Каталог классов](https://github.com/deHasher/HLib/wiki/API-Reference)
 - [Сборка и решение проблем](https://github.com/deHasher/HLib/wiki/Building-and-Troubleshooting)
 
@@ -142,8 +142,8 @@ public final class JoinListener implements Listener {
 - Подключения MySQL/Redis создаёт использующий их плагин; SQL-запросы выполняются синхронно.
 - `HCommand*` ограничены фиксированным enum `Permission`; для собственных прав используйте API команд платформы.
 - Hook-классы не заменяют сторонние плагины: их API должны присутствовать и на сервере, и в compile classpath вашего проекта.
-- На любой ОС, кроме Windows, HLib проверяет обновление при загрузке. Недоступный сервис приводит к остановке платформы; найденная новая версия автоматически скачивается поверх текущего JAR, после чего платформа также останавливается.
-- Packet-wrapper’ы зависят от структуры пакетов Minecraft и версии ProtocolLib; проверяйте их на своей целевой версии.
+- На любой ОС, кроме Windows, HLib проверяет обновление при загрузке. Недоступный сервис приводит к остановке платформы; найденная новая версия автоматически скачивается поверх текущего JAR, после чего платформа также останавливается. `Updater.run(file)` читает ключ загрузки из корневого ресурса `hash` самого обновляемого JAR; отдельный файл конфигурации для него не создаётся.
+- PacketEvents устанавливается отдельным плагином; HLib использует нативные wrappers PacketEvents и не содержит собственных packet wrappers. Версию API фиксирует dependency_version_packetevents.
 
 ## Сборка из исходников
 

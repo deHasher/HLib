@@ -43,7 +43,6 @@ repositories {
     maven("https://jitpack.io/")                                                // GitHub.
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/") // PlaceholderAPI.
     maven("https://mvn.lib.co.nz/public")                                       // LibsDisguises.
-    maven("https://repo.dmulloy2.net/repository/public/")                       // ProtocolLib.
     maven("https://repo1.maven.org/maven2/")                                    // LuckPerms.
     maven("https://repo.codemc.io/repository/maven-public/")                    // NBT-API.
     maven("https://repo.plasmoverse.com/releases")                              // PlasmoVoice.
@@ -77,7 +76,7 @@ dependencies {
     compileOnly(files("libs/CMILib.jar"))
     compileOnly(files("libs/TAB.jar"))
     compileOnly(files("libs/emotecraft.jar"))
-    compileOnly(files("libs/ProtocolLib.jar"))
+	compileOnly("com.github.retrooper:packetevents-spigot:${providers.gradleProperty("dependency_version_packetevents").get()}")
     compileOnly(files("libs/ItemJoin.jar"))
 
     // Это слитые платные плагины с сайтов по типу black-minecraft.

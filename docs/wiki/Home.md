@@ -1,6 +1,6 @@
 # HLib
 
-HLib — публичная библиотека-плагин с общим API для разработчиков Minecraft-плагинов. Она предоставляет готовые решения для текста, задач, конфигураций, предметов, баз данных, сторонних плагинов и ProtocolLib без необходимости копировать одинаковый код между проектами.
+HLib — публичная библиотека-плагин с общим API для разработчиков Minecraft-плагинов. Она предоставляет готовые решения для текста, задач, конфигураций, предметов, баз данных, сторонних плагинов и PacketEvents без необходимости копировать одинаковый код между проектами.
 
 Текущая версия: **{{lib_version_plugin}}** · [Скачать HLib.jar](https://github.com/deHasher/HLib/releases/latest/download/HLib.jar) · [Исходный код](https://github.com/deHasher/HLib)
 
@@ -13,7 +13,7 @@ HLib — публичная библиотека-плагин с общим API 
 | Создать типизированный YAML-файл | [Конфигурации](Configuration) |
 | Подключить MySQL, MariaDB или Redis | [Базы данных](Databases) |
 | Использовать LuckPerms, WorldGuard, TAB, CMI и другие плагины | [Интеграции](Integrations) |
-| Читать или отправлять пакеты ProtocolLib | [Пакеты](Packets) |
+| Читать или отправлять пакеты PacketEvents | [Пакеты](Packets) |
 | Найти назначение конкретного класса | [Каталог API](API-Reference) |
 | Собрать проект или решить ошибку запуска | [Сборка и решение проблем](Building-and-Troubleshooting) |
 
@@ -26,7 +26,7 @@ HLib — публичная библиотека-плагин с общим API 
 - `ItemBuilder`, NBT, custom model data и item model.
 - HikariCP для MySQL/MariaDB и Jedis для Redis.
 - Адаптеры сторонних плагинов.
-- Обёртки пакетов ProtocolLib.
+- Интеграция PacketEvents с нативными packet wrappers.
 - Утилиты для cooldown, времени, чисел, опыта, мира и переводов.
 - Общая GeoLite2 City с локалью и обновлением при запуске, Telegram transport с HTTP/SOCKS-прокси.
 
@@ -39,7 +39,7 @@ HLib — публичная библиотека-плагин с общим API 
 | Paper | `paper-plugin.yml` объявляет API {{api_version_paper}} |
 | Velocity | annotation processor `{{dependency_version_velocity}}`; compile API из `libs/Velocity.jar` |
 
-Один `HLib.jar` содержит все три дескриптора. Paper descriptor требует API {{api_version_paper}}. Наличие Bukkit descriptor не гарантирует совместимость с каждой старой версией сервера: в коде используются Paper API и версионные интеграции. Java для запуска выбирайте по требованиям сервера и его плагинов.
+Один `HLib.jar` содержит `paper-plugin.yml` и metadata Velocity. Paper descriptor требует API {{api_version_paper}}; пакетные функции используют отдельный PacketEvents {{dependency_version_packetevents}}. Старые Bukkit/Paper не поддерживаются. Java для запуска выбирайте по требованиям сервера и его плагинов.
 
 ## Перед использованием
 

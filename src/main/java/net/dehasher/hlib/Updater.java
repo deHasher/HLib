@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.jar.JarEntry;
@@ -32,8 +33,15 @@ public class Updater {
 	}
 
 	@SuppressWarnings("ResultOfMethodCallIgnored")
-	public static boolean run(String file, String hash) {
+	public static boolean run(String file) {
 		File plugin = new File(file);
+		String hash;
+		try {
+			hash = readHash(plugin);
+		} catch (IOException _) {
+			Informer.send("Couldn't read plugin hash from JAR!");
+			return false;
+		}
 		File tmp = new File(plugin.getAbsolutePath() + ".tmp");
 		if (tmp.exists()) {
 			if (!tmp.delete()) {
@@ -87,5 +95,17 @@ public class Updater {
 			t.printStackTrace();
 		}
 		return false;
+	}
+
+	private static String readHash(File plugin) throws IOException {
+		try (JarFile jarFile = new JarFile(plugin)) {
+			JarEntry entry = jarFile.getJarEntry("hash");
+			if (entry == null || entry.isDirectory()) throw new IOException("Plugin hash resource is missing");
+			try (InputStream stream = jarFile.getInputStream(entry)) {
+				String hash = new String(stream.readAllBytes(), StandardCharsets.UTF_8).strip();
+				if (hash.isEmpty()) throw new IOException("Plugin hash resource is empty");
+				return hash;
+			}
+		}
 	}
 }

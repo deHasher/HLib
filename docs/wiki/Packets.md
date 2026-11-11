@@ -1,184 +1,109 @@
-# ProtocolLib и пакеты
+# PacketEvents и пакеты
 
-Packet API HLib работает только на Bukkit/Paper и требует совместимый ProtocolLib. Обёртки предоставляют удобные getters/setters поверх `PacketContainer`, но не скрывают различия протокола между версиями Minecraft.
+Packet API HLib работает на Paper 1.21.11+ с отдельным плагином PacketEvents {{dependency_version_packetevents}}. Собственные 26 packet wrappers и ProtocolLibHook удалены. Используются нативные wrappers PacketEvents; совместимые aliases старого API не предоставляются.
 
-## Подготовка
+## Подключение
 
-1. Установите ProtocolLib на сервер.
-2. Добавьте API ProtocolLib и `HLib.jar` как `compileOnly` в проект.
-3. Объявите ProtocolLib зависимостью своего плагина.
-4. Регистрируйте listeners после загрузки ProtocolLib.
+1. Установите официальный `packetevents-spigot-{{dependency_version_packetevents}}.jar` рядом с HLib и своим плагином.
+2. Добавьте PacketEvents как `compileOnly` в сборку потребителя.
+3. Объявите `packetevents` в `paper-plugin.yml`, сохраняя точный регистр имени.
+4. Регистрируйте listeners в `onEnable`, снимайте их при отключении своего плагина.
+
+### Файл `build.gradle.kts`
+
+```kotlin
+repositories {
+	maven("https://repo.codemc.io/repository/maven-public/")
+}
+
+dependencies {
+	compileOnly(files("libs/HLib.jar"))
+	compileOnly("com.github.retrooper:packetevents-spigot:{{dependency_version_packetevents}}")
+}
+```
 
 ### Файл `paper-plugin.yml`
 
 ```yaml
-dependencies: {server: {HLib: {load: "BEFORE", required: true, join-classpath: true}, ProtocolLib: {load: "BEFORE", required: true, join-classpath: true}}}
+dependencies: {server: {HLib: {load: BEFORE, required: true, join-classpath: true}, packetevents: {load: BEFORE, required: true, join-classpath: true}}}
 ```
 
-## Чтение клиентского пакета
+Сам HLib объявляет PacketEvents необязательной зависимостью, чтобы общие API оставались доступны без пакетных функций и на Velocity. В HCore обязательное объявление PacketEvents сохраняется только в ранее содержавших packet dependency manifests: HCore loader, HCalendar, HAntiRelog и HImages. В остальные manifests новые записи не добавляются. Вызовы пакетного API выполняются без дополнительных проверок наличия PacketEvents. PacketEvents не включается в Shadow JAR HLib и не инициализируется повторно: `load/init/terminate` выполняет установленный плагин PacketEvents.
 
-### Файл `UseEntityPacketListener.java`
+В каталоге `Plugin` сохранены обе записи: `PACKET_EVENTS("packetevents")` и `PROTOCOL_LIB("ProtocolLib")`. Запись ProtocolLib служит только для идентификации стороннего плагина; его hook, собственные packet wrappers и зависимость сборки не возвращаются.
 
-```java
-package com.example.plugin.packet;
+## Чтение и изменение пакетов
 
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketEvent;
-import net.dehasher.hlib.wrapper.packet.bukkit.WrapperPlayClientUseEntity;
-import org.bukkit.plugin.Plugin;
-
-public final class UseEntityPacketListener extends PacketAdapter {
-	public UseEntityPacketListener(Plugin plugin) {
-		super(plugin, WrapperPlayClientUseEntity.TYPE);
-	}
-
-	@Override
-	public void onPacketReceiving(PacketEvent event) {
-		WrapperPlayClientUseEntity packet = new WrapperPlayClientUseEntity(event.getPacket());
-		int targetId = packet.getTargetID();
-		String action = packet.getAction();
-
-		if (targetId < 0 || action == null) {
-			event.setCancelled(true);
-		}
-	}
-}
-```
-
-### Файл `ExamplePlugin.java`
+### Файл `InteractionListener.java`
 
 ```java
 package com.example.plugin;
 
-import com.example.plugin.packet.UseEntityPacketListener;
-import net.dehasher.hlib.hook.ProtocolLibHook;
-import org.bukkit.plugin.java.JavaPlugin;
+import com.github.retrooper.packetevents.event.PacketListenerAbstract;
+import com.github.retrooper.packetevents.event.PacketReceiveEvent;
+import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientInteractEntity;
 
-public final class ExamplePlugin extends JavaPlugin {
-	private UseEntityPacketListener packetListener;
-
+public final class InteractionListener extends PacketListenerAbstract {
 	@Override
-	public void onEnable() {
-		packetListener = new UseEntityPacketListener(this);
-		ProtocolLibHook.register(packetListener);
-	}
-
-	@Override
-	public void onDisable() {
-		ProtocolLibHook.unregisterAll(this);
+	public void onPacketReceive(PacketReceiveEvent event) {
+		if (event.getPacketType() != PacketType.Play.Client.INTERACT_ENTITY) return;
+		WrapperPlayClientInteractEntity packet = new WrapperPlayClientInteractEntity(event);
+		if (packet.getEntityId() < 0) event.setCancelled(true);
 	}
 }
 ```
 
-## Отправка client-side изменения блока
+Регистрация: `PacketEventsHook.register(plugin, new InteractionListener())`. Снятие одного listener: `PacketEventsHook.unregister(listener)`; снятие всех listeners владельца: `PacketEventsHook.unregisterAll(plugin)`. HLib хранит владельца явно, потому что PacketEvents EventManager не связывает listener с Bukkit plugin автоматически. Дополнительно `PluginDisableEvent` снимает listeners отключаемого владельца. Обработчики других плагинов не удаляются.
 
-Изменение увидит только указанный игрок; настоящий блок мира не меняется.
+Входящие и исходящие callbacks PacketEvents работают в сетевых потоках. Не обращайтесь там к миру, инвентарям и изменяемому Bukkit state; подготовьте снимок необходимых данных на главном потоке. Для Bukkit-действия запланируйте sync callback и повторно проверьте подключение игрока. `PacketEventsHook.Methods.getPlayer(event)` возвращает только настоящий online `Player` либо `null`, однако сам по себе не переключает поток.
+
+После изменения wrapper входящего/исходящего события вызывайте `event.markForReEncode(true)`, когда меняется его содержимое. Не сохраняйте событие или его ByteBuf после завершения callback.
+
+## Отправка
+
+`PacketEventsHook.sendPacket(player, packet)` делегирует native `PacketWrapper<?>` в PlayerManager PacketEvents. Исключение не подавляется. Отправка ставит данные в сетевой канал и не является подтверждением получения клиентом.
+
+Для client-side изменения блока:
 
 ```java
-WrapperPlayServerBlockChange packet = new WrapperPlayServerBlockChange();
-packet.setLocation(new BlockPosition(
-	location.getBlockX(),
-	location.getBlockY(),
-	location.getBlockZ()
-));
-packet.setBlockData(WrappedBlockData.createData(Material.GOLD_BLOCK));
-packet.sendPacket(player);
+WrappedBlockState block = SpigotConversionUtil.fromBukkitBlockData(Material.GOLD_BLOCK.createBlockData());
+WrapperPlayServerBlockChange packet = new WrapperPlayServerBlockChange(
+	new Vector3i(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
+	block.getGlobalId()
+);
+PacketEventsHook.sendPacket(player, packet);
 ```
 
-`sendPacket` логирует и подавляет ошибку отправки. Если вызывающему коду нужен гарантированный результат, обрабатывайте пакет через ProtocolLib напрямую.
+Классы wrappers импортируются из `com.github.retrooper.packetevents.wrapper.play.server`, `Vector3i` — из `com.github.retrooper.packetevents.util`, `WrappedBlockState` — из `com.github.retrooper.packetevents.protocol.world.states`, `SpigotConversionUtil` — из `io.github.retrooper.packetevents.util`. Настоящий мир при отправке такого пакета не меняется.
 
 ## Fake armor stand
 
 ```java
-WrapperPlayServerSpawnEntity spawn = ProtocolLibHook.ArmorStand.create(location);
-WrapperPlayServerEntityMetadata metadata = ProtocolLibHook.ArmorStand.setup(
-	spawn,
-	true,
-	true,
-	Colors.set("&eТекст")
-);
-
-spawn.sendPacket(player);
-metadata.sendPacket(player);
+WrapperPlayServerSpawnEntity spawn = PacketEventsHook.ArmorStand.create(location);
+PacketEventsHook.sendPacket(player, spawn);
+PacketEventsHook.sendPacket(player, PacketEventsHook.ArmorStand.setup(spawn, true, true, Colors.set("&eТекст")));
+PacketEventsHook.sendPacket(player, PacketEventsHook.ArmorStand.equip(spawn, EquipmentSlot.HELMET, item));
 ```
 
-HLib генерирует случайный entity id в диапазоне `short`; коллизии с реальными или другими fake-сущностями теоретически возможны. Храните wrapper и отправляйте destroy packet при удалении визуального объекта.
+`EquipmentSlot` принадлежит `com.github.retrooper.packetevents.protocol.player`. `equip` принимает Bukkit `ItemStack` и преобразует его через официальный SpigotConversionUtil. Metadata использует типизированные `EntityData<?>`, включая `OPTIONAL_ADV_COMPONENT` для имени. `create` и `setup` возвращают native wrappers и ничего не отправляют самостоятельно.
 
-```java
-ProtocolLibHook.ArmorStand.remove(player, spawn);
-```
+Удаление: `PacketEventsHook.ArmorStand.remove(player, spawn)`. Вызов с `null` вместо игрока рассылает destroy всем online players. Entity id сохраняет прежний диапазон `short`; коллизии с реальными или другими fake-сущностями возможны. Владелец визуального объекта хранит id и выполняет удаление при завершении анимации.
 
-`ArmorStand.equip(...)` создаёт packet экипировки; его тоже нужно отправить игроку явно. `remove(null, ...)` рассылает удаление всем игрокам.
+## Game-state события и блоки
 
-## Другие helpers
+`PacketEventsHook.GameEvent` сохраняет `guardian`, `demo`, `survival`, `creative`, `adventure`, `spectator` и overloads `run(Player)`/`run(String)`. Клиентское изменение game mode не меняет настоящее состояние сервера.
 
-- `ProtocolLibHook.Methods.getPlayer(event)` исключает временных и отключённых игроков и может вернуть `null`.
-- `ProtocolLibHook.GameEvent` отправляет клиенту отдельные game-state события. Изменение клиентского режима не меняет настоящий game mode сервера.
+`PacketEventsHook.ChunkPacket.sendVisible(player, WrappedBlockState)` отправляет `MULTI_BLOCK_CHANGE` для загруженных чанков в пределах минимального client/world view distance. Каждая секция содержит 4096 замен; отрицательная высота мира учитывается через `floorDiv(minHeight, 16)`. Вызов требует главный поток для чтения мира. Метод не подгружает отсутствующие чанки, не меняет server-side блоки и не создаёт block entities.
 
-## Client wrappers
+## Тестовая нагрузка клиента
 
-| Класс | Данные |
-|---|---|
-| `WrapperPlayClientChat` | строковый message клиентского CHAT |
-| `WrapperPlayClientCustomPayload` | channel id без payload bytes |
-| `WrapperPlayClientSetCreativeSlot` | short slot и `ItemStack` |
-| `WrapperPlayClientTabComplete` | transaction id и input |
-| `WrapperPlayClientUpdateSign` | block position и четыре строки |
-| `WrapperPlayClientUseEntity` | target id, action и optional target vector |
+`PacketEventsHook.Methods.crash(owner, player)` сохраняет сценарий владельца: client-side замена видимых загруженных секций на end gateway и серия из 666666 случайных spawn-entity пакетов; после завершения серии следующая планируется через 200 тиков. Количество пакетов и набор сущностей сохранены. Это нагрузка также на серверную сериализацию и сетевой канал, а не измеритель одной только мощности клиентской машины; время сбоя или результат не гарантированы.
 
-## Server wrappers
+Проверки NPC и истории последних трёх имён сохранены. Снимок положения, высот и загруженных секций создаётся на главном потоке; отправка выполняется асинхронно. Активная сессия отменяется при выходе игрока, отключении владельца, HLib или PacketEvents, а также при ошибке отправки. `CrashQueue.remove(name)` удаляет имя и из множества, и из очереди; `clear()` очищает обе структуры. Права и выбор разрешённого тестового клиента проверяет вызывающая команда, HLib самостоятельно не предоставляет команду.
 
-| Класс | Данные |
-|---|---|
-| `WrapperPlayServerBlockChange` | position и block data |
-| `WrapperPlayServerChat` | SYSTEM_CHAT: message и overlay |
-| `WrapperPlayServerDamageEvent` | entity, DamageType, cause/direct ids и optional source position |
-| `WrapperPlayServerEntityDestroy` | modern id list; overload int[] преобразуется в список |
-| `WrapperPlayServerEntityEquipment` | entity и slot-item pairs |
-| `WrapperPlayServerEntityMetadata` | entity metadata |
-| `WrapperPlayServerEntityStatus` | entity и status byte |
-| `WrapperPlayServerEntityTeleport` | position, velocity, rotation и on-ground |
-| `WrapperPlayServerExplosion` | center, radius, block count и optional player velocity |
-| `WrapperPlayServerGameStateChange` | game event reason/value |
-| `WrapperPlayServerHurtAnimation` | entity id |
-| `WrapperPlayServerLogin` | entity id, game mode, dimension key, max players и hardcore современного LOGIN |
-| `WrapperPlayServerNamedSoundEffect` | sound, category, encoded position, volume, pitch |
-| `WrapperPlayServerSetCooldown` | material и ticks |
-| `WrapperPlayServerSpawnEntity` | id, UUID, type, position и rotation |
-| `WrapperPlayServerTabComplete` | transaction id и преобразование native record в Brigadier suggestions |
-| `WrapperPlayServerWorldEvent` | effect id, position и data |
-| `WrapperPlayServerWorldParticles` | particle, position, offsets и count |
+## Проверка и ограничения
 
-## Ограничения по версиям
+Компиляция не подтверждает работу сетевого pipeline на настоящем сервере. После обновления Minecraft или PacketEvents проверяйте используемые пакеты на целевой версии; metadata indices HLib остаются версионными данными. Нагрузочный сценарий, plugin startup, настоящая отправка клиенту, БД и внешний updater при миграции не запускались. Результат isolated-проверок и сборки находится в [руководстве](Building-and-Troubleshooting#переход-на-packetevents).
 
-- Wrapper’ы используют числовые индексы `StructureModifier`; изменение структуры пакета может сломать getter или setter без изменения Java-сигнатуры.
-- Большинство классов не проверяет `PacketType.isSupported()`.
-- Wrappers предоставляют выбранные поля пакетов: client CHAT не формирует подпись, LOGIN не создаёт полного состояния входа, UPDATE_SIGN сохраняет строки и сторону frontText.
-- `WrapperPlayServerEntityTeleport` использует `ENTITY_POSITION_SYNC` и `WrappedPositionMoveRotation` ProtocolLib для позиции, скорости, yaw и pitch; legacy поля и reflection fallback удалены.
-- `WrapperPlayServerEntityMetadata` читает и записывает modern data-value list; публичный список `WrappedWatchableObject` преобразуется в обе стороны.
-- `WrapperPlayServerEntityDestroy.getCount()` и setters используют один modern int list.
-- `WrapperPlayServerLogin` разделяет integer-индексы entity id и max players; game mode сохранён через nested `CommonPlayerSpawnInfo`, dimension читается и задаётся через `NamespacedKey`. Старые numeric dimension и `WorldType` accessors удалены: этих полей в современном пакете нет. Hardcore остаётся первым boolean.
-
-После каждого обновления Minecraft или ProtocolLib запускайте интеграционные тесты именно на целевой версии сервера.
-
-## Безопасность
-
-По прямому указанию владельца `ProtocolLibHook.java` сохранён в исходном виде, включая `Methods.crash`, `CrashQueue` и `ChunkPacket`. Эти пути исключены из миграции: их реализация, version guards и deprecated calls не адаптировались. Этот факт не является подтверждением их работоспособности на целевой версии.
-
-## Базовая версия 1.21.11
-
-Ветки форматов пакетов старых серверов удалены из переносимых wrappers; исходный `ProtocolLibHook.java` оставлен отдельным исключением владельца. Cooldown передаёт resource key группы, spawn entity использует byte yaw/pitch, use-entity читает действие и координаты взаимодействия из `WrappedEnumEntityUseAction`. `setParticleTypeLegacy` удалён; частицы задаются через `WrappedParticle`. Компиляция проверяет доступность этих API в локальном ProtocolLib, но не заменяет проверку структуры пакетов на живом Paper 1.21.11.
-
-`WrapperPlayServerExplosion` читает центр из `Vec3` и knockback из `Optional<Vec3>`; radius и blockCount используют отдельные поля. `getRecords`/`setRecords` удалены: список затронутых позиций отсутствует в пакете 1.21.11. Это изменение публичного packet API. `WrapperPlayClientCustomPayload` читает channel id через современный `CustomPacketPayloadWrapper`, без старого top-level key и reflection fallback. Для нового `WrapperPlayClientUpdateSign` сторона по умолчанию front; входящий пакет сохраняет свой frontText.
-
-`WrapperPlayClientSetCreativeSlot` использует short slot; внешний int setter проверяет диапазон short. `WrapperPlayServerTabComplete` преобразует native поля id/start/length/entries через constructor и `toSuggestions()`; setter изменяет исходный PacketContainer. Полученный `Suggestions` — отдельный снимок: после фильтрации нужно вызвать `setSuggestions`, одной модификации списка недостаточно.
-
-В `WrapperPlayServerDamageEvent` `DamageType` заменяет прежний numeric sourceType id, cause/direct имеют собственные integer-индексы, положение источника передаётся `Optional<Vector>`. Методы `getSourceTypeID`/`setSourceTypeID` и boolean `setSourcePosition` заменены актуальными типизированными методами. При создании пакета задаются GENERIC, неизвестные cause/direct (`-1`) и пустое положение.
-
-Соответствие layouts проверено статически через `javap -private` на mappedServerJar Paper 1.21.11 и API локального ProtocolLib: Explosion, CustomPayload, SignUpdate, Particles, CreativeSlot, TabComplete, DamageEvent и остальные перенесённые wrappers. Это проверка полей и доступных конвертеров, без запуска Minecraft или отправки пакетов.
-
-`WrapperPlayServerNamedSoundEffect.getSoundEffect()` получает имя из Registry key звука, сохраняя прежний формат `ENTITY_LIGHTNING_BOLT_THUNDER`. `Sound.toString()` больше не используется: в Paper 1.21.11 он описывает holder и не равен имени звука.
-
-`WrapperPlayServerLogin.getGamemode()`/`setGamemode(NativeGameMode)` сохраняют прежний контракт и читают/изменяют `gameType` внутри `CommonPlayerSpawnInfo`, не затрагивая `previousGameType`. `getDimensionKey()`/`setDimensionKey(NamespacedKey)` работают с resource key измерения внутри той же структуры; изменение ключа не меняет отдельный dimension-type holder. Game mode и установка dimension key работают и у нового wrapper: ключ создаётся из `Registries.DIMENSION`, а не из прежнего nullable значения. Полная сериализация нового LOGIN требует также dimension-type holder и остальных параметров входа; wrapper не создаёт полное состояние нового входа. Удаление списка block positions из Explosion и numeric dimension/WorldType из LOGIN отражает изменения формата Minecraft.
-
-Повторная проверка на реальных классах Paper 1.21.11 выявила незаполненные particle/sound в новом Explosion. Конструктор теперь задаёт `Particle.EXPLOSION` и `Sound.ENTITY_GENERIC_EXPLODE`; пустой `WeightedList` blockParticles корректно создаётся ProtocolLib. Новый и настроенный Explosion проходят native encode/decode. Настроенные Teleport, TabComplete, Destroy, Metadata, Spawn, Cooldown, Sign, UseEntity, NamedSound, CreativeSlot с пустым предметом, SystemChat и WorldParticles также прошли encode/decode в изолированном fixture. LOGIN проверен на независимость полей и установку ключа из null; полная сериализация LOGIN и DamageEvent в этом fixture не проверялась. У UseEntity действие требуется задать в underlying packet до работы с interaction vector; исходный default action=null не изменён.
+Официальные источники: [PacketEvents 2.14.0](https://github.com/retrooper/packetevents/releases/tag/v2.14.0), [исходники wrappers](https://github.com/retrooper/packetevents/tree/v2.14.0/api/src/main/java/com/github/retrooper/packetevents/wrapper), [документация](https://docs.packetevents.com/), [Javadoc](https://javadocs.packetevents.com/).

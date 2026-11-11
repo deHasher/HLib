@@ -48,6 +48,7 @@ public enum Plugin {
 	PERMISSIONS_EX("PermissionsEx"),
 	PLACEHOLDER_API("PlaceholderAPI"),
 	PLASMO_VOICE("PlasmoVoice"),
+	PACKET_EVENTS("packetevents"),
 	PROTOCOL_LIB("ProtocolLib"),
 	SKINS_RESTORER("SkinsRestorer"),
 	SPARK("Spark"),
