@@ -1,5 +1,15 @@
 # Сборка и решение проблем
 
+## HLib 7.4: общий каталог регулярных выражений
+
+В `data.CompiledPattern` добавлены девять констант для общих placeholders, аргументов Cart, HTML, свойства `segment_amount`, идентификаторов, HEX-строк и namespaced keys. Старые константы, их порядок и API сохранены; новые значения добавлены в конец enum. Контракты и примеры приведены в [Core API](Core-API.md#общие-регулярные-выражения).
+
+12 ноября 2026 года на JDK 25 и Gradle 9.8.2 выполнены offline `compileJava`, `checkstyleMain`, `spotbugsMain` и `shadowJar` с `-x copyShadowJarToHCorePlugins`: успешно, 7 задач, из них 6 выполнены и одна актуальна. Артефакт — `result/HLib.jar`, SHA256 `9b611f02bf4f8cdaaa7b5233366bf9c28ea2c1b867ce4492c3ab85a2ff6f6139`. В рабочие `plugins` он не копировался. Сохранились два прежних предупреждения deprecated UUID-overloads в `Console` и предупреждение Gradle о deprecated features.
+
+Отдельный Java 25 runner с `-Xverify:all` загрузил настоящий `CompiledPattern` из итогового JAR и прошёл 105 assertions: длина и алфавит идентификаторов, регистр и длина HEX, namespace/path, Unicode и запрещённые символы аргументов Cart, группы placeholders и HTML, HTML entities, чтение и `replaceFirst` свойства `segment_amount`, имя игрока и порядок enum. Runner и результат находятся в `%TEMP%/hlib-compiled-patterns-20261112`, журнал Gradle — `%TEMP%/hlib-compiled-patterns-build.log`. Проверка не запускала HLib entrypoints, сервер, прокси, сеть или БД.
+
+`python scripts/render-docs.py` и `python scripts/render-docs.py --check` обновляют и проверяют README/Wiki для версии 7.4. Результаты компиляции и изолированного runner не заменяют проверку на установленной серверной платформе.
+
 ## Потребители удалённых NMS-обёрток
 
 После упрощения владельцем `data/NMS.java` класс `ItemsController` использует `Enchantment.LUCK_OF_THE_SEA` и `InventoryView.getItem(rawSlot)` напрямую. `NMS.java`, поиск версии, разрешение звуков и пакетные константы этой правкой не изменены. Публичные методы `ItemsController`, условия подсветки и параметры чтения слота сохранены.

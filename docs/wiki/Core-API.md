@@ -214,6 +214,31 @@ String value = ShortNumbersFormatter.format(1_250_000L);
 
 `data.CompiledPattern.IDENTIFIER.matches(value)` проверяет полное совпадение идентификатора из 1–32 символов: строчные ASCII-буквы `a–z`, цифры `0–9` и дефис `-`.
 
+### Общие регулярные выражения
+
+`data.CompiledPattern` хранит один заранее скомпилированный `Pattern` на константу. Новые фиксированные выражения добавляйте в этот каталог, а подходящие существующие используйте напрямую: локальные поля `Pattern` и повторная компиляция того же литерала не нужны. Динамические выражения из настроек остаются динамическими. `matches` проверяет всю строку, `find` ищет первое совпадение, `matcher` создаёт отдельный `Matcher` для вызова; сам `Matcher` нельзя разделять между потоками.
+
+```java
+boolean valid = CompiledPattern.CONFIG_IDENTIFIER.matches("winter_shop");
+Matcher matcher = CompiledPattern.BRACED_PLACEHOLDER.matcher("give {player} diamond");
+```
+
+Импорты примера: `net.dehasher.hlib.data.CompiledPattern` и `java.util.regex.Matcher`.
+
+| Константа | Контракт |
+| --- | --- |
+| `BRACED_PLACEHOLDER` | Непустой фрагмент в фигурных скобках без внутренних `{` и `}`; `group(1)` содержит имя без скобок |
+| `COMMAND_ARGUMENT` | Один или более символов: Unicode-буквы и числа, `_:.+/@%&=,-`; пробелы и скобки запрещены. Это проверка аргумента Cart, не shell escaping и не замена `FAWE` |
+| `AI_HTML_TAG` | Только `b`, `strong`, `i`, `em`, `s`, `del`, `u`, `code`, `kbd`, `br`; ASCII case-insensitive через `(?i)`. Группы 1/2/3: закрывающий `/`, имя тега, завершающий `/`; разрешён пробел перед последним `/` или `>` |
+| `HTML_ENTITY` | Числовая десятичная, числовая HEX или именованная entity с `&` и `;`; синтаксический поиск без проверки существования имени и декодирования |
+| `BLOCK_SEGMENT_AMOUNT` | `segment_amount=` и одна или более ASCII-цифр; `group(1)` содержит число. Поддерживает чтение и `matcher(...).replaceFirst(...)` |
+| `CONFIG_IDENTIFIER` | 1–64 символа: строчные ASCII-буквы, цифры, `_` и `-`; отличается от `IDENTIFIER` длиной и разрешённым подчёркиванием |
+| `HEX_64_LOWERCASE` | Ровно 64 ASCII HEX-символа `0–9a–f`, только нижний регистр |
+| `HEX_64` | Ровно 64 ASCII HEX-символа `0–9a–fA–F`, оба регистра |
+| `NAMESPACED_KEY` | Непустые namespace и path через `:`; namespace допускает `a–z0–9._-`, path дополнительно `/` |
+
+Разные ограничения не объединяются ради похожего текста: `HEX_64` не заменяет `HEX_64_LOWERCASE`, `CONFIG_IDENTIFIER` не расширяет `IDENTIFIER`. Для имени игрока используется существующий `PLAYER` с 3–16 ASCII-буквами, цифрами или `_`. Перенос сохраняет группы захвата, flags и способ применения `matches`/`find`/замены; новые константы добавлены после прежних значений enum.
+
 ## Геолокация IP
 
 `Tools.getGeo(String)` и `Tools.getGeo(InetAddress)` возвращают `data.Geo` либо `null`, когда база ещё недоступна, адрес неверен или в базе нет записи. Строковый overload принимает только IPv4/IPv6 и не выполняет DNS-запросы. `Geo` — record с компонентами `countryCode`, `country`, `region`, `city`, `latitude`, `longitude`. Названия локализованы согласно `Info.GeoIP.locale` с fallback на английский; отсутствующие названия — пустые строки, координаты могут быть `null`. IP-геолокация приблизительна.

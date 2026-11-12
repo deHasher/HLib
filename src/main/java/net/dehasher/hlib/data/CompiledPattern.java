@@ -26,7 +26,16 @@ public enum CompiledPattern {
 	IMAGE_URL(Pattern.compile("^(https?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")),
 	ONLINE(Pattern.compile("\\{online_(.*?)}")),
 	IMAGE_NAME(Pattern.compile("[^a-zA-Z0-9а-яА-ЯёЁ\\-_,.]")),
-	CUSTOM_TIME_FORMAT(Pattern.compile("^\\d+[smhdwy]$"));
+	CUSTOM_TIME_FORMAT(Pattern.compile("^\\d+[smhdwy]$")),
+	BRACED_PLACEHOLDER(Pattern.compile("\\{([^{}]+)}")),
+	COMMAND_ARGUMENT(Pattern.compile("[\\p{L}\\p{N}_:.+/@%&=,\\-]+")),
+	AI_HTML_TAG(Pattern.compile("(?i)<(/?)(b|strong|i|em|s|del|u|code|kbd|br)\\s*(/?)>")),
+	HTML_ENTITY(Pattern.compile("&(?:#[xX][0-9a-fA-F]+|#[0-9]+|[a-zA-Z][a-zA-Z0-9]+);")),
+	BLOCK_SEGMENT_AMOUNT(Pattern.compile("segment_amount=(\\d+)")),
+	CONFIG_IDENTIFIER(Pattern.compile("[a-z0-9_-]{1,64}")),
+	HEX_64_LOWERCASE(Pattern.compile("[0-9a-f]{64}")),
+	HEX_64(Pattern.compile("[a-fA-F0-9]{64}")),
+	NAMESPACED_KEY(Pattern.compile("[a-z0-9._-]+:[a-z0-9/._-]+"));
 
 	@Getter
 	private final Pattern value;
