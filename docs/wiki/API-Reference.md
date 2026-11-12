@@ -106,7 +106,7 @@
 | `file.ConfigurationProvider` | SPI источника конфигурации | Расширение API |
 | `file.ConfigurationSection` | Маркер вложенной секции модели | Основной |
 | `file.ConfigurationSettingsSerializer` | SPI сериализатора настроек | Расширение API |
-| `file.ConfigurationUtils` | Загрузка полей и полная генерация YAML | Низкоуровневая основа объектной модели |
+| `file.ConfigurationUtils` | Загрузка полей с сохранением вложенности `Map` и полная генерация YAML | Низкоуровневая основа объектной модели |
 | `file.PluginCfg` | Контракт enum-каталога конфигов для `Tools.reloadFiles(...)` | Специализированный; миграцию схемы реализует `reload(...)` |
 | `file.provider.StandaloneConfigurationProvider` | Общий файловый YAML-provider для обеих платформ | Основной; отдельный provider-плагин не требуется |
 | `file.util.Files` | Создание родительских директорий | Вспомогательный |

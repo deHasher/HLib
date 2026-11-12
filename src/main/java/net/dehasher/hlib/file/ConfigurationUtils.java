@@ -103,7 +103,7 @@ public class ConfigurationUtils {
 					continue;
 				}
 				if (serializer.isConfigurationSection(path) && Map.class.isAssignableFrom(clazz)) {
-					value = transformMemorySectionToMap(serializer.getValues(value, true), serializer);
+					value = transformMemorySectionToMap(serializer.getValues(value, false), serializer);
 				} else if (clazz.isEnum() && value instanceof String) {
 					value = tryGetEnum(clazz, (String) value, false);
 				} else if (clazz.isArray() && value instanceof List list) {
@@ -137,12 +137,11 @@ public class ConfigurationUtils {
 	}
 
 	private static Map<String, Object> transformMemorySectionToMap(Map<String, Object> map, ConfigurationSettingsSerializer serializer) {
-		for (Map.Entry<String, Object> entry : map.entrySet()) {
+		map.entrySet().forEach(entry -> {
 			if (serializer.isConfigurationSection(entry.getValue())) {
-				entry.setValue(serializer.getValues(entry.getValue(), true));
-				transformMemorySectionToMap((Map<String, Object>) entry.getValue(), serializer);
+				entry.setValue(transformMemorySectionToMap(serializer.getValues(entry.getValue(), false), serializer));
 			}
-		}
+		});
 		return map;
 	}
 
