@@ -33,7 +33,7 @@ HLib сохраняет PacketEvents необязательным в своём 
 | `CMIHook` | CMI и CMILib | user, vanish, god, speed, jail, metadata | большинство изменений не переключает поток автоматически |
 | `EmoteCraftHook` | Emotecraft; транспорт определяется установленной версией стороннего плагина | play/stop emote, client detection | `reload` ожидает отсутствующие ресурсы и может удалить старые JSON |
 | `ForceResourcepacksHook` | ForceResourcepacks Velocity | поиск и обновление URL/SHA-1 pack | URL, UUID и hash не валидируются |
-| `GadgetsMenuHook` | GadgetsMenu | `PlayerManager` игрока | `getPlugin(Player)` возвращает manager, не plugin instance |
+| `HCosmeticHook` | HCosmetic service provider, опционально | Снятие гаджета и костюма | Нет compile-time зависимости от HCosmetic; отсутствующий/выключенный provider — no-op |
 | `ItemJoinHook` | ItemJoin | проверка custom item | API создаётся в static initializer |
 | `ItemsAdderHook` | ItemsAdder | custom item, model, permission, pack URL/SHA-1 | SHA-1 вычисляется синхронно с диска |
 | `LibsDisguisesHook` | LibsDisguises | состояние и снятие disguise | сначала проверяйте `isDisguised` |
@@ -50,6 +50,23 @@ HLib сохраняет PacketEvents необязательным в своём 
 | `VaultHook` | Vault и economy provider | доступ к `Economy` | provider захватывается один раз при загрузке класса |
 | `WorldEditHook` | WorldEdit/FAWE | selection и vertical expand | `expandVert` подавляет ошибки |
 | `WorldGuardHook` | WorldGuard | regions, flags, build, owner/member, bypass | часть методов не проверяет отсутствующий RegionManager |
+
+## HCosmetic
+
+С HLib 7.7 интеграция использует `HCosmeticHook` вместо удалённого `GadgetsMenuHook`. `Plugin.GADGETS_MENU`, compile-only GadgetsMenu JAR и запись GadgetsMenu в Paper descriptor удалены. `Plugin.HCOSMETIC` остаётся идентификатором плагина; сервисный hook не использует кэширующий `Plugin.isEnabled()`.
+
+`HCosmeticHook.Provider` объявляет `void unequipGadget(Player player)` и `void unequipSuit(Player player)`. HCosmetic регистрирует свою реализацию через Bukkit `ServicesManager`; для этого HLib не импортирует классы HCosmetic, не подключает его JAR и не объявляет обратную зависимость HLib → HCosmetic. Это сохраняет однонаправленную загрузку HCosmetic → HLib.
+
+`getProvider()` на каждом вызове читает текущую регистрацию `Provider.class` и возвращает `null`, если её нет или плагин-владелец выключен. `isAvailable()` проверяет наличие такого provider. Методы `unequipGadget(player)` и `unequipSuit(player)` делегируют текущему provider; при его отсутствии ничего не делают. Регистрация не кэшируется, поэтому отключение, снятие регистрации и последующая регистрация новой реализации учитываются сразу. Если высший зарегистрированный provider выключен, hook не перебирает нижестоящие регистрации.
+
+Вызывайте методы снятия косметики на основном потоке Bukkit. Hook не планирует задачи и не скрывает исключения provider. Его можно вызывать без предварительной проверки `isAvailable()`:
+
+```java
+HCosmeticHook.unequipGadget(player);
+HCosmeticHook.unequipSuit(player);
+```
+
+Проверка HLib 7.7: автономный `build -x copyShadowJarToHCorePlugins` прошёл компиляцию, Checkstyle, SpotBugs и упаковку `result/HLib.jar`; задача копирования в runtime `plugins` была исключена. Изолированный стенд настоящего `SimpleServicesManager` и hook из собранного JAR прошёл 19 assertions: отсутствие и выключение provider, точная передача игрока/операции, смена приоритета, unregister и новая регистрация. Bukkit Server/Plugin/Player заменены прокси; plugin startup и живой сервер не запускались.
 
 ## Версии API в сборке
 

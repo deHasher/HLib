@@ -72,7 +72,6 @@ dependencies {
 	compileOnly(files(tasks.named("velocityCompileJar")))
     compileOnly(files("libs/FastAsyncWorldEdit.jar"))
     compileOnly(files("libs/UltimateTimber.jar"))
-    compileOnly(files("libs/GadgetsMenu.jar"))
     compileOnly(files("libs/CMILib.jar"))
     compileOnly(files("libs/TAB.jar"))
     compileOnly(files("libs/emotecraft.jar"))

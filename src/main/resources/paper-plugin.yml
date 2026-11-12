@@ -40,10 +40,6 @@ dependencies:
       load: BEFORE
       required: false
       join-classpath: true
-    GadgetsMenu:
-      load: BEFORE
-      required: false
-      join-classpath: true
     WorldGuard:
       load: BEFORE
       required: false

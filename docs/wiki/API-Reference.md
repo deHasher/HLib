@@ -150,7 +150,7 @@
 | `CMIHook` | CMI и CMILib | Пользователи, vanish, god mode, speed, metadata |
 | `EmoteCraftHook` | Emotecraft | Запуск и остановка анимаций |
 | `ForceResourcepacksHook` | ForceResourcepacks | Получение и обновление resource pack |
-| `GadgetsMenuHook` | GadgetsMenu | Получение `PlayerManager` |
+| `HCosmeticHook` | HCosmetic service provider, опционально | `getProvider`, `isAvailable`, `unequipGadget(Player)`, `unequipSuit(Player)`; отсутствующий/выключенный provider — no-op |
 | `ItemJoinHook` | ItemJoin | Проверка custom item |
 | `ItemsAdderHook` | ItemsAdder | Custom items, модели, permission и pack metadata |
 | `LibsDisguisesHook` | LibsDisguises | Проверка и снятие disguise |
