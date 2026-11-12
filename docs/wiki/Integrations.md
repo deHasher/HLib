@@ -16,11 +16,13 @@ if (Plugin.WORLD_GUARD.isEnabled()) {
 }
 ```
 
+`Plugin.HCOSMETIC` идентифицирует самостоятельный Bukkit-плагин `HCosmetic`. Эта запись не создаёт зависимость HLib от HCosmetic и не загружает его классы.
+
 `Plugin.isEnabled()` кэширует первый результат навсегда. На Bukkit он проверяет наличие плагина в менеджере, а не его текущее состояние `isEnabled()`. Не вызывайте его из static initializer или до завершения загрузки зависимостей; при необходимости дополнительно проверьте `Bukkit.getPluginManager().isPluginEnabled(...)`. Hot reload сторонних плагинов этот кэш не учитывает.
 
 Если исходный код импортирует типы стороннего API, добавьте это API как `compileOnly` и в свой build. HLib не экспортирует compile-only JAR автоматически.
 
-HLib сохраняет PacketEvents необязательным в своём `paper-plugin.yml`. В HCore обязательная packet dependency объявляется только в прежних местах: HCore loader, HCalendar, HAntiRelog и HImages. Остальные manifests новыми зависимостями не дополняются; вызовы PacketEvents выполняются без проверок наличия плагина. В enum `Plugin` доступны одновременно `PACKET_EVENTS` и `PROTOCOL_LIB`; наличие последней константы не возвращает ProtocolLibHook, wrappers или зависимость ProtocolLib в HLib.
+HLib сохраняет PacketEvents необязательным в своём `paper-plugin.yml`. В HCore обязательная packet dependency объявлена в HCore loader, HCalendar, HAntiRelog, HImages и новом HCosmetic. Остальные manifests новыми зависимостями не дополняются; вызовы PacketEvents выполняются без проверок наличия плагина. В enum `Plugin` доступны одновременно `PACKET_EVENTS` и `PROTOCOL_LIB`; наличие последней константы не возвращает ProtocolLibHook, wrappers или зависимость ProtocolLib в HLib.
 
 ## Каталог hook-классов
 

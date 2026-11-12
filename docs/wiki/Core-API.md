@@ -150,7 +150,7 @@ if (Cooldowner.inCooldown(key, Cooldowner.Type.COMMAND)) {
 Cooldowner.start(key, Cooldowner.Type.COMMAND, 10L);
 ```
 
-Типы cooldown зафиксированы в enum и расширить их без изменения HLib нельзя. Всегда добавляйте namespace своего плагина в ключ, чтобы избежать коллизий.
+Типы cooldown зафиксированы в enum и расширить их без изменения HLib нельзя. Всегда добавляйте namespace своего плагина в ключ, чтобы избежать коллизий. `COSMETIC_GADGET` предназначен для локальных задержек HCosmetic: `strict == false`, SQL-инициализация не нужна; завершение сессии должно удалять её ключи через `remove`.
 
 Перегрузки `start` и `getTimeLeft` принимают `TimeUnit`, в том числе `MILLISECONDS`. Перевод остатка в секунды округляется вниз: для проверки короткой задержки используйте `inCooldown` или остаток в миллисекундах. `remove(name, type)` очищает только указанный ключ и тип. Для локальных типов с `strict == false` эти операции не обращаются к БД.
 
@@ -274,6 +274,24 @@ String materialName = Translator.getMaterialName(Material.DIAMOND, player);
 Кроме `getMaterialName(...)`, доступны `getBlockName(...)`, `getName(...)` для translation key и overload с явным `Locale`. По умолчанию используется `Locale.US`, для игрока — его locale.
 
 Готовность не возвращается через `Future` или callback. До завершения загрузки метод может вернуть translation key. Инициализация запрашивает manifest по адресу `{{url_repos}}/minecraft/version_manifest.json`; наличие файлов в `plugins/HLib/lang` не отменяет этот сетевой запрос. Используйте перевод Minecraft только на Bukkit/Paper.
+
+## Права HCosmetic
+
+В `Permission` зарегистрированы права самостоятельного Bukkit-плагина HCosmetic:
+
+| Константа | Permission node | Назначение |
+|---|---|---|
+| `HCOSMETIC_COMMAND_GADGETS` | `hcosmetic.command.gadgets` | Открытие меню через `/gadgets` и его aliases |
+| `HCOSMETIC_RELOAD` | `hcosmetic.reload` | Подкоманда `/gadgets reload` |
+| `HCOSMETIC_CATEGORY_EMOTES` | `hcosmetic.category.emotes` | Эмоции |
+| `HCOSMETIC_CATEGORY_PARTICLES` | `hcosmetic.category.particles` | Частицы |
+| `HCOSMETIC_CATEGORY_CLOAKS` | `hcosmetic.category.cloaks` | Плащи |
+| `HCOSMETIC_CATEGORY_GADGETS` | `hcosmetic.category.gadgets` | Гаджеты |
+| `HCOSMETIC_CATEGORY_SUITS` | `hcosmetic.category.suits` | Костюмы |
+
+Проверки выполняются через `Tools.isPerm`. У пяти категорий `isAdminSkip == true`: наличие имени игрока в `Info.admins` само по себе не открывает категорию, требуется permission node. У команды и reload сохранён стандартный admin fallback (`false`). Этот флаг не регистрирует Bukkit permissions и не назначает права игрокам по умолчанию. Прав на отдельные косметические предметы нет.
+
+`CompiledPattern.MINECRAFT_TEXTURE_HASH` проверяет идентификатор текстуры головы: только ASCII HEX, от 32 до 64 символов. Такой контракт сохраняет используемые HCosmetic короткие идентификаторы исходных ресурсов; шаблон не принимает URL, slash или произвольный hostname. Это отдельная проверка формата, а не подтверждение существования текстуры. Строгие `HEX_64` и `HEX_64_LOWERCASE` по-прежнему требуют ровно 64 символа.
 
 ## Базовые классы команд
 

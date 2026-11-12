@@ -35,6 +35,7 @@ public enum CompiledPattern {
 	CONFIG_IDENTIFIER(Pattern.compile("[a-z0-9_-]{1,64}")),
 	HEX_64_LOWERCASE(Pattern.compile("[0-9a-f]{64}")),
 	HEX_64(Pattern.compile("[a-fA-F0-9]{64}")),
+	MINECRAFT_TEXTURE_HASH(Pattern.compile("[a-fA-F0-9]{32,64}")),
 	NAMESPACED_KEY(Pattern.compile("[a-z0-9._-]+:[a-z0-9/._-]+"));
 
 	@Getter

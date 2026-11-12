@@ -256,3 +256,9 @@ Reflection-only fixture с настоящим итоговым HLib.jar и `-Xve
 ## Версия после миграций
 
 После перехода на PacketEvents и переноса updater hash в ресурс версия HLib повышена с 7.0 до {{lib_version_plugin}}. Зависимости, Java/API и версия схемы `info.yml` не изменены. README и Wiki перегенерированы из шаблонов; `render-docs.py --check` пройден. Для самого инкремента сборка не запускалась: существующий `result/HLib.jar` и готовые артефакты HCore сохранены без изменения. Приведённые выше результаты компиляции и isolated-проверок относятся к артефакту до этого повышения версии.
+
+## Регистрация HCosmetic
+
+В каталоги добавлены `Plugin.HCOSMETIC`, семь прав `HCOSMETIC_*`, локальный `Cooldowner.Type.COSMETIC_GADGET` без MySQL и отдельный `CompiledPattern.MINECRAFT_TEXTURE_HASH` для HEX-идентификаторов текстур длиной 32–64 символа. Контракты строгих HEX-шаблонов не расширены. Пять прав категорий требуют явного разрешения и не используют fallback `Info.admins`; командное право и reload сохраняют стандартный fallback. Подробности и permission nodes перечислены в [основном API](Core-API#права-hcosmetic).
+
+Для этих изменений на JDK 25 успешно выполнены offline `compileJava checkstyleMain spotbugsMain shadowJar -x copyShadowJarToHCorePlugins`: семь задач, пять выполнены и две актуальны. Checkstyle и SpotBugs прошли без замечаний, два прежних deprecated UUID-overrides предупреждения `Console` сохранены. Обновлён `result/HLib.jar`; артефакт в `HCore/plugins` не копировался. Зависимости и версия HLib не изменялись. Plugin startup, сервер Minecraft, БД и внешние запросы не запускались. Проверка совместимости самого HCosmetic с игровым клиентом остаётся ответственностью потребителя.

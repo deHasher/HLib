@@ -118,6 +118,7 @@ public class Cooldowner {
 		CRATE_OPEN(false),
 		TOKENS_SHOP(false),
 		TOKENS_WARNING(false),
+		COSMETIC_GADGET(false),
 		SWAP_INVENTORY(false),
 		PVP(false),
 		PVP_ARENA_LEAVE(false),

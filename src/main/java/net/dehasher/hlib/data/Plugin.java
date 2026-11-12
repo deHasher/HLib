@@ -29,6 +29,7 @@ public enum Plugin {
 	HCRATES("HCrates"),
 	HCONTRACTS("HContracts"),
 	HCORE("HCore"),
+	HCOSMETIC("HCosmetic"),
 	HMARRY("HMarry"),
 	HPARKOUR("HParkour"),
 	HPROTECT("HProtect"),
