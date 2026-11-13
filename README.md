@@ -167,7 +167,7 @@ CI использует JDK 25. Компиляция использует toolch
 python scripts/render-docs.py
 ```
 
-Workflow [docs](https://github.com/deHasher/HLib/actions/workflows/docs.yml) обновляет README и GitHub Wiki при изменении параметров или документации в `master`. Подробности — в [инструкции для участников](CONTRIBUTING.md).
+Workflow [docs](https://github.com/deHasher/HLib/actions/workflows/docs.yml) проверяет сгенерированный README и публикует GitHub Wiki. README добавляется в обычный commit после локальной генерации; workflow не создаёт коммитов и не пушит в основную ветку. Подробности — в [инструкции для участников](CONTRIBUTING.md).
 
 ## Лицензия
 

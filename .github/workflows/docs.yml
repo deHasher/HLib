@@ -9,28 +9,37 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: "docs-${{ github.event_name == 'pull_request' && github.ref || 'master' }}"
   cancel-in-progress: false
 
 jobs:
-  docs:
+  check:
     runs-on: "ubuntu-latest"
     steps:
-      - name: "Checkout latest documentation sources"
+      - name: "Checkout documentation sources"
         uses: actions/checkout@v6
         with:
-          ref: "${{ github.event_name == 'pull_request' && github.sha || 'master' }}"
-          fetch-depth: 0
+          persist-credentials: false
 
       - name: "Check documentation"
-        if: github.event_name == 'pull_request'
         run: python3 scripts/render-docs.py --check
 
+  publish-wiki:
+    needs: "check"
+    if: github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: "ubuntu-latest"
+    permissions:
+      contents: write
+    steps:
+      - name: "Checkout checked documentation sources"
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
       - name: "Checkout Wiki"
-        if: github.event_name != 'pull_request'
         uses: actions/checkout@v6
         with:
           repository: "${{ github.repository }}.wiki"
@@ -38,23 +47,9 @@ jobs:
           path: ".wiki"
 
       - name: "Render documentation"
-        if: github.event_name != 'pull_request'
         run: python3 scripts/render-docs.py --wiki-dir .wiki
 
-      - name: "Publish README"
-        if: github.event_name != 'pull_request'
-        shell: "bash"
-        run: |
-          git add README.md
-          if ! git diff --cached --quiet -- README.md; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git commit -m "docs: render README from project properties"
-            git push origin HEAD:master
-          fi
-
       - name: "Publish Wiki"
-        if: github.event_name != 'pull_request'
         shell: "bash"
         run: |
           while IFS= read -r -d "" TEMPLATE; do
