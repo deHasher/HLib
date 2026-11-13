@@ -1,5 +1,6 @@
 package net.dehasher.hlib.database;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -35,6 +36,8 @@ public class MySQL {
 				.replace("{address}", address)
 				.replace("{database}", database)
 				.replace("{driver}", driver);
+		jdbc = withDefaultTimeout(jdbc, driver, "connectTimeout", 5000);
+		jdbc = withDefaultTimeout(jdbc, driver, "socketTimeout", 60000);
 
 		try {
 			HikariConfig config = new HikariConfig();
@@ -68,6 +71,16 @@ public class MySQL {
 			setEnabled(false);
 			if (pool != null && !pool.isClosed()) pool.close();
 		}
+	}
+
+	private static String withDefaultTimeout(String jdbc, String driver, String name, int milliseconds) {
+		int query = jdbc.indexOf("?");
+		boolean ignoreCase = "mariadb".equals(driver);
+		if (query >= 0 && Splitter.on("&").splitToStream(jdbc.substring(query + 1))
+				.anyMatch(parameter -> parameter.regionMatches(ignoreCase, 0, name, 0, name.length())
+						&& (parameter.length() == name.length() || parameter.charAt(name.length()) == '='))) return jdbc;
+		String separator = query < 0 ? "?" : jdbc.endsWith("?") || jdbc.endsWith("&") ? "" : "&";
+		return jdbc + separator + name + "=" + milliseconds;
 	}
 
 	@FunctionalInterface
@@ -290,53 +303,32 @@ public class MySQL {
 		ex.printStackTrace();
 	}
 
+	@SuppressWarnings("rawtypes")
 	private void setObject(PreparedStatement ps, int index, Object obj) throws SQLException {
-		if (obj == null) {
-			ps.setNull(index, Types.NULL);
-			return;
+		switch (obj) {
+			case null -> ps.setNull(index, Types.NULL);
+			case Byte b -> ps.setInt(index, b.intValue());
+			case String s -> ps.setString(index, s);
+			case Enum anEnum -> ps.setString(index, anEnum.name());
+			case BigDecimal bigDecimal -> ps.setBigDecimal(index, bigDecimal);
+			case Short i -> ps.setShort(index, i);
+			case Integer i -> ps.setInt(index, i);
+			case Long l -> ps.setLong(index, l);
+			case Float v -> ps.setFloat(index, v);
+			case Double v -> ps.setDouble(index, v);
+			case byte[] bytes -> ps.setBytes(index, bytes);
+			case Date date -> ps.setDate(index, date);
+			case Time time -> ps.setTime(index, time);
+			case Timestamp timestamp -> ps.setTimestamp(index, timestamp);
+			case Boolean b -> ps.setBoolean(index, b);
+			case InputStream inputStream -> ps.setBinaryStream(index, inputStream, -1);
+			case Blob blob -> ps.setBlob(index, blob);
+			case Clob clob -> ps.setClob(index, clob);
+			case java.util.Date date -> ps.setTimestamp(index, new Timestamp(date.getTime()));
+			case BigInteger _ -> ps.setObject(index, obj, Types.BIGINT);
+			default -> ps.setObject(index, obj);
 		}
 
-		if (obj instanceof Byte) {
-			ps.setInt(index, ((Byte) obj).intValue());
-		} else if (obj instanceof String) {
-			ps.setString(index, (String) obj);
-		} else if (obj instanceof Enum) {
-			ps.setString(index, ((Enum<?>) obj).name());
-		} else if (obj instanceof BigDecimal) {
-			ps.setBigDecimal(index, (BigDecimal) obj);
-		} else if (obj instanceof Short) {
-			ps.setShort(index, (Short) obj);
-		} else if (obj instanceof Integer) {
-			ps.setInt(index, (Integer) obj);
-		} else if (obj instanceof Long) {
-			ps.setLong(index, (Long) obj);
-		} else if (obj instanceof Float) {
-			ps.setFloat(index, (Float) obj);
-		} else if (obj instanceof Double) {
-			ps.setDouble(index, (Double) obj);
-		} else if (obj instanceof byte[]) {
-			ps.setBytes(index, (byte[]) obj);
-		} else if (obj instanceof java.sql.Date) {
-			ps.setDate(index, (java.sql.Date) obj);
-		} else if (obj instanceof Time) {
-			ps.setTime(index, (Time) obj);
-		} else if (obj instanceof Timestamp) {
-			ps.setTimestamp(index, (Timestamp) obj);
-		} else if (obj instanceof Boolean) {
-			ps.setBoolean(index, (Boolean) obj);
-		} else if (obj instanceof InputStream) {
-			ps.setBinaryStream(index, (InputStream) obj, -1);
-		} else if (obj instanceof Blob) {
-			ps.setBlob(index, (Blob) obj);
-		} else if (obj instanceof Clob) {
-			ps.setClob(index, (Clob) obj);
-		} else if (obj instanceof java.util.Date) {
-			ps.setTimestamp(index, new Timestamp(((java.util.Date) obj).getTime()));
-		} else if (obj instanceof BigInteger) {
-			ps.setObject(index, obj, Types.BIGINT);
-		} else {
-			ps.setObject(index, obj);
-		}
 	}
 
 	public <T extends MySQLTable> Query query(T table) {

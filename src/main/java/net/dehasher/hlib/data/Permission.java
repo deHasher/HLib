@@ -74,6 +74,7 @@ public enum Permission {
 	HCORE_CUSTOMCOOLDOWN(false), // Позволяет использовать команды с определённой задержкой.
 	HCORE_GM3WATCHER(false), // Позволяет видеть всех игроков в /gm 3, находясь при этом в любом другом игровом режиме.
 	HCORE_CHATGAMES(false), // Позволяет участвовать в чат-играх.
+	HCORE_ITEMJOIN(false),
 
 	HCORE_COMMAND_死(false),
 	HCORE_COMMAND_ARROW(false),

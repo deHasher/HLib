@@ -51,6 +51,10 @@ if (!mysql.isEnabled()) {
 | `maxLifetime` | секунды | `1800` |
 | `poolSize` | maximum pool size | `10` |
 
+Отсутствующие параметры JDBC URL дополняются `connectTimeout=5000` и `socketTimeout=60000` в миллисекундах для MySQL и MariaDB. Первый ограничивает подключение TCP, второй — ожидание данных из socket, включая ответ SQL и commit. Это отдельные настройки от `connectionTimeout` конструктора, который ограничивает только ожидание свободного connection в HikariCP. Socket timeout не задаёт общий deadline всей транзакции и не отменяет блокирующие callbacks вызывающего кода.
+
+Явные параметры URL сохраняются, включая повторения и значение `0`, отключающее соответствующий timeout. Имена сопоставляются по правилам используемого драйвера: MariaDB без учёта регистра, MySQL с точным написанием `connectTimeout`/`socketTimeout`; исходный URL не переписывается. Для пользовательского URL без таймаутов действуют те же defaults. Запросы и транзакции автоматически не повторяются: при обрыве во время commit результат может быть неопределённым. Если требуются длительные операции, задайте подходящий `socketTimeout` явно; значение по умолчанию оставляет запас для поддерживаемого `GET_LOCK` до 30 секунд. Сетевые ограничения описаны в [MariaDB Connector/J](https://mariadb.com/docs/connectors/mariadb-connector-j/about-mariadb-connector-j/connection-parameters) и [MySQL Connector/J](https://dev.mysql.com/doc/connector-j/en/connector-j-connp-props-networking.html).
+
 Если HLib-компоненты должны использовать этот pool, зарегистрируйте его:
 
 ```java

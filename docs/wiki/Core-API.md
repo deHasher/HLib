@@ -275,6 +275,12 @@ String materialName = Translator.getMaterialName(Material.DIAMOND, player);
 
 Готовность не возвращается через `Future` или callback. До завершения загрузки метод может вернуть translation key. Инициализация запрашивает manifest по адресу `{{url_repos}}/minecraft/version_manifest.json`; наличие файлов в `plugins/HLib/lang` не отменяет этот сетевой запрос. Используйте перевод Minecraft только на Bukkit/Paper.
 
+## Предметы навигации HCore
+
+`Permission.HCORE_ITEMJOIN` соответствует узлу `hcore.itemjoin` и используется Bukkit-модулем HCore для выдачи и использования предметов из `itemjoin.yml`. Проверка через `Tools.isPerm(player, Permission.HCORE_ITEMJOIN)` сохраняет стандартный admin fallback: константа имеет `isAdminSkip == false`, поэтому имя из `Info.admins` также разрешает доступ. Это значение не регистрирует Bukkit permission и не выдаёт право всем игрокам по умолчанию.
+
+Предметы создаёт `ItemBuilder`: `setMaterial(String, Player)` разрешает ItemsAdder/Nexo, `hideItemFlags(true)` скрывает все доступные `ItemFlag`, включая атрибуты. Защиту предметов, ограничения миров и обработку кликов реализует потребитель HCore; `ItemBuilder` сам эти ограничения не устанавливает.
+
 ## Права HCosmetic
 
 В `Permission` зарегистрированы права самостоятельного Bukkit-плагина HCosmetic:
