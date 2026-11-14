@@ -28,7 +28,7 @@ dependencies {
 dependencies: {server: {HLib: {load: BEFORE, required: true, join-classpath: true}, packetevents: {load: BEFORE, required: true, join-classpath: true}}}
 ```
 
-Сам HLib объявляет PacketEvents необязательной зависимостью, чтобы общие API оставались доступны без пакетных функций и на Velocity. В HCore обязательное объявление PacketEvents присутствует в HCore loader, HCalendar, HAntiRelog, HImages и новом HCosmetic. В остальные manifests новые записи не добавляются. Вызовы пакетного API выполняются без дополнительных проверок наличия PacketEvents. PacketEvents не включается в Shadow JAR HLib и не инициализируется повторно: `load/init/terminate` выполняет установленный плагин PacketEvents.
+Сам HLib объявляет PacketEvents необязательной зависимостью, чтобы общие API оставались доступны без пакетных функций и на Velocity. Вызовы пакетного API выполняются без дополнительных проверок наличия PacketEvents. PacketEvents не включается в Shadow JAR HLib и не инициализируется повторно: `load/init/terminate` выполняет установленный плагин PacketEvents.
 
 В каталоге `Plugin` сохранены обе записи: `PACKET_EVENTS("packetevents")` и `PROTOCOL_LIB("ProtocolLib")`. Запись ProtocolLib служит только для идентификации стороннего плагина; его hook, собственные packet wrappers и зависимость сборки не возвращаются.
 

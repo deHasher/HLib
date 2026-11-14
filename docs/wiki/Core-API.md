@@ -150,7 +150,7 @@ if (Cooldowner.inCooldown(key, Cooldowner.Type.COMMAND)) {
 Cooldowner.start(key, Cooldowner.Type.COMMAND, 10L);
 ```
 
-Типы cooldown зафиксированы в enum и расширить их без изменения HLib нельзя. Всегда добавляйте namespace своего плагина в ключ, чтобы избежать коллизий. `COSMETIC_GADGET` предназначен для локальных задержек HCosmetic: `strict == false`, SQL-инициализация не нужна; завершение сессии должно удалять её ключи через `remove`.
+Типы cooldown зафиксированы в enum и расширить их без изменения HLib нельзя. Всегда добавляйте namespace своего плагина в ключ, чтобы избежать коллизий. Завершение сессии должно удалять принадлежащие ей ключи через `remove`.
 
 Перегрузки `start` и `getTimeLeft` принимают `TimeUnit`, в том числе `MILLISECONDS`. Перевод остатка в секунды округляется вниз: для проверки короткой задержки используйте `inCooldown` или остаток в миллисекундах. `remove(name, type)` очищает только указанный ключ и тип. Для локальных типов с `strict == false` эти операции не обращаются к БД.
 
@@ -188,6 +188,8 @@ NBT API версии `{{dependency_version_itemnbt}}` включён в HLib. Pl
 Не переиспользуйте один builder после смены material между potion, armor, banner и shield: внутренние type-флаги не сбрасываются. Не передавайте `null` в `setAmount`.
 
 Для optional custom item предусмотрен `setMaterial("namespace:id", player, Material.EMERALD)`: если идентификатор не разрешился в ItemsAdder/Nexo или Bukkit Material, либо строка пуста, используется указанный fallback. Это относится и к Nexo ID без namespace. `null` fallback означает `STONE`; overload без явного fallback также использует `STONE`. Обычные Bukkit material names дополнительно валидируйте при чтении настройки.
+
+`hideItemFlags(true)` скрывает все доступные `ItemFlag`, включая атрибуты. `ItemBuilder` создаёт предмет и его метаданные; ограничения перемещения, использования, миров и обработки событий реализует вызывающий плагин.
 
 ## Время и числа
 
@@ -228,13 +230,14 @@ Matcher matcher = CompiledPattern.BRACED_PLACEHOLDER.matcher("give {player} diam
 | Константа | Контракт |
 | --- | --- |
 | `BRACED_PLACEHOLDER` | Непустой фрагмент в фигурных скобках без внутренних `{` и `}`; `group(1)` содержит имя без скобок |
-| `COMMAND_ARGUMENT` | Один или более символов: Unicode-буквы и числа, `_:.+/@%&=,-`; пробелы и скобки запрещены. Это проверка аргумента Cart, не shell escaping и не замена `FAWE` |
+| `COMMAND_ARGUMENT` | Один или более символов: Unicode-буквы и числа, `_:.+/@%&=,-`; пробелы и скобки запрещены. Это проверка аргумента команды, не shell escaping и не замена `FAWE` |
 | `AI_HTML_TAG` | Только `b`, `strong`, `i`, `em`, `s`, `del`, `u`, `code`, `kbd`, `br`; ASCII case-insensitive через `(?i)`. Группы 1/2/3: закрывающий `/`, имя тега, завершающий `/`; разрешён пробел перед последним `/` или `>` |
 | `HTML_ENTITY` | Числовая десятичная, числовая HEX или именованная entity с `&` и `;`; синтаксический поиск без проверки существования имени и декодирования |
 | `BLOCK_SEGMENT_AMOUNT` | `segment_amount=` и одна или более ASCII-цифр; `group(1)` содержит число. Поддерживает чтение и `matcher(...).replaceFirst(...)` |
 | `CONFIG_IDENTIFIER` | 1–64 символа: строчные ASCII-буквы, цифры, `_` и `-`; отличается от `IDENTIFIER` длиной и разрешённым подчёркиванием |
 | `HEX_64_LOWERCASE` | Ровно 64 ASCII HEX-символа `0–9a–f`, только нижний регистр |
 | `HEX_64` | Ровно 64 ASCII HEX-символа `0–9a–fA–F`, оба регистра |
+| `MINECRAFT_TEXTURE_HASH` | Идентификатор текстуры головы из 32–64 ASCII HEX-символов; URL, slash и hostname не допускаются. Проверка формата не подтверждает существование текстуры |
 | `NAMESPACED_KEY` | Непустые namespace и path через `:`; namespace допускает `a–z0–9._-`, path дополнительно `/` |
 
 Разные ограничения не объединяются ради похожего текста: `HEX_64` не заменяет `HEX_64_LOWERCASE`, `CONFIG_IDENTIFIER` не расширяет `IDENTIFIER`. Для имени игрока используется существующий `PLAYER` с 3–16 ASCII-буквами, цифрами или `_`. Перенос сохраняет группы захвата, flags и способ применения `matches`/`find`/замены; новые константы добавлены после прежних значений enum.
@@ -274,30 +277,6 @@ String materialName = Translator.getMaterialName(Material.DIAMOND, player);
 Кроме `getMaterialName(...)`, доступны `getBlockName(...)`, `getName(...)` для translation key и overload с явным `Locale`. По умолчанию используется `Locale.US`, для игрока — его locale.
 
 Готовность не возвращается через `Future` или callback. До завершения загрузки метод может вернуть translation key. Инициализация запрашивает manifest по адресу `{{url_repos}}/minecraft/version_manifest.json`; наличие файлов в `plugins/HLib/lang` не отменяет этот сетевой запрос. Используйте перевод Minecraft только на Bukkit/Paper.
-
-## Предметы навигации HCore
-
-`Permission.HCORE_ITEMJOIN` соответствует узлу `hcore.itemjoin` и используется Bukkit-модулем HCore для выдачи и использования предметов из `itemjoin.yml`. Проверка через `Tools.isPerm(player, Permission.HCORE_ITEMJOIN)` сохраняет стандартный admin fallback: константа имеет `isAdminSkip == false`, поэтому имя из `Info.admins` также разрешает доступ. Это значение не регистрирует Bukkit permission и не выдаёт право всем игрокам по умолчанию.
-
-Предметы создаёт `ItemBuilder`: `setMaterial(String, Player)` разрешает ItemsAdder/Nexo, `hideItemFlags(true)` скрывает все доступные `ItemFlag`, включая атрибуты. Защиту предметов, ограничения миров и обработку кликов реализует потребитель HCore; `ItemBuilder` сам эти ограничения не устанавливает.
-
-## Права HCosmetic
-
-В `Permission` зарегистрированы права самостоятельного Bukkit-плагина HCosmetic:
-
-| Константа | Permission node | Назначение |
-|---|---|---|
-| `HCOSMETIC_COMMAND_GADGETS` | `hcosmetic.command.gadgets` | Открытие меню через `/gadgets` и его aliases |
-| `HCOSMETIC_RELOAD` | `hcosmetic.reload` | Подкоманда `/gadgets reload` |
-| `HCOSMETIC_CATEGORY_EMOTES` | `hcosmetic.category.emotes` | Эмоции |
-| `HCOSMETIC_CATEGORY_PARTICLES` | `hcosmetic.category.particles` | Частицы |
-| `HCOSMETIC_CATEGORY_CLOAKS` | `hcosmetic.category.cloaks` | Плащи |
-| `HCOSMETIC_CATEGORY_GADGETS` | `hcosmetic.category.gadgets` | Гаджеты |
-| `HCOSMETIC_CATEGORY_SUITS` | `hcosmetic.category.suits` | Костюмы |
-
-Проверки выполняются через `Tools.isPerm`. У пяти категорий `isAdminSkip == true`: наличие имени игрока в `Info.admins` само по себе не открывает категорию, требуется permission node. У команды и reload сохранён стандартный admin fallback (`false`). Этот флаг не регистрирует Bukkit permissions и не назначает права игрокам по умолчанию. Прав на отдельные косметические предметы нет.
-
-`CompiledPattern.MINECRAFT_TEXTURE_HASH` проверяет идентификатор текстуры головы: только ASCII HEX, от 32 до 64 символов. Такой контракт сохраняет используемые HCosmetic короткие идентификаторы исходных ресурсов; шаблон не принимает URL, slash или произвольный hostname. Это отдельная проверка формата, а не подтверждение существования текстуры. Строгие `HEX_64` и `HEX_64_LOWERCASE` по-прежнему требуют ровно 64 символа.
 
 ## Базовые классы команд
 

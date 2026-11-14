@@ -1,6 +1,6 @@
 # Каталог API
 
-Ниже перечислены Java-файлы HLib `{{lib_version_plugin}}`. Каталог помогает быстро найти нужный класс, но не заменяет тематические страницы с примерами.
+Ниже перечислены общие API-классы HLib `{{lib_version_plugin}}`. Каталог помогает быстро найти нужный класс, но не заменяет тематические страницы с примерами.
 
 Обозначения:
 
@@ -80,7 +80,7 @@
 | `NMS` | Выбор NMS-пакета, разрешение имён звуков и константы пакетов | Низкоуровневый и версионно-зависимый; эффекты, частицы, зачарования, типы сущностей и InventoryView используются через Paper API напрямую |
 | `Permission` | Фиксированный enum прав | Внутренний; не конструктор произвольных permission nodes; ограничения описаны в [основном API](Core-API#базовые-классы-команд) |
 | `Platform` | Определение Bukkit или Velocity | Основной; ОС проверяется отдельно через `Tools.isWindows()` |
-| `Plugin` | Каталог и проверка известных плагинов, включая `HCOSMETIC`, `PACKET_EVENTS` и `PROTOCOL_LIB` | Интеграционный; первый результат кэшируется, Bukkit-проверка означает наличие плагина; запись ProtocolLib не включает его API или hook |
+| `Plugin` | Каталог и проверка известных плагинов, включая `PACKET_EVENTS` и `PROTOCOL_LIB` | Интеграционный; первый результат кэшируется, Bukkit-проверка означает наличие плагина; запись ProtocolLib не включает его API или hook |
 | `Table` | DDL таблиц и индексов | Внутренний; ориентирован на MariaDB |
 
 Потребители удалённых enum-констант требуют обновления исходников и повторной сборки. Удалённые права также больше не распознаются `Permission.getEnum(...)`: метод выбрасывает `IllegalArgumentException` для отсутствующего значения.
@@ -150,7 +150,6 @@
 | `CMIHook` | CMI и CMILib | Пользователи, vanish, god mode, speed, metadata |
 | `EmoteCraftHook` | Emotecraft | Запуск и остановка анимаций |
 | `ForceResourcepacksHook` | ForceResourcepacks | Получение и обновление resource pack |
-| `HCosmeticHook` | HCosmetic service provider, опционально | `getProvider`, `isAvailable`, `unequipGadget(Player)`, `unequipSuit(Player)`; отсутствующий/выключенный provider — no-op |
 | `ItemJoinHook` | ItemJoin | Проверка custom item |
 | `ItemsAdderHook` | ItemsAdder | Custom items, модели, permission и pack metadata |
 | `LibsDisguisesHook` | LibsDisguises | Проверка и снятие disguise |
