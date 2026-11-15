@@ -16,6 +16,10 @@ dependencies:
       load: BEFORE
       required: false
       join-classpath: true
+    PlasmoVoice:
+      load: BEFORE
+      required: false
+      join-classpath: true
     UltimateTimber:
       load: BEFORE
       required: false

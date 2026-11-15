@@ -58,6 +58,7 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:${providers.gradleProperty("dependency_version_bukkit").get()}")
     compileOnly("net.md-5:bungeecord-api:${providers.gradleProperty("dependency_version_bungee").get()}")
     compileOnly("me.clip:placeholderapi:${providers.gradleProperty("dependency_version_placeholderapi").get()}")
+	compileOnly("su.plo.voice.api:server:${providers.gradleProperty("dependency_version_plasmovoice").get()}")
     compileOnly("net.luckperms:api:${providers.gradleProperty("dependency_version_luckperms").get()}")
     compileOnly("org.apache.logging.log4j:log4j-core:${providers.gradleProperty("dependency_version_log4j").get()}")
     compileOnly("me.libraryaddict.disguises:libsdisguises:${providers.gradleProperty("dependency_version_libsdisguises").get()}")

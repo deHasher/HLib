@@ -1,5 +1,13 @@
 # Сборка и решение проблем
 
+## Проверка PlasmoVoiceHook
+
+16 ноября 2026 года добавлен `PlasmoVoiceHook.hasVoiceChat(PlasmoVoiceServer, Player)`. API Plasmo Voice {{dependency_version_plasmovoice}} подключён как compileOnly, Paper descriptor разрешает необязательную зависимость и общий classpath. Версия HLib остаётся {{lib_version_plugin}}. Контракт описан в [Интеграциях](Integrations#plasmo-voice).
+
+На JDK 25 прошли штатные offline compileJava, checkstyleMain, spotbugsMain и shadowJar с отключённой задачей копирования артефакта: семь задач, шесть выполнены и одна актуальна. Сохранились два прежних предупреждения deprecated UUID-overloads в Console и предупреждение Gradle о deprecated features. Результат — result/HLib.jar, SHA256 `e8af9fa09d62e725c39bc00131ccc75acc94023f34d0ed783603b5e3d9a9aca8`; установки в рабочие plugins не было.
+
+Отдельная JVM с -Xverify:all и настоящим итоговым JAR прошла 26 утверждений: null API/игрок, offline, отсутствие голосового игрока, false/true соединения, UUID lookup, отсутствие кэширования и обращений к состоянию mute/громкости. Менеджер и игроки API подставные; живое UDP-соединение не создавалось. Изолированный classloader без Bukkit и Plasmo Voice загрузил hook и прочитал прежнюю permission-константу. Проверены optional/load/join-classpath в итоговом descriptor и отсутствие встроенных su.plo API-классов. Стенд, result.json и hashes.json находятся в `%TEMP%/hlib-plasmovoice-hook-20261116`. Plugin entrypoints, игровой сервер, сеть и БД не запускались.
+
 ## HLib 7.4: общий каталог регулярных выражений
 
 В `data.CompiledPattern` добавлены девять констант для общих placeholders, аргументов команд, HTML, свойства `segment_amount`, идентификаторов, HEX-строк и namespaced keys. Старые константы, их порядок и API сохранены; новые значения добавлены в конец enum. Контракты и примеры приведены в [Core API](Core-API.md#общие-регулярные-выражения).

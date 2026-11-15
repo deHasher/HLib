@@ -157,7 +157,7 @@
 | `LuckPermsHook` | LuckPerms | Prefix/suffix, права, группы и expiry |
 | `NexoHook` | Nexo | Custom items, модели, permission и YAML item config |
 | `PlaceholderAPIHook` | PlaceholderAPI, опционально | Подстановка placeholders или возврат исходной строки/списка |
-| `PlasmoVoiceHook` | Plasmo Voice | Константа permission для речи |
+| `PlasmoVoiceHook` | Plasmo Voice | `hasVoiceChat(PlasmoVoiceServer, Player)`, константа permission для речи |
 | `PacketEventsHook` | PacketEvents | Listeners с владельцем, отправка нативных wrappers, fake armor stand, game-state events, клиентские изменения блоков и тестовая нагрузка |
 | `SparkHook` | spark | CPU, TPS и MSPT |
 | `TABHook` | TAB, местами LuckPerms/CMI | Prefix/suffix и группы TAB |

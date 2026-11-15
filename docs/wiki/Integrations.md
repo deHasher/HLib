@@ -38,7 +38,7 @@ HLib сохраняет PacketEvents необязательным в своём 
 | `LuckPermsHook` | LuckPerms | permissions, expiry, prefix/suffix, groups | sync lookup блокирует; setPrefix/setSuffix удаляет все старые meta nodes |
 | `NexoHook` | Nexo | custom item, model, permission и item config | config перечитывается с диска; Paper manifest HLib не объявляет Nexo |
 | `PlaceholderAPIHook` | PlaceholderAPI, опционально | замена placeholders в строке или списке | без плагина возвращает вход без изменений |
-| `PlasmoVoiceHook` | Plasmo Voice | только permission-константа | полноценной API-интеграции нет |
+| `PlasmoVoiceHook` | Plasmo Voice, опционально | проверка голосового соединения, permission-константа | принимает уже инициализированный серверный API; не проверяет громкость и mute |
 | `PacketEventsHook` | PacketEvents | listeners с владельцем, fake armor stand, нативные пакеты | low-level и version-sensitive; см. [Пакеты](Packets) |
 | `SparkHook` | PacketEvents | `{{dependency_version_packetevents}}` |
 | spark | CPU, TPS и MSPT | TPS/MSPT только Bukkit; `-1` означает недоступность |
@@ -55,6 +55,7 @@ HLib сохраняет PacketEvents необязательным в своём 
 | API | Версия |
 |---|---|
 | PlaceholderAPI | `{{dependency_version_placeholderapi}}` |
+| Plasmo Voice | `{{dependency_version_plasmovoice}}` |
 | Vault | `{{dependency_version_vault}}` |
 | LuckPerms | `{{dependency_version_luckperms}}` |
 | WorldGuard | `{{dependency_version_worldguard}}` |
@@ -64,6 +65,20 @@ HLib сохраняет PacketEvents необязательным в своём 
 | spark | `{{dependency_version_spark}}` |
 
 Часть API подключена из локальных JAR в `libs`; у таких зависимостей нет отдельного параметра версии в `gradle.properties`.
+
+## Plasmo Voice
+
+`PlasmoVoiceHook.hasVoiceChat(PlasmoVoiceServer voiceServer, Player player)` проверяет подключение Bukkit-игрока к голосовому серверу. Передайте уже инициализированный API, полученный вашим аддоном через штатную инъекцию Plasmo Voice. Hook не создаёт и не регистрирует аддон, не запускает сервер и не обращается к приватным полям стороннего плагина.
+
+```java
+boolean connected = PlasmoVoiceHook.hasVoiceChat(voiceServer, player);
+```
+
+При null в любом аргументе, offline-игроке или отсутствии голосового игрока возвращается false. Иначе метод находит игрока по исходному UUID и возвращает `VoicePlayer.hasVoiceChat()` без кэширования. В API {{dependency_version_plasmovoice}} это наличие UDP-соединения: установленного мода без подключения недостаточно. Выключенный звук, громкость и mute микрофона метод не проверяет. Вызов синхронный и сам не переключает поток; из Bukkit-обработчиков вызывайте его в основном потоке.
+
+`SPEAK_PERMISSION` сохраняет значение `pv.activation.*`. Загрузка hook-класса и чтение этой константы не требуют классов Plasmo Voice; типизированный метод предназначен для работы с установленным серверным API. Зависимость `su.plo.voice.api:server` подключена как compileOnly, внутрь JAR не включается. Paper descriptor объявляет PlasmoVoice необязательным, с load BEFORE и join-classpath true.
+
+Семантика подтверждается [контрактом VoicePlayer](https://github.com/plasmoapp/plasmo-voice/blob/2.1.10/api/server-proxy-common/src/main/java/su/plo/voice/api/server/player/VoicePlayer.java) и [реализацией серверного игрока](https://github.com/plasmoapp/plasmo-voice/blob/2.1.10/server/common/src/main/java/su/plo/voice/server/player/VoiceServerPlayerEntity.java).
 
 ## Telegram
 
