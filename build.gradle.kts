@@ -121,6 +121,8 @@ extensions.configure<CheckstyleExtension> {
 }
 
 tasks.withType<Checkstyle>().configureEach {
+	minHeapSize.set("64m")
+	maxHeapSize.set("512m")
 	javaLauncher.set(javaToolchains.launcherFor {
 		languageVersion.set(JavaLanguageVersion.of(providers.gradleProperty("java_version_checkstyle").get().toInt()))
 	})
@@ -133,6 +135,10 @@ val spotbugsAuxiliary = configurations.create("spotbugsAuxiliary") {
 dependencies.add(spotbugsAuxiliary.name, "org.jetbrains.kotlin:kotlin-stdlib:${providers.gradleProperty("dependency_version_kotlin").get()}@jar")
 
 val spotbugsReport = layout.buildDirectory.file("reports/spotbugs/main/spotbugs.html")
+tasks.withType<SpotBugsTask>().configureEach {
+	maxHeapSize.set("2g")
+	jvmArgs.add("-Xms128m")
+}
 tasks.withType<SpotBugsTask>().matching { it.name == "spotbugsMain" }.configureEach {
 	excludeFilter.set(rootProject.layout.projectDirectory.file("config/spotbugs/suppressions.xml"))
 	reports.create("html") {
