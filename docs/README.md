@@ -161,13 +161,15 @@ CI использует JDK {{java_version_build}}. Компиляция исп�
 
 ## Обновление документации
 
-Исходники: [`docs/README.md`](docs/README.md) и [`docs/wiki/`](docs/wiki/). Версия, Java и параметры API подставляются из [`gradle.properties`](gradle.properties). После изменения исходников выполните:
+Исходники: [`docs/README.md`](docs/README.md) и [`docs/wiki/`](docs/wiki/). Версия, Java и параметры API подставляются из [`gradle.properties`](gradle.properties). После смены версии или изменения шаблонов достаточно commit и push: workflow [docs](https://github.com/deHasher/HLib/actions/workflows/docs.yml) автоматически обновит README и GitHub Wiki.
+
+Для локального просмотра результата можно выполнить:
 
 ```bash
 python scripts/render-docs.py
 ```
 
-Workflow [docs](https://github.com/deHasher/HLib/actions/workflows/docs.yml) проверяет сгенерированный README и публикует GitHub Wiki. README добавляется в обычный commit после локальной генерации; workflow не создаёт коммитов и не пушит в основную ветку. Подробности — в [инструкции для участников](CONTRIBUTING.md).
+Workflow проверяет результат генерации и сохраняет изменённый README отдельным коммитом на русском. После завершения публикации подтяните автокоммит через `git pull --rebase` перед следующей работой. Подробности — в [инструкции для участников](CONTRIBUTING.md).
 
 ## Лицензия
 

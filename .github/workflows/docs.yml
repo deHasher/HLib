@@ -24,20 +24,22 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: "Check documentation"
-        run: python3 scripts/render-docs.py --check
+      - name: "Render and check documentation"
+        run: |
+          python3 scripts/render-docs.py
+          python3 scripts/render-docs.py --check
 
-  publish-wiki:
+  publish-docs:
     needs: "check"
     if: github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: "ubuntu-latest"
     permissions:
       contents: write
     steps:
-      - name: "Checkout checked documentation sources"
+      - name: "Checkout current documentation sources"
         uses: actions/checkout@v6
         with:
-          persist-credentials: false
+          ref: "master"
 
       - name: "Checkout Wiki"
         uses: actions/checkout@v6
@@ -46,8 +48,28 @@ jobs:
           ref: "master"
           path: ".wiki"
 
-      - name: "Render documentation"
-        run: python3 scripts/render-docs.py --wiki-dir .wiki
+      - name: "Update README and render Wiki"
+        shell: "bash"
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for ATTEMPT in {1..5}; do
+          	git fetch --no-tags origin master
+          	git reset --hard origin/master
+          	python3 scripts/render-docs.py --wiki-dir .wiki
+          	python3 scripts/render-docs.py --check
+          	git add -- README.md
+          	if git diff --cached --quiet; then
+          		break
+          	fi
+          	git commit -m "Автоматическое обновление README из свойств проекта."
+          	if git push origin HEAD:master; then
+          		break
+          	fi
+          	if [ "$ATTEMPT" -eq 5 ]; then
+          		exit 1
+          	fi
+          done
 
       - name: "Publish Wiki"
         shell: "bash"
@@ -58,6 +80,6 @@ jobs:
           if ! git -C .wiki diff --cached --quiet; then
             git -C .wiki config user.name "github-actions[bot]"
             git -C .wiki config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git -C .wiki commit -m "docs: synchronize project documentation"
+            git -C .wiki commit -m "Автоматическое обновление документации проекта."
             git -C .wiki push origin HEAD:master
           fi

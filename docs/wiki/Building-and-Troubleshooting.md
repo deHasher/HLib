@@ -166,9 +166,11 @@ Workflow `build` запускает `clean shadowJar` на Temurin {{java_versio
 - `Plugin.isEnabled()` кэширует первый результат, поэтому ранняя проверка может навсегда сохранить `false`.
 - Нативные wrappers PacketEvents зависят от версии протокола; HLib не содержит собственных packet wrappers.
 
-## Генерация README и автоматическая публикация Wiki
+## Автоматическое обновление README и Wiki
 
-Исходники документации находятся в [docs/README.md](https://github.com/deHasher/HLib/blob/master/docs/README.md) и [docs/wiki](https://github.com/deHasher/HLib/tree/master/docs/wiki). Параметры подставляет `scripts/render-docs.py` из `gradle.properties`; Java, версия HLib, API, адреса и перечисленные версии зависимостей обновляются вместе с их свойствами.
+Исходники документации находятся в [docs/README.md](https://github.com/deHasher/HLib/blob/master/docs/README.md) и [docs/wiki](https://github.com/deHasher/HLib/tree/master/docs/wiki). Параметры подставляет `scripts/render-docs.py` из `gradle.properties`; Java, версия HLib, API, адреса и перечисленные версии зависимостей обновляются вместе с их свойствами. После изменения версии или шаблонов достаточно commit и push в `master`: workflow `docs` обновит README и Wiki автоматически.
+
+Для локального просмотра и проверки результата доступны необязательные команды:
 
 ```bash
 python scripts/render-docs.py
@@ -177,9 +179,11 @@ python scripts/render-docs.py --check
 
 Первая команда обновляет корневой README и создаёт страницы в `build/wiki/`. Вторая проверяет актуальность README и корректность токенов всех шаблонов без записи файлов. Python использует только стандартную библиотеку. Несовпадение версии в README со значением `lib_version_plugin` также останавливает `--check`, даже если Java-компиляция и рендеринг шаблонов успешны.
 
-Workflow `docs` сначала проверяет README и шаблоны без записи при push, pull request и ручном запуске. После успешной проверки push или ручного запуска из `master` отдельная задача публикует Wiki из того же commit. Основной репозиторий не коммитится и не пушится; сгенерированный README включается в локальный commit автора. Это устраняет прежние bot-коммиты `docs: render README from project properties`, из-за которых локальная ветка отставала и следующий push получал `fetch first`. Коммиты других участников по-прежнему требуют обычного согласования истории. Проверке достаточно `contents: read`, а `contents: write` получает только задача Wiki. Git credentials сохраняются лишь у checkout Wiki; отдельный токен не нужен. Изменяйте страницы в `docs/wiki`: ручная правка управляемой страницы непосредственно в Wiki будет заменена следующей синхронизацией. [Инструкция для участников](https://github.com/deHasher/HLib/blob/master/CONTRIBUTING.md).
+Workflow `docs` выполняет генерацию перед проверкой, поэтому устаревший README не вызывает ошибку CI. Неизвестный token и другие ошибки генерации по-прежнему останавливают публикацию. Проверка pull request имеет только `contents: read`, не сохраняет Git credentials и ничего не пушит.
 
-Локальная проверка нового workflow: 25 assertions с настоящим SnakeYAML проверили jobs, permissions, credentials и область Git-команд; 68 assertions проверили девять сочетаний события/ветки, запрет публикации после failed check и неизменность bytes/mtime файлов при `--check`. Устаревший README и неизвестный token отклоняются без частичной записи, корректная публикация сохраняет unmanaged Wiki-страницы. Живой GitHub Actions запуск не выполнялся; workflow изменится на сервере после обычного push этой правки.
+После успешной проверки push или ручного запуска из `master` задача `publish-docs` с `contents: write` получает актуальный `master`, повторно генерирует и проверяет документацию, сохраняет изменённый README отдельным коммитом на русском и публикует Wiki из тех же исходников. Обычный push защищает более новые коммиты; если ветка успела измениться, workflow заново получает её и повторяет генерацию, до пяти попыток. Неизменившийся README не создаёт коммита. Встроенный `GITHUB_TOKEN` не запускает новые push-workflow от коммита бота, поэтому отдельный токен и защита от рекурсивных запусков не нужны. [Поведение GITHUB_TOKEN](https://docs.github.com/en/actions/concepts/security/github_token).
+
+После публикации на GitHub появляется автокоммит: перед следующей работой выполните `git pull --rebase`, чтобы включить его в локальную ветку. Изменяйте страницы в `docs/wiki`: ручная правка управляемой страницы непосредственно в Wiki будет заменена следующей синхронизацией. Посторонние страницы сохраняются. [Инструкция для участников](https://github.com/deHasher/HLib/blob/master/CONTRIBUTING.md).
 
 ## Диагностика перед issue
 
