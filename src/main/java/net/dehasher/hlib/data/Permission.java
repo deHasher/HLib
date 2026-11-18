@@ -67,7 +67,6 @@ public enum Permission {
 
 	HCORE_INFORM_AI(false), // Позволяет получать уведомление о том, что игрок отправил запрос в AI.
 	HCORE_INFORM_DEBUG(false), // Позволяет получать сообщения отладки.
-	HCORE_INFORM_LOG4J(false), // Позволяет получать уведомление о том, что игрок попытался внедрить вредоносный код.
 	HCORE_INFORM_ANTIREDSTONECLOCK(false), // Позволяет получать уведомление о том, что игрок спамит редстоуном.
 
 	HCORE_ANNOUNCER(false), // Позволяет получать объявления в чате.

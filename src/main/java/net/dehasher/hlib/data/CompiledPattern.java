@@ -16,7 +16,6 @@ public enum CompiledPattern {
 	PLAYER(Pattern.compile("^[a-zA-Z0-9_]{3,16}$")),
 	IDENTIFIER(Pattern.compile("[a-z0-9-]{1,32}")),
 	FAWE(Pattern.compile("[a-zA-Z0-9_ /:,%]+")),
-	LOG4J(Pattern.compile(".*\\$\\{[^}]*}.*")),
 	CYRILLIC(Pattern.compile(".*\\p{InCyrillic}.*")),
 	IP(Pattern.compile("^(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})$")),
 	ADVERTISEMENT(Pattern.compile("[-a-zA-Zа-яА-Я0-9@:%_+.~#?&/=]{2,256}\\.[a-zA-Z]{2,4}\\b(/[-a-zA-Zа-яА-Я0-9@:%_+~#?&/=]*)?")),
